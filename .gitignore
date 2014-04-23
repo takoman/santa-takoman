@@ -1,0 +1,10 @@
+# python
+/__pycache__/
+*.py[cod]
+venv
+
+*.sw[po]
+*.log
+
+# OS X
+.DS_Store
