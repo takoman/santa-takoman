@@ -1,3 +1,4 @@
 Eve
 py-bcrypt
 gunicorn
+nose
