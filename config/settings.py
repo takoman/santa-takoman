@@ -1,14 +1,14 @@
 import os
-import domain
+from santa import domain
 
 DEBUG = True
 
 # Running on local machine. Let's just use the local mongod instance.
 MONGO_HOST      = 'localhost'
 MONGO_PORT      = 27017
-MONGO_USERNAME  = ''
-MONGO_PASSWORD  = ''
-MONGO_DBNAME    = ''
+#MONGO_USERNAME  = ''
+#MONGO_PASSWORD  = ''
+MONGO_DBNAME    = 'santa_local'
 
 # let's not forget the API entry point (not really needed anyway)
 #SERVER_NAME = '127.0.0.1:5000'
