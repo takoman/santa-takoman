@@ -1,6 +1,6 @@
 # Getting Started with Santa
 
-*Santa* is the codename for the web API at Bunnybuy.
+*Santa* is the codename for the web API at Takoman.
 
 This doc will assume you've set up common development tools.
 
