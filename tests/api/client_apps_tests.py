@@ -38,8 +38,8 @@ class ClientAppsTests(unittest.TestCase):
     query = { 'client_id': 'rudy-test', 'client_secret': 'rudy-secret' }
     res = self.app.get('/xapp_token', query_string=query)
     res_obj = json.loads(res.get_data())
-    assert 'token' in res_obj
-    assert res_obj['token'] == 'rudy-token'
+    assert 'xapp_token' in res_obj
+    assert res_obj['xapp_token'] == 'rudy-token'
     assert 'expires_in' in res_obj
     # TODO assert res.expires_in is valid timestamp string
 
