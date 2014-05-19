@@ -30,5 +30,5 @@ def process_client_app_token(request, payload):
     # Here we just expire it in 10 years.
     ten_years_from_now = datetime.datetime.now() + datetime.timedelta(days=10*365)
     expires = ten_years_from_now.isoformat()
-    data = { u'token': client['token'], u'expires_in': expires }
+    data = { u'xapp_token': client['token'], u'expires_in': expires }
     payload.set_data(json.dumps(data))
