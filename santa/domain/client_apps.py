@@ -38,6 +38,8 @@ definition = {
       'minlength': 8,
       'required': True
     },
+    # TODO We should move the token to a separate table, cache it somewhere
+    # (e.g. Redis), and expire it periodically
     'token': {
       'type': 'string',
       'minlength': 8,
