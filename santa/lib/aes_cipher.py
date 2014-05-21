@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""
+  santa.lib.aes_cipher.py
+  ~~~~~~~~~~~~~~~~~~~~~~~
+
+  'aes_cipher' lib for AES encryption/decryption
+
+  :copyright: (c) 2013 by Chung-Yi Chi
+  :license:
+"""
+
 # http://stackoverflow.com/questions/12524994/encrypt-decrypt-using-pycrypto-aes-256
 from Crypto import Random
 from Crypto.Cipher import AES

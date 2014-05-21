@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    tests.api.client_apps_test
+    tests.lib.aes_cipher_test
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    api client_apps tests module
+    lib aes_cipher tests module
 """
 from pymongo import MongoClient
 from santa.lib import aes_cipher
