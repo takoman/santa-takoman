@@ -2,3 +2,5 @@ Eve
 py-bcrypt
 gunicorn
 nose
+pycrypto
+pymongo

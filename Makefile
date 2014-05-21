@@ -10,7 +10,7 @@ gsp:
 
 # Tests
 test:
-	source ./venv/bin/activate && EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -v $(shell find tests -name '*.py' ! -name '__init__.py')
+	source ./venv/bin/activate && EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py')
 
 shippable-test:
-	EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -v $(shell find tests -name '*.py' ! -name '__init__.py')
+	EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py')
