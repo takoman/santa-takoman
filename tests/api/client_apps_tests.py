@@ -6,37 +6,18 @@
     api client_apps tests module
 """
 from pymongo import MongoClient
-from santa import create_app
+from tests import TestBase
 import unittest, json
 
-class ClientAppsTests(unittest.TestCase):
-  # before each
-  def setUp(self):
-    app = create_app()
-    app.config['TESTING'] = True
-    self.app = app.test_client()
-    # Insert some fake data
-    client = MongoClient(app.config['MONGO_HOST'], app.config['MONGO_PORT'])
-    self.db = client[app.config['MONGO_DBNAME']]
-    rudy_app = {
-      'client_id'     : 'rudy-test',
-      'client_secret' : 'rudy-secret',
-      'token'         : 'rudy-token'
-    }
-    self.db.client_apps.insert(rudy_app)
-
-  # after each
-  def tearDown(self):
-    # Remove the collection after each testcase
-    self.db.client_apps.remove()
+class ClientAppsTests(TestBase):
 
   def test_access_public_xapp_token(self):
-    res = self.app.get('/xapp_token')
+    res = self.test_client.get('/xapp_token')
     assert res.status_code == 200
 
   def test_get_xapp_token(self):
     query = { 'client_id': 'rudy-test', 'client_secret': 'rudy-secret' }
-    res = self.app.get('/xapp_token', query_string=query)
+    res = self.test_client.get('/xapp_token', query_string=query)
     res_obj = json.loads(res.get_data())
     assert 'xapp_token' in res_obj
     assert res_obj['xapp_token'] == 'rudy-token'

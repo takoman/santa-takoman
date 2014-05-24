@@ -7,35 +7,10 @@
 """
 import unittest, json, os, datetime
 from pymongo import MongoClient
-from santa import create_app
+from tests import TestBase
 from santa.lib.user_trust import UserTrust
 
-class ClientAppsTests(unittest.TestCase):
-  def setUp(self):
-    # TODO Should create the app using test config
-    self.app = create_app()
-    self.test_client = self.app.test_client()
-    self.connection = None
-    self.setupDB()
-
-  def tearDown(self):
-    self.dropDB()
-    del self.app
-
-  def setupDB(self):
-    self.connection = MongoClient(self.app.config['MONGO_HOST'], self.app.config['MONGO_PORT'])
-    self.db = self.connection[self.app.config['MONGO_DBNAME']]
-    self.db.client_apps.insert({
-      'client_id': 'rudy-test',
-      'client_secret': 'rudy-secret',
-      'token': 'rudy-token'
-    })
-    self.db.users.insert({'id': 'takoman'})
-
-  def dropDB(self):
-    self.connection = MongoClient(self.app.config['MONGO_HOST'], self.app.config['MONGO_PORT'])
-    self.connection.drop_database(self.app.config['MONGO_DBNAME'])
-    self.connection.close()
+class ClientAppsTests(TestBase):
 
   def test_secret_key_missing_trust_key(self):
     if 'TOKEN_TRUST_KEY' in os.environ:
