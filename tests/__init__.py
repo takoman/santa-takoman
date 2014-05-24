@@ -5,7 +5,7 @@
 
     test base class
 """
-import unittest, json, os, datetime
+import unittest, os
 from pymongo import MongoClient
 from santa import create_app
 
@@ -14,10 +14,10 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         # Set environment variable to override settings with test settings.
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        os.environ['EVE_SETTINGS'] = current_dir+'/../config/settings_test.py'
+        os.environ['EVE_SETTINGS'] = current_dir + '/../config/settings_test.py'
 
         self.app = create_app()
-        self.c = self.app.config # set an alias for configs
+        self.c = self.app.config  # set an alias for configs
         self.test_client = self.app.test_client()
         self.conn = None
         self.setupDB()
@@ -33,7 +33,7 @@ class TestBase(unittest.TestCase):
             'client_id'     : 'rudy-test',
             'client_secret' : 'rudy-secret',
             'token'         : 'rudy-token'
-            })
+        })
         self.db.users.insert({'id': 'takoman'})
 
     def dropDB(self):
