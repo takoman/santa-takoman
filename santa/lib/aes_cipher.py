@@ -1,9 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+  santa.lib.aes_cipher.py
+  ~~~~~~~~~~~~~~~~~~~~~~~
+
+  'aes_cipher' lib for AES encryption/decryption
+
+  :copyright: (c) 2013 by Chung-Yi Chi
+  :license:
+"""
+
 # http://stackoverflow.com/questions/12524994/encrypt-decrypt-using-pycrypto-aes-256
 from Crypto import Random
 from Crypto.Cipher import AES
 import base64, json
 
-BS = 24
+BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
 unpad = lambda s : s[0:-ord(s[-1])]
 
@@ -26,7 +37,8 @@ class AESCipher:
 if __name__ == '__main__':
   aes = AESCipher(pad('secret'))
   data = [ { 'a':'A', 'b':(2, 4), 'c':3.0 } ]
-  data_string = json.dumps(data)
-  enc = aes.encrypt(data_string)
-  print enc
-  print aes.decrypt(enc)
+  data_str = json.dumps(data)
+  enc = aes.encrypt(data_str)
+  print "raw: " + data_str
+  print "enc: " + enc
+  print "dec: " + aes.decrypt(enc)

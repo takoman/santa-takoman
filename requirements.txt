@@ -4,3 +4,4 @@ gunicorn
 nose
 pycrypto
 pymongo
+python-dateutil
