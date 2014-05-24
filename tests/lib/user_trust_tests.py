@@ -75,17 +75,40 @@ class ClientAppsTests(unittest.TestCase):
       access_token = user_trust.create_access_token(options)
       self.assertRaisesRegexp(StandardError, "token expired", user_trust.get_user_from_access_token, {'access_token': access_token})
 
-  @unittest.skip("TODO")
   def test_get_user_from_access_token_missing_user_id(self):
-    pass
+    options = {
+      'user': {'name': 'Takoman'},
+      'application': {'id': 'rudy'},
+      'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
+    }
+    with self.app.app_context():
+      user_trust = UserTrust()
+      access_token = user_trust.create_access_token(options)
+      self.assertRaisesRegexp(StandardError, "missing user_id", user_trust.get_user_from_access_token, {'access_token': access_token})
 
-  @unittest.skip("TODO")
   def test_get_user_from_access_token_no_matching_app(self):
-    pass
+    options = {
+      'user': {'id': 'takoman'},
+      'application': {'id': 'invalid-app'},
+      'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
+    }
+    with self.app.app_context():
+      user_trust = UserTrust()
+      access_token = user_trust.create_access_token(options)
+      user = user_trust.get_user_from_access_token({'access_token': access_token})
+      assert user == None
 
-  @unittest.skip("TODO")
   def test_get_user_from_access_token_no_matching_user(self):
-    pass
+    options = {
+      'user': {'id': 'spider-man'},
+      'application': {'id': 'rudy-test'},
+      'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
+    }
+    with self.app.app_context():
+      user_trust = UserTrust()
+      access_token = user_trust.create_access_token(options)
+      user = user_trust.get_user_from_access_token({'access_token': access_token})
+      assert user == None
 
   def test_create_access_token_and_extract_user_from_it(self):
     options = {

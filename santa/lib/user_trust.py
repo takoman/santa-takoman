@@ -22,7 +22,7 @@ class UserTrust:
       raise StandardError("missing user")
 
     data = {}
-    data['user_id'] = str(user.get('id'))
+    data['user_id'] = user.get('id')
     if 'application' in options:
       data['application_id'] = options['application'].get('id')
 
