@@ -41,29 +41,90 @@ class AuthControllersTests(TestBase):
         # Heuristic, check the expires_in is roughly sixty days from now.
         assert (sixty_days_from_now - expires_in).seconds < 60
 
-    @unittest.skip("missing client_id")
-    def test_get_access_token_missing_user(self):
-        pass
+    def test_get_access_token_missing_client_id(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='takoman@takoman.co',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing client_id'
 
-    @unittest.skip("invalid client_id or client_secret")
-    def test_get_access_token_invalid_client(self):
-        pass
+    def test_get_access_token_invalid_client_id(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='wrong',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='takoman@takoman.co',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'invalid client_id or client_secret'
 
-    @unittest.skip("missing email")
+    def test_get_access_token_invalid_client_secret(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='wrong',
+            grant_type='credentials',
+            email='takoman@takoman.co',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'invalid client_id or client_secret'
+
     def test_get_access_token_missing_email(self):
-        pass
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing email'
 
-    @unittest.skip("missing password")
     def test_get_access_token_missing_password(self):
-        pass
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='takoman@takoman.co'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing password'
 
-    @unittest.skip("invalid email or password")
-    def test_get_access_token_invalid_credentials(self):
-        pass
+    def test_get_access_token_invalid_email(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='nobody@takoman.co',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'invalid email or password'
 
-    @unittest.skip("unsupported grant type")
+    def test_get_access_token_invalid_password(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='takoman@takoman.co',
+            password='thisisworng'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'invalid email or password'
+
     def test_get_access_token_unsupported_grant_type(self):
-        pass
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='wrong',
+            email='takoman@takoman.co',
+            password='password'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'unsupported grant type'
 
 if __name__ == '__main__':
     unittest.main()
