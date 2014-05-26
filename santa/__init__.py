@@ -1,6 +1,6 @@
 import os, json, datetime
 from eve import Eve
-from auth import AppTokenAuth
+from santa.lib.auth import AppTokenAuth
 from flask import current_app as app
 from apps.auth.controllers import auth
 
