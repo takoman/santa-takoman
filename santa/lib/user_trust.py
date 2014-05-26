@@ -45,7 +45,7 @@ class UserTrust:
         if not access_token:
             raise StandardError("missing access token")
 
-        trust_str = AESCipher(self.secret_key()).decrypt(access_token)
+        trust_str = AESCipher(self.secret_key()).decrypt(access_token.encode('utf-8'))
         trust = json.loads(trust_str)
 
         expires_in_str = trust.get('expires_in')
@@ -64,7 +64,7 @@ class UserTrust:
 
         application_id = trust.get('application_id')
         client_apps = app.data.driver.db['client_apps']
-        if not application_id or not client_apps.find_one({'client_id': application_id}):
+        if not application_id or not client_apps.find_one({'id': application_id}):
             return None
 
         users = app.data.driver.db['users']

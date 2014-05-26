@@ -26,7 +26,7 @@ class ClientAppsTests(TestBase):
 
     def test_create_access_token_missing_user(self):
         options = {
-            'application': {'id': 'rudy'},
+            'application': {'id': 'rudy-id'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
         }
         with self.app.app_context():
@@ -40,8 +40,8 @@ class ClientAppsTests(TestBase):
 
     def test_get_user_from_access_token_expired(self):
         options = {
-            'user': {'id': 'takoman'},
-            'application': {'id': 'rudy'},
+            'user': {'id': 'takoman-id'},
+            'application': {'id': 'rudy-id'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=-1)
         }
         with self.app.app_context():
@@ -52,7 +52,7 @@ class ClientAppsTests(TestBase):
     def test_get_user_from_access_token_missing_user_id(self):
         options = {
             'user': {'name': 'Takoman'},
-            'application': {'id': 'rudy'},
+            'application': {'id': 'rudy-id'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
         }
         with self.app.app_context():
@@ -62,7 +62,7 @@ class ClientAppsTests(TestBase):
 
     def test_get_user_from_access_token_no_matching_app(self):
         options = {
-            'user': {'id': 'takoman'},
+            'user': {'id': 'takoman-id'},
             'application': {'id': 'invalid-app'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
         }
@@ -75,7 +75,7 @@ class ClientAppsTests(TestBase):
     def test_get_user_from_access_token_no_matching_user(self):
         options = {
             'user': {'id': 'spider-man'},
-            'application': {'id': 'rudy-test'},
+            'application': {'id': 'rudy-id'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
         }
         with self.app.app_context():
@@ -86,15 +86,28 @@ class ClientAppsTests(TestBase):
 
     def test_create_access_token_and_extract_user_from_it(self):
         options = {
-            'user': {'id': 'takoman'},
-            'application': {'id': 'rudy-test'},
+            'user': {'id': 'takoman-id'},
+            'application': {'id': 'rudy-id'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
         }
         with self.app.app_context():
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
-            assert user.get('id') == 'takoman'
+            assert user.get('email') == 'takoman@takoman.co'
+
+    def test_create_utf8_access_token_and_extract_user_from_it(self):
+        options = {
+            'user': {u'id': u'takoman-id'},
+            'application': {u'id': u'rudy-id'},
+            'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
+        }
+        with self.app.app_context():
+            user_trust = UserTrust()
+            access_token = user_trust.create_access_token(options)
+            u_access_token = unicode(access_token, 'utf-8')
+            user = user_trust.get_user_from_access_token({'access_token': u_access_token})
+            assert user.get('email') == 'takoman@takoman.co'
 
 if __name__ == '__main__':
     unittest.main()

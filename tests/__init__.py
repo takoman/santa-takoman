@@ -5,7 +5,7 @@
 
     test base class
 """
-import unittest, os
+import unittest, os, bcrypt
 from pymongo import MongoClient
 from santa import create_app
 
@@ -30,11 +30,17 @@ class TestBase(unittest.TestCase):
         self.conn = MongoClient(self.c['MONGO_HOST'], self.c['MONGO_PORT'])
         self.db = self.conn[self.c['MONGO_DBNAME']]
         self.db.client_apps.insert({
+            'id'            : 'rudy-id',
             'client_id'     : 'rudy-test',
             'client_secret' : 'rudy-secret',
             'token'         : 'rudy-token'
         })
-        self.db.users.insert({'id': 'takoman'})
+        hashed_password = bcrypt.hashpw('password', bcrypt.gensalt())
+        self.db.users.insert({
+            'id': 'takoman-id',
+            'email': 'takoman@takoman.co',
+            'password': hashed_password
+        })
 
     def dropDB(self):
         self.conn = MongoClient(self.c['MONGO_HOST'], self.c['MONGO_PORT'])

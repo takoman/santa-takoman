@@ -7,3 +7,5 @@ virtualenv venv
 export ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future
 
 source ./venv/bin/activate && pip install -r requirements.txt
+
+python setup.py develop

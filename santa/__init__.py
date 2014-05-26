@@ -2,6 +2,7 @@ import os, json, datetime
 from eve import Eve
 from auth import AppTokenAuth
 from flask import current_app as app
+from apps.auth.controllers import auth
 
 def create_app():
     # The way how Eve looks for the abs settings file would not work when working
@@ -12,7 +13,12 @@ def create_app():
     app = Eve(auth=AppTokenAuth, settings=current_dir + '/../config/settings.py')
 
     hook_up_callbacks(app)
+    register_apps(app)
     return app
+
+# Hook up additional Flask controllers
+def register_apps(app):
+    app.register_blueprint(auth)
 
 def hook_up_callbacks(app):
     app.on_post_GET_client_apps += process_client_app_token
