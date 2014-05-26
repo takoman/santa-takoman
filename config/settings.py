@@ -1,4 +1,4 @@
-from santa import domain
+from santa.apps.api import domain
 
 DEBUG = True
 
