@@ -96,5 +96,18 @@ class ClientAppsTests(TestBase):
             user = user_trust.get_user_from_access_token({'access_token': access_token})
             assert user.get('email') == 'takoman@takoman.co'
 
+    def test_create_utf8_access_token_and_extract_user_from_it(self):
+        options = {
+            'user': {u'id': u'takoman-id'},
+            'application': {u'id': u'rudy-id'},
+            'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
+        }
+        with self.app.app_context():
+            user_trust = UserTrust()
+            access_token = user_trust.create_access_token(options)
+            u_access_token = unicode(access_token, 'utf-8')
+            user = user_trust.get_user_from_access_token({'access_token': u_access_token})
+            assert user.get('email') == 'takoman@takoman.co'
+
 if __name__ == '__main__':
     unittest.main()
