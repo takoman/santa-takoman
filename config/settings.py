@@ -10,14 +10,16 @@ MONGO_PORT      = 27017
 MONGO_DBNAME    = 'santa_local'
 
 # let's not forget the API entry point (not really needed anyway)
-# SERVER_NAME = '127.0.0.1:5000'
+# SERVER_NAME     = '127.0.0.1:5000'
+URL_PREFIX      = 'api'
+API_VERSION     = 'v1'
 
 # HATEOAS
 HATEOAS = False
 
 # CORS
 X_DOMAINS = '*'
-X_HEADERS = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+X_HEADERS = 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-XAPP-TOKEN'
 
 # JSON and/or XML
 XML = False
