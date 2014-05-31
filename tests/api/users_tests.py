@@ -6,7 +6,7 @@
     api users tests module
 """
 from tests import TestBase
-import unittest, json
+import unittest
 
 class UsersTests(TestBase):
 

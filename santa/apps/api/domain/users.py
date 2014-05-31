@@ -9,8 +9,6 @@
     :license:
 """
 
-from santa.lib.auth import BCryptAuth
-
 definition = {
     # 'allowed_roles': ['admin'],
     # 'authentication': BCryptAuth(),

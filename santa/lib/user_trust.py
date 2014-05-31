@@ -22,9 +22,9 @@ class UserTrust:
             raise StandardError("missing user")
 
         data = {}
-        data['user_id'] = user.get('id')
-        if 'application' in options:
-            data['application_id'] = options['application'].get('id')
+        data['user_id'] = user.get('email')
+        if 'client_app' in options:
+            data['app_id'] = options['client_app'].get('client_id')
 
         expires_in = options.get(
             'expires_in',
@@ -62,13 +62,13 @@ class UserTrust:
         if not user_id:
             raise StandardError("missing user_id in the trust token")
 
-        application_id = trust.get('application_id')
+        client_id = trust.get('app_id')
         client_apps = app.data.driver.db['client_apps']
-        if not application_id or not client_apps.find_one({'id': application_id}):
+        if not client_id or not client_apps.find_one({'client_id': client_id}):
             return None
 
         users = app.data.driver.db['users']
-        return users.find_one({'id': user_id}) or None
+        return users.find_one({'email': user_id}) or None
 
     def secret_key(self):
         trust_key_value = os.environ.get('TOKEN_TRUST_KEY') or app.config.get('TOKEN_TRUST_KEY')
@@ -82,8 +82,8 @@ class UserTrust:
 if __name__ == '__main__':
     trust = UserTrust()
     access_token = trust.create_access_token({
-        'user': {'id': 'takoman'},
-        'application': {'id': 'rudy'},
+        'user': {'_id': 'takoman'},
+        'client_app': {'_id': 'rudy'},
         'expires_in': datetime.datetime.today() + datetime.timedelta(days=-7)
     })
     print trust.get_user_from_access_token({'access_token': access_token})
