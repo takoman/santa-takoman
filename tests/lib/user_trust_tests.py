@@ -11,6 +11,14 @@ from santa.lib.user_trust import UserTrust
 
 class ClientAppsTests(TestBase):
 
+    def setUp(self):
+        super(ClientAppsTests, self).setUp()
+        self.options = {
+            'user': {'email': 'takoman@takoman.co'},
+            'client_app': {'client_id': 'rudy-test'},
+            'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
+        }
+
     def test_secret_key_missing_trust_key(self):
         if 'TOKEN_TRUST_KEY' in os.environ:
             del os.environ['TOKEN_TRUST_KEY']
@@ -25,13 +33,10 @@ class ClientAppsTests(TestBase):
         pass
 
     def test_create_access_token_missing_user(self):
-        options = {
-            'application': {'id': 'rudy-id'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
-        }
+        self.options.pop("user", None)
         with self.app.app_context():
             user_trust = UserTrust()
-            self.assertRaisesRegexp(StandardError, "missing user", user_trust.create_access_token, options)
+            self.assertRaisesRegexp(StandardError, "missing user", user_trust.create_access_token, self.options)
 
     def test_get_user_from_access_token_missing_access_token(self):
         with self.app.app_context():
@@ -39,74 +44,54 @@ class ClientAppsTests(TestBase):
             self.assertRaisesRegexp(StandardError, "missing access token", user_trust.get_user_from_access_token, {})
 
     def test_get_user_from_access_token_expired(self):
-        options = {
-            'user': {'id': 'takoman-id'},
-            'application': {'id': 'rudy-id'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=-1)
-        }
+        self.options['expires_in'] = datetime.datetime.today() + datetime.timedelta(days=-1)
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             self.assertRaisesRegexp(StandardError, "token expired", user_trust.get_user_from_access_token, {'access_token': access_token})
 
     def test_get_user_from_access_token_missing_user_id(self):
-        options = {
-            'user': {'name': 'Takoman'},
-            'application': {'id': 'rudy-id'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
-        }
+        self.options['user'] = {'name': 'Takoman'}
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             self.assertRaisesRegexp(StandardError, "missing user_id", user_trust.get_user_from_access_token, {'access_token': access_token})
 
     def test_get_user_from_access_token_no_matching_app(self):
-        options = {
-            'user': {'id': 'takoman-id'},
-            'application': {'id': 'invalid-app'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
-        }
+        self.options['client_app'] = {'client_id': 'invalid-app'}
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
             assert user is None
 
     def test_get_user_from_access_token_no_matching_user(self):
-        options = {
-            'user': {'id': 'spider-man'},
-            'application': {'id': 'rudy-id'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=1)
-        }
+        self.options['user'] = {'email': 'spiderman@takoman.co'}
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
             assert user is None
 
     def test_create_access_token_and_extract_user_from_it(self):
-        options = {
-            'user': {'id': 'takoman-id'},
-            'application': {'id': 'rudy-id'},
-            'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
-        }
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
             assert user.get('email') == 'takoman@takoman.co'
 
     def test_create_utf8_access_token_and_extract_user_from_it(self):
-        options = {
-            'user': {u'id': u'takoman-id'},
-            'application': {u'id': u'rudy-id'},
+        self.options = {
+            'user': {u'email': u'takoman@takoman.co'},
+            'client_app': {u'client_id': u'rudy-test'},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
         }
         with self.app.app_context():
             user_trust = UserTrust()
-            access_token = user_trust.create_access_token(options)
+            access_token = user_trust.create_access_token(self.options)
             u_access_token = unicode(access_token, 'utf-8')
             user = user_trust.get_user_from_access_token({'access_token': u_access_token})
+            assert user is not None
             assert user.get('email') == 'takoman@takoman.co'
 
 if __name__ == '__main__':

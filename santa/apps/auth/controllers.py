@@ -9,7 +9,7 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/oauth2/access_token', methods=['POST'])
 def oauth():
-    form = request.form
+    form = request.form or request.json
     client_id = form.get('client_id')
     if not client_id:
         raise ApiOAuthException("missing client_id")
@@ -37,7 +37,7 @@ def oauth():
             raise ApiOAuthException("invalid email or password")
 
         access_token = UserTrust().create_access_token({
-            'user': user, 'application': client_app, 'expires_in': expires_in
+            'user': user, 'client_app': client_app, 'expires_in': expires_in
         })
 
 #    elif grant_type == 'oauth_token':
@@ -63,7 +63,7 @@ def oauth():
 #                ", email=" + auth_date.email
 #            )
 #        access_token = UserTrust().create_access_token({
-#            'user': matching_auth.user, 'application': application, 'expires_in': expires_in
+#            'user': matching_auth.user, 'client_app': client_app, 'expires_in': expires_in
 #        })
     else:
         raise ApiOAuthException("unsupported grant type")
