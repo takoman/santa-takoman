@@ -3,6 +3,7 @@ from eve import Eve
 from santa.lib.auth import XAppTokenAuth
 from flask import current_app as app
 from apps.auth.controllers import auth
+from apps.me.controllers import me
 
 def create_app():
     # The way how Eve looks for the abs settings file would not work when working
@@ -19,6 +20,7 @@ def create_app():
 # Hook up additional Flask controllers
 def register_apps(app):
     app.register_blueprint(auth)
+    app.register_blueprint(me)
 
 def hook_up_callbacks(app):
     app.on_post_GET_client_apps += process_client_app_token
@@ -42,9 +44,9 @@ def process_client_app_token(request, payload):
         payload.set_data(json.dumps(data))
 
 def normalize_user(users):
-  for user in users:
-    # encrypt password
-    user['password'] = bcrypt.hashpw(user['password'], bcrypt.gensalt())
-    # normalize email
-    user['email'] = user['email'].lower()
-    # TODO link social account
+    for user in users:
+        # encrypt password
+        user['password'] = bcrypt.hashpw(user['password'], bcrypt.gensalt())
+        # normalize email
+        user['email'] = user['email'].lower()
+        # TODO link social account
