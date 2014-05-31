@@ -1,6 +1,6 @@
-import os, json, datetime
+import os, json, datetime, bcrypt
 from eve import Eve
-from santa.lib.auth import AppTokenAuth
+from santa.lib.auth import XAppTokenAuth
 from flask import current_app as app
 from apps.auth.controllers import auth
 
@@ -10,7 +10,7 @@ def create_app():
     # explicitly here. Considering making a PR later.
     # https://github.com/nicolaiarocci/eve/blob/develop/eve/flaskapp.py#L171
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    app = Eve(auth=AppTokenAuth, settings=current_dir + '/../config/settings.py')
+    app = Eve(auth=XAppTokenAuth, settings=current_dir + '/../config/settings.py')
 
     hook_up_callbacks(app)
     register_apps(app)
@@ -22,6 +22,7 @@ def register_apps(app):
 
 def hook_up_callbacks(app):
     app.on_post_GET_client_apps += process_client_app_token
+    app.on_insert_users += normalize_user
 
 def process_client_app_token(request, payload):
     client_id = request.args.get('client_id')
@@ -39,3 +40,11 @@ def process_client_app_token(request, payload):
         expires = ten_years_from_now.isoformat()
         data = { u'xapp_token': client['token'], u'expires_in': expires }
         payload.set_data(json.dumps(data))
+
+def normalize_user(users):
+  for user in users:
+    # encrypt password
+    user['password'] = bcrypt.hashpw(user['password'], bcrypt.gensalt())
+    # normalize email
+    user['email'] = user['email'].lower()
+    # TODO link social account

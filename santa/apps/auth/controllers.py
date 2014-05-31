@@ -9,7 +9,7 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/oauth2/access_token', methods=['POST'])
 def oauth():
-    form = request.form
+    form = request.form or request.json
     client_id = form.get('client_id')
     if not client_id:
         raise ApiOAuthException("missing client_id")

@@ -13,15 +13,15 @@ from santa.lib.auth import BCryptAuth
 
 definition = {
     # 'allowed_roles': ['admin'],
-    'authentication': BCryptAuth(),
+    # 'authentication': BCryptAuth(),
 
     # the standard account entry point is defined as
     # '/users/<ObjectId>'. We define  an additional read-only entry
     # point accessible at '/accounts/<username>'.
-    'additional_lookup': {
-        'url': 'regex("[\w-]+")',
-        'field': 'username',
-    },
+    # 'additional_lookup': {
+    #     'url': 'regex("[\w-]+")',
+    #     'field': 'name',
+    # },
 
     # We also disable endpoint caching as we don't want client apps to
     # cache account data.
@@ -32,17 +32,29 @@ definition = {
         'projection': {'password': 0}
     },
     'schema': {
-        'username': {
-            'type': 'string',
-            'minlength': 1
+        'name': {
+            'type'      : 'string',
+            'maxlength' : 256,
+            'required'  : True,
+            'empty'     : False
+        },
+        'email': {
+            'type'      : 'string',
+            'maxlength' : 256,
+            # Consider using custom validators for more readable error messages
+            'regex'     : '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
+            'required'  : True,
+            'unique'    : True,
+            'empty'     : False
         },
         'password': {
-            'type': 'string',
-            'minlength': 8
+            'type'      : 'string',
+            'minlength' : 8,
+            'required'  : True
         },
         'role': {
-            'type': 'list',
-            'allowed': ["user", "admin"]
+            'type'      : 'list',
+            'allowed'   : ["user", "takoman", "admin"]
         },
     }
 }
