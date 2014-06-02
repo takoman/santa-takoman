@@ -30,25 +30,32 @@ definition = {
         'projection': {'password': 0}
     },
     'schema': {
+        '_id': {
+            'type'      : 'string'
+        },
         'name': {
             'type'      : 'string',
             'maxlength' : 256,
-            'required'  : True,
-            'empty'     : False
         },
         'email': {
             'type'      : 'string',
             'maxlength' : 256,
             # Consider using custom validators for more readable error messages
             'regex'     : '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
-            'required'  : True,
-            'unique'    : True,
-            'empty'     : False
         },
         'password': {
             'type'      : 'string',
             'minlength' : 8,
-            'required'  : True
+        },
+        # oauth_token and provider fields here are only for avoiding unknown
+        # fields error when social signups. We will remove them when inserting
+        # to database. See more:
+        # http://python-eve.org/validation.html#allowing-the-unknown
+        'oauth_token': {
+            'type'      : 'string'
+        },
+        'provider': {
+            'type'      : 'string'
         },
         'role': {
             'type'      : 'list',
