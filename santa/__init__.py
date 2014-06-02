@@ -1,9 +1,13 @@
 import os, json, datetime, bcrypt
 from eve import Eve
+from eve.utils import config
 from santa.lib.auth import XAppTokenAuth
 from flask import current_app as app
 from apps.auth.controllers import auth
 from apps.me.controllers import me
+from bson.objectid import ObjectId
+from santa.lib.social_auth import SocialFacebook
+from santa.lib.api_errors import ApiOAuthException
 
 def create_app():
     # The way how Eve looks for the abs settings file would not work when working
@@ -24,6 +28,7 @@ def register_apps(app):
 
 def hook_up_callbacks(app):
     app.on_post_GET_client_apps += process_client_app_token
+    app.on_pre_POST_users += validate_user
     app.on_insert_users += normalize_user
 
 def process_client_app_token(request, payload):
@@ -43,10 +48,95 @@ def process_client_app_token(request, payload):
         data = { u'xapp_token': client['token'], u'expires_in': expires }
         payload.set_data(json.dumps(data))
 
+#
+# We use the /users endpoints for both credentials and oauth token signups.
+# The conditions are too complex, so we validate the request here at once,
+# instead of using Eve's data validation.
+#
+def validate_user(request):
+    data = request.form or request.json
+    # TODO prevent logged in users from creating other users?
+
+    # If signing up via oauth tokens
+    if data.get('provider') and data.get('oauth_token'):
+        if data.get('provider') == 'facebook':
+            auth_data = SocialFacebook().get_auth_data(data.get('oauth_token'))
+        else:
+            raise ApiOAuthException("unsupported oauth provider")
+
+        if not auth_data:
+            raise ApiOAuthException("invalid oauth token")
+
+        social_auths = app.data.driver.db['social_authentications']
+        matching_auth = social_auths.find_one({'uid': auth_data.get('uid')})
+        if matching_auth:
+            raise ApiOAuthException(
+                "another acount has already been linked" +
+                ", uid=" + auth_data.get('uid') +
+                ", name=" + auth_data.get('name') +
+                ", email=" + auth_data.get('email')
+            )
+    # Or via credentials
+    else:
+        password = data.get('password')
+        if not password:
+            raise ApiOAuthException("missing password")
+        if len(password) < 8:
+            raise ApiOAuthException("password must be at least 8 characters")
+
+    email = data.get('email') or (auth_data and auth_data.get('email'))
+    # If both email in credentials and in oauth data are missing
+    if not email:
+        raise ApiOAuthException("missing email")
+
+    users = app.data.driver.db['users']
+    user = users.find_one({'email': email})
+    # A user's email needs to be unique no matter it's from credentials or oauth
+    if user:
+        raise ApiOAuthException("user already exists with email " + email)
+
+#
+# Normalize user data before inserting to database. If the request is from
+# social signup, create social auth and associate it with the user.
+#
 def normalize_user(users):
     for user in users:
-        # encrypt password
-        user['password'] = bcrypt.hashpw(user['password'], bcrypt.gensalt())
+        # We need the user's object id when linking to her social auth below,
+        # so we manually assign the _id to be used in the mongo db later.
+        user['_id'] = ObjectId(user.get('_id')) or ObjectId()
+
+        if 'password' in user:
+            # encrypt password
+            user['password'] = bcrypt.hashpw(user['password'], bcrypt.gensalt())
+
         # normalize email
-        user['email'] = user['email'].lower()
-        # TODO link social account
+        # TODO We need to somehow reuse the auth_data retrieved in validate_user.
+        auth_data = SocialFacebook().get_auth_data(user.get('oauth_token'))
+        email = user.get('email') or (auth_data and auth_data.get('email'))
+        user['email'] = email.lower()
+
+        # link social account
+        if user.get('provider') and user.get('oauth_token'):
+            data = {'uid': auth_data.get('uid'), 'user': user['_id']}
+            if 'info' in auth_data:
+                for field in ['name', 'email', 'nickname', 'first_name', 'last_name', 'location', 'description', 'image', 'phone']:
+                    data[field] = auth_data['info'].get(field)
+                if auth_data['info'].get('urls'):
+                    data['urls'] = auth_data['info'].get('urls')
+
+            if 'credentials' in auth_data:
+                data['credentials'] = auth_data['credentials']
+
+            # TODO flush any complex objects from extra hash
+            if 'extra' in auth_data:
+                pass
+
+            # need to manually add the _created and _updated timestamps
+            date_utc = datetime.datetime.utcnow().replace(microsecond=0)
+            data[config.LAST_UPDATED] = data[config.DATE_CREATED] = date_utc
+            social_auths = app.data.driver.db['social_authentications']
+            social_auths.insert(data)
+
+        # remove unnecessary fields
+        user.pop('provider', None)
+        user.pop('oauth_token', None)

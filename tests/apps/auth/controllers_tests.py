@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
 from tests import TestBase
 from santa.lib.user_trust import UserTrust
-import unittest, json, datetime, dateutil.parser
+from bson.objectid import ObjectId
+import unittest, json, datetime, dateutil.parser, mock
 
 class AuthControllersTests(TestBase):
+
+    def setUp(self):
+        super(AuthControllersTests, self).setUp()
+        self.social_user_id = self.db.users.insert({
+            'name': 'Tako Woman',
+            'email': 'takowoman@takoman.co'
+        })
+        self.db.social_authentications.insert({
+            "uid": "10152476049619728",
+            "first_name": "Woman",
+            "last_name": "Tako",
+            "user": ObjectId(self.social_user_id),
+            "email": "takowoman@takoman.co",
+            "name": "Tako Woman"
+        })
 
     @unittest.skip("test is invalid password")
     def get_is_valid_password(self):
@@ -114,6 +130,181 @@ class AuthControllersTests(TestBase):
         ))
         res = json.loads(rv.data)
         assert res.get('message') == 'invalid email or password'
+
+    # Since we use patterns like `from a import b`, b is actually a class in
+    # the module, not the global scope. So patch directives need to refer to
+    # my module, i.e. santa.apps.auth.controllers, not santa.lib.social_auth.
+    # Compared to patterns like `import a` and use it like `a.b`
+    # http://bhfsteve.blogspot.com/2012/06/patching-tip-using-mocks-in-python-unit.html
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_by_oauth_token(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'provider': 'facebook',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi',
+            'info'    : {
+                'first_name': 'Chung-Yi',
+                'last_name': 'Chi',
+                'verified': True,
+                'name': 'Chung-Yi Chi',
+                'locale': 'en_US',
+                'gender': 'male',
+                'email': 'cy@takoman.co',
+                'link': 'https://www.facebook.com/app_scoped_user_id/10152476049619728/',
+                'timezone': -4,
+                'updated_time': '2013-10-02T14:50:27+0000',
+                'id': '10152476049619728'
+            }
+        }
+
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook',
+            oauth_token='facebook-oauth-token'
+        ))
+        access_token = json.loads(rv.data).get('access_token')
+        assert access_token is not None
+        with self.app.app_context():
+            user = UserTrust().get_user_from_access_token({
+                'access_token': access_token
+            })
+            assert user is not None
+            assert user.get('email') == 'takowoman@takoman.co'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_missing_oauth_provider(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_token='facebook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing oauth provider'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_missing_oauth_token(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing oauth token'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_unsupported_oauth_type(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='assbook',
+            oauth_token='alienbook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'unsupported oauth provider'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_invalid_oauth_token(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = None
+
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook',
+            oauth_token='facebook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'invalid oauth token'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_no_matching_auth(self, fb_mock):
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '1234',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook',
+            oauth_token='facebook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == \
+            'no account linked to oauth token, uid=1234, name=Chung-Yi Chi, email=cy@takoman.co'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_matching_auth_no_user(self, fb_mock):
+        self.db.social_authentications.update(
+            {'uid': '10152476049619728'},
+            # unset operator deletes a particular field
+            {'$unset': {'user': ''}}
+        )
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook',
+            oauth_token='facebook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == \
+            'no account linked to oauth token, uid=10152476049619728, name=Chung-Yi Chi, email=cy@takoman.co'
+
+    @mock.patch('santa.apps.auth.controllers.SocialFacebook')
+    def test_get_access_token_matching_auth_no_matching_user(self, fb_mock):
+        # remove the user from db
+        self.db.users.remove({'_id': self.social_user_id})
+
+        fb_instance = fb_mock.return_value
+        fb_instance.get_auth_data.return_value = {
+            'email'   : 'cy@takoman.co',
+            'uid'     : '10152476049619728',
+            'name'    : 'Chung-Yi Chi'
+        }
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='oauth_token',
+            oauth_provider='facebook',
+            oauth_token='facebook-oauth-token'
+        ))
+        res = json.loads(rv.data)
+        assert res.get('message') == 'missing user associated with this oauth token'
 
     def test_get_access_token_unsupported_grant_type(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(

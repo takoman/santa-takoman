@@ -3,6 +3,7 @@ from flask import current_app as app
 from flask import Blueprint, request, jsonify
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiOAuthException
+from santa.lib.social_auth import SocialFacebook
 import datetime, bcrypt
 
 auth = Blueprint('auth', __name__)
@@ -40,31 +41,41 @@ def oauth():
             'user': user, 'client_app': client_app, 'expires_in': expires_in
         })
 
-#    elif grant_type == 'oauth_token':
-#        oauth_provider = form.get('oauth_provider')
-#        if not oauth_provider:
-#            raise ApiOAuthException("missing oauth provider")
-#
-#        oauth_token = form.get('oauth_token')
-#        if not oauth_token:
-#            raise ApiOAuthException("missing oath token")
-#
-#        if oauth_provide == 'facebook':
-#            auth_data = SocialFacebook.get_auth_data(oauth_token)
-#        else:
-#            raise ApiOAuthException("unsupported oauth provider")
-#
-#        matching_auth = Authentication.find_by_auth_data(auth_data)
-#        if not matching_auth or not matching_auth.user:
-#            raise ApiOAuthException(
-#                "no account linked to oauth token" +
-#                ", id=" + auth_data.uid +
-#                ", name=" + auth_data.name +
-#                ", email=" + auth_date.email
-#            )
-#        access_token = UserTrust().create_access_token({
-#            'user': matching_auth.user, 'client_app': client_app, 'expires_in': expires_in
-#        })
+    elif grant_type == 'oauth_token':
+        oauth_provider = form.get('oauth_provider')
+        if not oauth_provider:
+            raise ApiOAuthException("missing oauth provider")
+
+        oauth_token = form.get('oauth_token')
+        if not oauth_token:
+            raise ApiOAuthException("missing oauth token")
+
+        if oauth_provider == 'facebook':
+            auth_data = SocialFacebook().get_auth_data(oauth_token)
+        else:
+            raise ApiOAuthException("unsupported oauth provider")
+
+        if not auth_data:
+            raise ApiOAuthException("invalid oauth token")
+
+        social_auths = app.data.driver.db['social_authentications']
+        matching_auth = social_auths.find_one({'uid': auth_data.get('uid')})
+        if not matching_auth or not matching_auth.get('user'):
+            raise ApiOAuthException(
+                "no account linked to oauth token" +
+                ", uid=" + auth_data.get('uid') +
+                ", name=" + auth_data.get('name') +
+                ", email=" + auth_data.get('email')
+            )
+        users = app.data.driver.db['users']
+        user = users.find_one({'_id': matching_auth.get('user')})
+        if not user:
+            raise ApiOAuthException("missing user associated with this oauth token")
+
+        access_token = UserTrust().create_access_token({
+            'user': user, 'client_app': client_app, 'expires_in': expires_in
+        })
+
     else:
         raise ApiOAuthException("unsupported grant type")
 
