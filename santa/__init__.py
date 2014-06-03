@@ -3,11 +3,12 @@ from eve import Eve
 from eve.utils import config
 from santa.lib.auth import XAppTokenAuth
 from flask import current_app as app
+from flask import jsonify
 from apps.auth.controllers import auth
 from apps.me.controllers import me
 from bson.objectid import ObjectId
 from santa.lib.social_auth import SocialFacebook
-from santa.lib.api_errors import ApiOAuthException
+from santa.lib.api_errors import ApiException
 
 def create_app():
     # The way how Eve looks for the abs settings file would not work when working
@@ -17,9 +18,17 @@ def create_app():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     app = Eve(auth=XAppTokenAuth, settings=current_dir + '/../config/settings.py')
 
+    hook_up_error_handlers(app)
     hook_up_callbacks(app)
     register_apps(app)
     return app
+
+def hook_up_error_handlers(app):
+    @app.errorhandler(ApiException)
+    def handle_api_oauth_exception(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
 
 # Hook up additional Flask controllers
 def register_apps(app):
@@ -55,6 +64,7 @@ def process_client_app_token(request, payload):
 #
 def validate_user(request):
     data = request.form or request.json
+    print data
     # TODO prevent logged in users from creating other users?
 
     # If signing up via oauth tokens
@@ -62,15 +72,15 @@ def validate_user(request):
         if data.get('provider') == 'facebook':
             auth_data = SocialFacebook().get_auth_data(data.get('oauth_token'))
         else:
-            raise ApiOAuthException("unsupported oauth provider")
+            raise ApiException("unsupported oauth provider")
 
         if not auth_data:
-            raise ApiOAuthException("invalid oauth token")
+            raise ApiException("invalid oauth token")
 
         social_auths = app.data.driver.db['social_authentications']
         matching_auth = social_auths.find_one({'uid': auth_data.get('uid')})
         if matching_auth:
-            raise ApiOAuthException(
+            raise ApiException(
                 "another acount has already been linked" +
                 ", uid=" + auth_data.get('uid') +
                 ", name=" + auth_data.get('name') +
@@ -80,20 +90,20 @@ def validate_user(request):
     else:
         password = data.get('password')
         if not password:
-            raise ApiOAuthException("missing password")
+            raise ApiException("missing password")
         if len(password) < 8:
-            raise ApiOAuthException("password must be at least 8 characters")
+            raise ApiException("password must be at least 8 characters")
 
     email = data.get('email') or (auth_data and auth_data.get('email'))
     # If both email in credentials and in oauth data are missing
     if not email:
-        raise ApiOAuthException("missing email")
+        raise ApiException("missing email")
 
     users = app.data.driver.db['users']
     user = users.find_one({'email': email})
     # A user's email needs to be unique no matter it's from credentials or oauth
     if user:
-        raise ApiOAuthException("user already exists with email " + email)
+        raise ApiException("user already exists with email " + email)
 
 #
 # Normalize user data before inserting to database. If the request is from

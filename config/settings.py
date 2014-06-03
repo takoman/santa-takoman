@@ -17,6 +17,12 @@ API_VERSION     = 'v1'
 # HATEOAS
 HATEOAS = False
 
+# Data validation error messages
+STATUS = 'status'
+ISSUES = 'message'
+STATUS_OK = 'success'
+STATUS_ERR = 'error'
+
 # CORS
 X_DOMAINS = '*'
 X_HEADERS = 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-XAPP-TOKEN'

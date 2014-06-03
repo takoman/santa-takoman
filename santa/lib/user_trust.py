@@ -11,6 +11,7 @@
 
 from flask import current_app as app
 from aes_cipher import AESCipher
+from santa.lib.api_errors import ApiException
 import datetime, json, uuid, dateutil.parser, os, hashlib
 
 class UserTrust:
@@ -19,7 +20,7 @@ class UserTrust:
     def create_access_token(self, options):
         user = options.get('user')
         if not user:
-            raise StandardError("missing user")
+            raise ApiException("missing user")
 
         data = {}
         data['user_id'] = user.get('email')
@@ -43,24 +44,24 @@ class UserTrust:
     def get_user_from_access_token(self, options):
         access_token = options.get('access_token')
         if not access_token:
-            raise StandardError("missing access token")
+            raise ApiException("missing access token")
 
         trust_str = AESCipher(self.secret_key()).decrypt(access_token.encode('utf-8'))
         trust = json.loads(trust_str)
 
         expires_in_str = trust.get('expires_in')
         if not expires_in_str:
-            raise StandardError("missing expires in the trust token")
+            raise ApiException("missing expires in the trust token")
 
         if datetime.datetime.now() > dateutil.parser.parse(expires_in_str):
-            raise StandardError("token expired: " + ", ".join(
+            raise ApiException("token expired: " + ", ".join(
                 filter(None, map(
                     lambda x: x[0] + "=" + x[1] if x[0] != 'salt' else '', trust.items()
                 ))))
 
         user_id = trust.get('user_id')
         if not user_id:
-            raise StandardError("missing user_id in the trust token")
+            raise ApiException("missing user_id in the trust token")
 
         client_id = trust.get('app_id')
         client_apps = app.data.driver.db['client_apps']
@@ -73,7 +74,7 @@ class UserTrust:
     def secret_key(self):
         trust_key_value = os.environ.get('TOKEN_TRUST_KEY') or app.config.get('TOKEN_TRUST_KEY')
         if not trust_key_value:
-            raise StandardError("missing trust token key")
+            raise ApiException("missing trust token key")
 
         # using hexdigest() would generate 64 bytes string
         # and the AES encoding will fail.
