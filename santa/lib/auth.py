@@ -2,6 +2,7 @@ import bcrypt
 from flask import request, current_app as app
 from eve.auth import BasicAuth, TokenAuth
 from santa.lib.user_trust import UserTrust
+from santa.lib.api_errors import ApiException
 
 class BCryptAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource, method):
@@ -35,6 +36,12 @@ class XAppTokenAuth(TokenAuth):
         lookup = {'token': token}
         return client_apps.find_one(lookup)
 
+    def authenticate(self):
+        """ Returns a standard a 401 response that enables xapp auth.
+        Override if you want to change the response and/or the realm.
+        """
+        raise ApiException("please provide proper credentials", 401)
+
 class AccessTokenAuth(TokenAuth):
     def authorized(self, allowed_roles, resource, method):
         auth = self.get_access_token(request)
@@ -42,6 +49,12 @@ class AccessTokenAuth(TokenAuth):
 
     def check_auth(self, token, allowed_roles, resource, method):
         return self.get_user_from_access_token(token)
+
+    def authenticate(self):
+        """ Returns a standard a 401 response that enables xapp auth.
+        Override if you want to change the response and/or the realm.
+        """
+        raise ApiException("please provide proper credentials", 401)
 
     def get_access_token(self, request):
         return (request.args.get('access_token') or

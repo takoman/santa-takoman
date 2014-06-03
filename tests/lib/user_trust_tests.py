@@ -8,6 +8,7 @@
 import unittest, os, datetime
 from tests import TestBase
 from santa.lib.user_trust import UserTrust
+from santa.lib.api_errors import ApiException
 
 class ClientAppsTests(TestBase):
 
@@ -26,7 +27,7 @@ class ClientAppsTests(TestBase):
             del self.app.config['TOKEN_TRUST_KEY']
         with self.app.app_context():
             user_trust = UserTrust()
-            self.assertRaisesRegexp(StandardError, "missing trust token key", user_trust.secret_key)
+            self.assertRaisesRegexp(ApiException, "missing trust token key", user_trust.secret_key)
 
     @unittest.skip("Need to verify secret key valid.")
     def test_secret_key_sha256_hexdigest(self):
@@ -36,26 +37,26 @@ class ClientAppsTests(TestBase):
         self.options.pop("user", None)
         with self.app.app_context():
             user_trust = UserTrust()
-            self.assertRaisesRegexp(StandardError, "missing user", user_trust.create_access_token, self.options)
+            self.assertRaisesRegexp(ApiException, "missing user", user_trust.create_access_token, self.options)
 
     def test_get_user_from_access_token_missing_access_token(self):
         with self.app.app_context():
             user_trust = UserTrust()
-            self.assertRaisesRegexp(StandardError, "missing access token", user_trust.get_user_from_access_token, {})
+            self.assertRaisesRegexp(ApiException, "missing access token", user_trust.get_user_from_access_token, {})
 
     def test_get_user_from_access_token_expired(self):
         self.options['expires_in'] = datetime.datetime.today() + datetime.timedelta(days=-1)
         with self.app.app_context():
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
-            self.assertRaisesRegexp(StandardError, "token expired", user_trust.get_user_from_access_token, {'access_token': access_token})
+            self.assertRaisesRegexp(ApiException, "token expired", user_trust.get_user_from_access_token, {'access_token': access_token})
 
     def test_get_user_from_access_token_missing_user_id(self):
         self.options['user'] = {'name': 'Takoman'}
         with self.app.app_context():
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
-            self.assertRaisesRegexp(StandardError, "missing user_id", user_trust.get_user_from_access_token, {'access_token': access_token})
+            self.assertRaisesRegexp(ApiException, "missing user_id", user_trust.get_user_from_access_token, {'access_token': access_token})
 
     def test_get_user_from_access_token_no_matching_app(self):
         self.options['client_app'] = {'client_id': 'invalid-app'}
