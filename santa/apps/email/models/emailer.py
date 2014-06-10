@@ -2,7 +2,7 @@
 
 class Emailer(object):
     """Encapsulates and sends an email message.
-    
+
     :param to_name: recipient name
     :param to_email: recipient email address
     :param from_name: sender name
@@ -65,7 +65,7 @@ class Emailer(object):
             'cc': self.cc,
             'bcc': self.bcc,
             'reply_to': self.reply_to,
-            'html': self.composer.compose_email(),
+            'html': self.html or self.composer.compose_email(),
             'track_clicks': True,
             'track_opens': True,
             'test': False
