@@ -27,7 +27,7 @@ class MandrillAPI(object):
                    tags=[],
                    ga_campaign=None):
 
-        message = {
+        self.message = {
             'attachments': [],
             'auto_html': None,
             'auto_text': None,
@@ -62,7 +62,7 @@ class MandrillAPI(object):
 
         try:
             m = mandrill.Mandrill(self.api_key)
-            result = m.messages.send(message=message, async=True)
+            result = m.messages.send(message=self.message, async=True)
 
         except mandrill.Error, e:
             # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'    
