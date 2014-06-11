@@ -25,7 +25,7 @@ class MandrillAPITests(TestBase):
             def __init__(self):
                 self.messages = mock.MagicMock()
                 self.messages.send = mock.MagicMock()
-        
+
         mandrill_stub = M()
         md_mock.Mandrill.return_value = mandrill_stub
         with self.app.app_context():

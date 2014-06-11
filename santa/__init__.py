@@ -68,7 +68,6 @@ def process_client_app_token(request, payload):
 #
 def validate_user(request):
     data = request.form or request.json
-    print data
     # TODO prevent logged in users from creating other users?
 
     # If signing up via oauth tokens
@@ -164,7 +163,7 @@ def send_welcome_email(request, payload):
             postman = MandrillAPI()
             composer = WelcomeEmailComposer('welcome.html')
             emailer = Emailer(to_name=user.get('name'),
-                              to_email= user.get('email'),
+                              to_email=user.get('email'),
                               postman=postman,
                               composer=composer)
             emailer.send_email()

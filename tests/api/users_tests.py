@@ -24,8 +24,8 @@ class UsersTests(TestBase):
     # TODO Test validation here...
 
     def test_send_welcome_email_after_create_user(self, emailer_mock, composer_mock, mandrill_mock):
-        postman = mandrill_mock.return_value
-        composer = composer_mock.return_value
+        # postman = mandrill_mock.return_value
+        # composer = composer_mock.return_value
         emailer_mock_instance = emailer_mock.return_value
         emailer_mock_instance.send_email = mock.Mock()
         res = self.test_client.post('/api/v1/users', data=dict(

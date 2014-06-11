@@ -63,8 +63,9 @@ class MandrillAPI(object):
         try:
             m = mandrill.Mandrill(self.api_key)
             result = m.messages.send(message=self.message, async=True)
+            print result
 
         except mandrill.Error, e:
-            # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'    
+            # A mandrill error occurred: <class 'mandrill.UnknownSubaccountError'> - No subaccount exists with the id 'customer-123'
             raise StandardError(
                 'A mandrill error occurred: %s - %s' % (e.__class__, e))
