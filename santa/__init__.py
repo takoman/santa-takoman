@@ -9,6 +9,9 @@ from apps.me.controllers import me
 from bson.objectid import ObjectId
 from santa.lib.social_auth import SocialFacebook
 from santa.lib.api_errors import ApiException
+from santa.apps.email.models.emailer import Emailer
+from santa.apps.email.models.composer import WelcomeEmailComposer
+from santa.apps.email.models.mandrill_api import MandrillAPI
 
 def create_app():
     # The way how Eve looks for the abs settings file would not work when working
@@ -39,6 +42,7 @@ def hook_up_callbacks(app):
     app.on_post_GET_client_apps += process_client_app_token
     app.on_pre_POST_users += validate_user
     app.on_insert_users += normalize_user
+    app.on_post_POST_users += send_welcome_email
 
 def process_client_app_token(request, payload):
     client_id = request.args.get('client_id')
@@ -64,7 +68,6 @@ def process_client_app_token(request, payload):
 #
 def validate_user(request):
     data = request.form or request.json
-    print data
     # TODO prevent logged in users from creating other users?
 
     # If signing up via oauth tokens
@@ -150,3 +153,20 @@ def normalize_user(users):
         # remove unnecessary fields
         user.pop('provider', None)
         user.pop('oauth_token', None)
+
+def send_welcome_email(request, payload):
+    user_id = json.loads(payload.get_data()).get('_id')
+    if payload.status_code == 201 and user_id:
+        users = app.data.driver.db['users']
+        user = users.find_one({'_id': ObjectId(user_id)})
+        if user:
+            postman = MandrillAPI()
+            composer = WelcomeEmailComposer('welcome.html')
+            emailer = Emailer(to_name=user.get('name'),
+                              to_email=user.get('email'),
+                              postman=postman,
+                              composer=composer)
+            emailer.send_email()
+        else:
+            raise StandardError(
+                "user not existed in the database for sending welcome email")

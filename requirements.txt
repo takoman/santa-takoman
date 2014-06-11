@@ -8,3 +8,4 @@ python-dateutil==2.2
 flake8==2.1.0
 facebook-sdk==0.4.0
 mock==1.0.1
+mandrill==1.0.53
