@@ -1,4 +1,4 @@
-git+git://github.com/nicolaiarocci/eve.git
+Flask==0.10.1
 py-bcrypt==0.4
 gunicorn==18.0
 nose==1.3.3
@@ -9,3 +9,4 @@ flake8==2.1.0
 facebook-sdk==0.4.0
 mock==1.0.1
 mandrill==1.0.53
+mongoengine==0.8.7
