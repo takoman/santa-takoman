@@ -1,65 +1,66 @@
 # -*- coding: utf-8 -*-
-"""
-    santa.domain.users.py
-    ~~~~~~~~~~~~~~~~~~~~~~~
 
-    'users' resource and schema settings.
+from flask import Blueprint, request, jsonify
+from santa.lib.auth import AccessTokenAuth
+from santa.lib.api_errors import ApiException
+from bson.objectid import ObjectId
+from santa.models.domain.user import User
+from santa.lib.common import parse_request, render_json, me_to_json
+import json
 
-    :copyright: (c) 2013 by Chung-Yi Chi
-    :license:
-"""
+users = Blueprint('users', __name__)
 
-definition = {
-    # 'allowed_roles': ['admin'],
-    # 'authentication': BCryptAuth(),
+@users.route('/api/v1/users', methods=['GET'])
+def get_users():
+    users = User.objects.all()
 
-    # the standard account entry point is defined as
-    # '/users/<ObjectId>'. We define  an additional read-only entry
-    # point accessible at '/accounts/<username>'.
-    # 'additional_lookup': {
-    #     'url': 'regex("[\w-]+")',
-    #     'field': 'name',
-    # },
+    # flask.jsonify prevents us from jsonifying a list for security reasons
+    # https://github.com/mitsuhiko/flask/issues/170
+    return render_json(me_to_json(users))
 
-    # We also disable endpoint caching as we don't want client apps to
-    # cache account data.
-    'cache_control': '',
-    'cache_expires': 0,
+@users.route('/api/v1/users/<user_id>', methods=['GET'])
+def get_user(user_id):
+    user = User.objects(id=user_id).first()
 
-    'datasource': {
-        'projection': {'password': 0}
-    },
-    'schema': {
-        '_id': {
-            'type'      : 'string'
-        },
-        'name': {
-            'type'      : 'string',
-            'maxlength' : 256,
-        },
-        'email': {
-            'type'      : 'string',
-            'maxlength' : 256,
-            # Consider using custom validators for more readable error messages
-            'regex'     : '^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
-        },
-        'password': {
-            'type'      : 'string',
-            'minlength' : 8,
-        },
-        # oauth_token and provider fields here are only for avoiding unknown
-        # fields error when social signups. We will remove them when inserting
-        # to database. See more:
-        # http://python-eve.org/validation.html#allowing-the-unknown
-        'oauth_token': {
-            'type'      : 'string'
-        },
-        'provider': {
-            'type'      : 'string'
-        },
-        'role': {
-            'type'      : 'list',
-            'allowed'   : ["user", "takoman", "admin"]
-        },
-    }
-}
+    return render_json(me_to_json(users))
+
+@users.route('/api/v1/users', methods=['POST'])
+def post():
+    data = parse_request(request)
+    new_user = User(**data)
+    new_user.save()
+
+    return 'OK'
+
+@users.route('/api/v1/users/<user_id>', methods=['PUT'])
+def put_user(user_id):
+    data = parse_request(request)
+
+    # Filter unknown fields
+    known_fields = User._fields.keys()
+
+    # Mongoengine update doesn't support validation now
+    # https://github.com/MongoEngine/mongoengine/issues/453
+    #set_user = dict((("set__%s" % k, v) for k,v in data.iteritems() if k in known_fields))
+    #User.objects(id=user_id).update(**set_user)
+
+    # So, we use save()
+    user = User.objects(id=user_id).first()
+    if not user:
+        raise ApiException("user not found")
+
+    for k, v in data.iteritems():
+        if k in known_fields:
+            setattr(user, k, v)
+    user.save()
+
+    return render_json(me_to_json(user))
+
+@users.route('/api/v1/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.objects(id=user_id).first()
+    if not user:
+        raise ApiException("user not found")
+    user.delete()
+
+    return render_json(me_to_json(user))
