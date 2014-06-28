@@ -6,11 +6,13 @@ from santa.lib.api_errors import ApiException
 from bson.objectid import ObjectId
 from santa.models.domain.user import User
 from santa.lib.common import parse_request, render_json, me_to_json
+from santa.lib.auth import require_app_auth
 import json
 
 users = Blueprint('users', __name__)
 
 @users.route('/api/v1/users', methods=['GET'])
+@require_app_auth
 def get_users():
     users = User.objects.all()
 
@@ -19,12 +21,14 @@ def get_users():
     return render_json(me_to_json(users))
 
 @users.route('/api/v1/users/<user_id>', methods=['GET'])
+@require_app_auth
 def get_user(user_id):
     user = User.objects(id=user_id).first()
 
     return render_json(me_to_json(users))
 
 @users.route('/api/v1/users', methods=['POST'])
+@require_app_auth
 def post():
     data = parse_request(request)
     new_user = User(**data)
@@ -33,6 +37,7 @@ def post():
     return 'OK'
 
 @users.route('/api/v1/users/<user_id>', methods=['PUT'])
+@require_app_auth
 def put_user(user_id):
     data = parse_request(request)
 
@@ -57,6 +62,7 @@ def put_user(user_id):
     return render_json(me_to_json(user))
 
 @users.route('/api/v1/users/<user_id>', methods=['DELETE'])
+@require_app_auth
 def delete_user(user_id):
     user = User.objects(id=user_id).first()
     if not user:
