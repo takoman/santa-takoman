@@ -1,6 +1,5 @@
 import bcrypt
-from flask import request, current_app as app
-from eve.auth import BasicAuth, TokenAuth
+from flask import request, Response, abort, current_app as app
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiException
 from santa.models.domain.client_app import ClientApp
@@ -24,12 +23,6 @@ class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
     """
-    def set_request_auth_value(self, value):
-        g.auth_value = value
-
-    def get_request_auth_value(self):
-        return g.get("auth_value")
-
     def check_auth(self, username, password, allowed_roles, resource, method):
         """ This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.

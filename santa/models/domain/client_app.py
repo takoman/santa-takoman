@@ -13,4 +13,3 @@ class ClientApp(Document):
     meta = {
         'collection': 'client_apps'
     }
-

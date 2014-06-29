@@ -14,7 +14,7 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         # Set environment variable to override settings with test settings.
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        os.environ['EVE_SETTINGS'] = current_dir + '/../config/settings_test.py'
+        os.environ['SANTA_SETTINGS'] = current_dir + '/../santa/config/settings_test.py'
 
         self.app = create_app()
         self.c = self.app.config  # set an alias for configs

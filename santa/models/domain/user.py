@@ -3,7 +3,6 @@
 from mongoengine import *
 from mongoengine import signals
 import datetime, bcrypt
-from santa.lib.common import parse_request, render_json, me_to_json
 from santa.models.domain.social_auth import SocialAuth
 from santa.apps.email.models.emailer import Emailer
 from santa.apps.email.models.composer import WelcomeEmailComposer

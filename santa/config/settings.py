@@ -1,10 +1,19 @@
+# -*- coding: utf-8 -*-
+"""
+    settings.py
+    ~~~~~~~~~~~~~~~
+
+    Default settings for development.
+    Settings for different environments should *override* the settings here.
+"""
+
 DEBUG = True
 
-MONGODB_HOST      = 'localhost'
-MONGODB_PORT      = 27017
-# MONGODB_USERNAME  = ''
-# MONGODB_PASSWORD  = ''
-MONGODB_DBNAME    = 'santa_local'
+MONGO_HOST      = 'localhost'
+MONGO_PORT      = 27017
+# MONGO_USERNAME  = ''
+# MONGO_PASSWORD  = ''
+MONGO_DBNAME    = 'santa-local'
 
 #
 # Customized configuration

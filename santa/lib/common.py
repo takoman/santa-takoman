@@ -46,8 +46,8 @@ def me_to_json(obj):
         return json.dumps(list(obj.as_pymongo()), cls=MongoJSONEncoder)
     raise ApiException("can't convert unsupported type to JSON")
 
-def render_json(json):
-    return Response(json, mimetype='application/json')
+def render_json(json, status=200):
+    return Response(json, status=status, mimetype='application/json')
 
 def parse_request(request):
     """ Performs sanity checks or decoding depending on the Content-Type,

@@ -1,23 +1,13 @@
-import os, json, datetime, bcrypt
-from eve import Eve
-from eve.utils import config
-from santa.lib.auth import XAppTokenAuth
-from flask import current_app as app
+import os
 from flask import jsonify, Flask
-from apps.auth.controllers import auth
-from apps.me.controllers import me
-from bson.objectid import ObjectId
-from santa.lib.social_auth import SocialFacebook
 from santa.lib.api_errors import ApiException
-from santa.apps.email.models.emailer import Emailer
-from santa.apps.email.models.composer import WelcomeEmailComposer
-from santa.apps.email.models.mandrill_api import MandrillAPI
-from santa.models.domain.user import User
 from mongoengine import connect
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('santa.config.settings')
+    if 'SANTA_SETTINGS' in os.environ:
+        app.config.from_envvar('SANTA_SETTINGS')
 
     connect_db(app)
     hook_up_error_handlers(app)
@@ -25,9 +15,9 @@ def create_app():
     return app
 
 def connect_db(app):
-    connect(app.config['MONGODB_DBNAME'],
-        host=app.config['MONGODB_HOST'],
-        port=app.config['MONGODB_PORT'])
+    connect(app.config['MONGO_DBNAME'],
+            host=app.config['MONGO_HOST'],
+            port=app.config['MONGO_PORT'])
 
 def hook_up_error_handlers(app):
     @app.errorhandler(ApiException)

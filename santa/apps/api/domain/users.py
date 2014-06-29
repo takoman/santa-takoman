@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, request, jsonify
-from santa.lib.auth import AccessTokenAuth
+from flask import Blueprint, request
 from santa.lib.api_errors import ApiException
-from bson.objectid import ObjectId
 from santa.models.domain.user import User
 from santa.models.domain.social_auth import SocialAuth
 from santa.lib.common import parse_request, render_json, me_to_json
 from santa.lib.auth import require_app_auth
 from santa.lib.social_auth import SocialFacebook
-import json
 
 users = Blueprint('users', __name__)
 
@@ -27,7 +24,7 @@ def get_users():
 def get_user(user_id):
     user = User.objects(id=user_id).first()
 
-    return render_json(me_to_json(users))
+    return render_json(me_to_json(user))
 
 #
 # We use the /users endpoints for both credentials and oauth token signups.
@@ -71,7 +68,7 @@ def post():
         new_user.link_social_auth(auth_data)
     new_user.send_welcome_email()
 
-    return render_json(me_to_json(new_user))
+    return render_json(me_to_json(new_user), status=201)
 
 @users.route('/api/v1/users/<user_id>', methods=['PUT'])
 @require_app_auth
@@ -83,8 +80,8 @@ def put_user(user_id):
 
     # Mongoengine update doesn't support validation now
     # https://github.com/MongoEngine/mongoengine/issues/453
-    #set_user = dict((("set__%s" % k, v) for k,v in data.iteritems() if k in known_fields))
-    #User.objects(id=user_id).update(**set_user)
+    # set_user = dict((("set__%s" % k, v) for k,v in data.iteritems() if k in known_fields))
+    # User.objects(id=user_id).update(**set_user)
 
     # So, we use save()
     user = User.objects(id=user_id).first()
