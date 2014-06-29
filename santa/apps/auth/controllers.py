@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
 from flask import Blueprint, request, jsonify
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiException
 from santa.lib.social_auth import SocialFacebook
+from santa.models.domain.client_app import ClientApp
+from santa.models.domain.user import User
+from santa.models.domain.social_auth import SocialAuth
 import datetime, bcrypt
 
 auth = Blueprint('auth', __name__)
@@ -14,9 +16,7 @@ def oauth():
     client_id = form.get('client_id')
     if not client_id:
         raise ApiException("missing client_id")
-    client_apps = app.data.driver.db['client_apps']
-    lookup = {'client_id': client_id, 'client_secret': form.get('client_secret')}
-    client_app = client_apps.find_one(lookup)
+    client_app = ClientApp.objects(client_id=client_id, client_secret=form.get('client_secret')).first()
     if not client_app:
         raise ApiException("invalid client_id or client_secret")
 
@@ -32,13 +32,14 @@ def oauth():
         if not password:
             raise ApiException("missing password")
 
-        users = app.data.driver.db['users']
-        user = users.find_one({'email': email})
+        user = User.objects(email=email).first()
         if not user or not is_valid_password(user, password):
             raise ApiException("invalid email or password")
 
         access_token = UserTrust().create_access_token({
-            'user': user, 'client_app': client_app, 'expires_in': expires_in
+            'user': user.to_mongo(),
+            'client_app': client_app.to_mongo(),
+            'expires_in': expires_in
         })
 
     elif grant_type == 'oauth_token':
@@ -58,22 +59,22 @@ def oauth():
         if not auth_data:
             raise ApiException("invalid oauth token")
 
-        social_auths = app.data.driver.db['social_authentications']
-        matching_auth = social_auths.find_one({'uid': auth_data.get('uid')})
-        if not matching_auth or not matching_auth.get('user'):
+        matching_auth = SocialAuth.objects(uid=auth_data.get('uid')).first()
+        if not matching_auth or not matching_auth.user:
             raise ApiException(
                 "no account linked to oauth token" +
                 ", uid=" + auth_data.get('uid') +
                 ", name=" + auth_data.get('name') +
                 ", email=" + auth_data.get('email')
             )
-        users = app.data.driver.db['users']
-        user = users.find_one({'_id': matching_auth.get('user')})
+        user = User.objects(id=matching_auth.user.id).first()
         if not user:
             raise ApiException("missing user associated with this oauth token")
 
         access_token = UserTrust().create_access_token({
-            'user': user, 'client_app': client_app, 'expires_in': expires_in
+            'user': user.to_mongo(),
+            'client_app': client_app.to_mongo(),
+            'expires_in': expires_in
         })
 
     else:

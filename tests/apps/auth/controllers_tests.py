@@ -12,7 +12,7 @@ class AuthControllersTests(TestBase):
             'name': 'Tako Woman',
             'email': 'takowoman@takoman.co'
         })
-        self.db.social_authentications.insert({
+        self.db.social_auths.insert({
             "uid": "10152476049619728",
             "first_name": "Woman",
             "last_name": "Tako",
@@ -263,7 +263,7 @@ class AuthControllersTests(TestBase):
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_matching_auth_no_user(self, fb_mock):
-        self.db.social_authentications.update(
+        self.db.social_auths.update(
             {'uid': '10152476049619728'},
             # unset operator deletes a particular field
             {'$unset': {'user': ''}}

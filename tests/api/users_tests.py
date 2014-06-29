@@ -6,13 +6,15 @@
     api users tests module
 """
 from tests import TestBase
+from santa.models.domain.social_auth import SocialAuth
+from santa.models.domain.user import User
 import unittest, mock
 
 # Need to patch the emailing services for all the tests to prevent sending
 # "real" testing emails via Mandrill.
-@mock.patch('santa.MandrillAPI')
-@mock.patch('santa.WelcomeEmailComposer')
-@mock.patch('santa.Emailer')
+@mock.patch('santa.models.domain.user.MandrillAPI')
+@mock.patch('santa.models.domain.user.WelcomeEmailComposer')
+@mock.patch('santa.models.domain.user.Emailer')
 class UsersTests(TestBase):
 
     def test_public_access_users(self, emailer_mock, composer_mock, mandrill_mock):
@@ -76,7 +78,7 @@ class UsersTests(TestBase):
 
         assert res.status_code == 401
 
-    @mock.patch('santa.SocialFacebook')
+    @mock.patch('santa.apps.api.domain.users.SocialFacebook')
     def test_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
@@ -95,20 +97,17 @@ class UsersTests(TestBase):
         ), headers={'X-XAPP-TOKEN': 'rudy-token'})
 
         assert res.status_code == 201
-        with self.app.app_context():
-            users = self.app.data.driver.db['users']
-            user = users.find_one({'email': 'kid@takoman.co'})
-            assert user is not None
-            assert user.get('email') == 'kid@takoman.co'
-            assert user.get('name') == 'Tako Kid'
-            social_auths = self.app.data.driver.db['social_authentications']
-            social_auth = social_auths.find_one({'user': user.get('_id')})
-            assert social_auth is not None
-            assert social_auth.get('email') == 'kid@takoman.co'
-            assert social_auth.get('uid') == '10152476049619728'
-            assert social_auth.get('name') == 'Tako-Kid'
+        user = User.objects(email='kid@takoman.co').first()
+        assert user is not None
+        assert user.email == 'kid@takoman.co'
+        assert user.name == 'Tako Kid'
+        social_auth = SocialAuth.objects(user=user).first()
+        assert social_auth is not None
+        assert social_auth.email == 'kid@takoman.co'
+        assert social_auth.uid == '10152476049619728'
+        assert social_auth.name == 'Tako-Kid'
 
-    @mock.patch('santa.SocialFacebook')
+    @mock.patch('santa.apps.api.domain.users.SocialFacebook')
     def test_unauthorized_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {

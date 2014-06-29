@@ -1,8 +1,94 @@
 import bcrypt
-from flask import request, current_app as app
-from eve.auth import BasicAuth, TokenAuth
+from flask import request, Response, abort, current_app as app
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiException
+from santa.models.domain.client_app import ClientApp
+from functools import wraps
+
+def require_auth(f, auth_class):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = auth_class()
+        roles = resource_name = None
+        if not auth.authorized(roles, resource_name, request.method):
+            return auth.authenticate()
+        return f(*args, **kwargs)
+
+    return decorated
+
+def require_app_auth(f):
+    return require_auth(f, XAppTokenAuth)
+
+class BasicAuth(object):
+    """ Implements Basic AUTH logic. Should be subclassed to implement custom
+    authentication checking.
+    """
+    def check_auth(self, username, password, allowed_roles, resource, method):
+        """ This function is called to check if a username / password
+        combination is valid. Must be overridden with custom logic.
+
+        :param username: username provided with current request.
+        :param password: password provided with current request
+        :param allowed_roles: allowed user roles.
+        :param resource: resource being requested.
+        :param method: HTTP method being executed (POST, GET, etc.)
+        """
+        raise NotImplementedError
+
+    def authenticate(self):
+        """ Returns a standard a 401 response that enables basic auth.
+        Override if you want to change the response and/or the realm.
+        """
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+                                    __package__})
+        abort(401, description='Please provide proper credentials',
+              response=resp)
+
+    def authorized(self, allowed_roles, resource, method):
+        """ Validates the the current request is allowed to pass through.
+
+        :param allowed_roles: allowed roles for the current request, can be a
+                              string or a list of roles.
+        :param resource: resource being requested.
+        """
+        auth = request.authorization
+        return auth and self.check_auth(auth.username, auth.password,
+                                        allowed_roles, resource, method)
+
+class TokenAuth(BasicAuth):
+    """ Implements Token AUTH logic. Should be subclassed to implement custom
+    authentication checking.
+    """
+    def check_auth(self, token, allowed_roles, resource, method):
+        """ This function is called to check if a token is valid. Must be
+        overridden with custom logic.
+
+        :param token: decoded user name.
+        :param allowed_roles: allowed user roles
+        :param resource: resource being requested.
+        :param method: HTTP method being executed (POST, GET, etc.)
+        """
+        raise NotImplementedError
+
+    def authenticate(self):
+        """ Returns a standard a 401 response that enables basic auth.
+        Override if you want to change the response and/or the realm.
+        """
+        resp = Response(None, 401, {'WWW-Authenticate': 'Basic realm:"%s"' %
+                                    __package__})
+        abort(401, description='Please provide proper credentials',
+              response=resp)
+
+    def authorized(self, allowed_roles, resource, method):
+        """ Validates the the current request is allowed to pass through.
+
+        :param allowed_roles: allowed roles for the current request, can be a
+                              string or a list of roles.
+        :param resource: resource being requested.
+        """
+        auth = request.authorization
+        return auth and self.check_auth(auth.username, allowed_roles, resource,
+                                        method)
 
 class BCryptAuth(BasicAuth):
     def check_auth(self, username, password, allowed_roles, resource, method):
@@ -31,10 +117,7 @@ class XAppTokenAuth(TokenAuth):
         return auth and self.check_auth(auth, allowed_roles, resource, method)
 
     def check_auth(self, token, allowed_roles, resource, method):
-        # use Eve's own db driver; no additional connections/resources are used
-        client_apps = app.data.driver.db['client_apps']
-        lookup = {'token': token}
-        return client_apps.find_one(lookup)
+        return ClientApp.objects(token=token).first()
 
     def authenticate(self):
         """ Returns a standard a 401 response that enables xapp auth.

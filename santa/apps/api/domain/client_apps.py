@@ -1,49 +1,24 @@
 # -*- coding: utf-8 -*-
-"""
-    santa.domain.client_apps.py
-    ~~~~~~~~~~~~~~~~~~~~~~~
 
-    'client_apps' resource and schema settings.
+from flask import Blueprint, request
+from santa.models.domain.client_app import ClientApp
+from santa.lib.common import render_json
+import json, datetime
 
-    :copyright: (c) 2013 by Chung-Yi Chi
-    :license:
-"""
+client_apps = Blueprint('client_apps', __name__)
 
-# This resource is used as an item, it must be passed with client_id and
-# client_secret in request arguments and will return the token, see
-# `process_client_app_token()` function for details.
-definition = {
-    'url': 'xapp_token',
-    'datasource': { 'source': 'client_apps' },
+@client_apps.route('/api/v1/xapp_token', methods=['GET'])
+def get_client_apps():
+    client_id = request.args.get('client_id')
+    client_secret = request.args.get('client_secret')
+    client_app = ClientApp.objects(client_id=client_id, client_secret=client_secret).first()
 
-    'public_methods': ['GET'],
-    'public_item_methods': [],
+    data = {}
+    if client_app:
+        # Ideally, we have to expire tokens periodically and generate new ones.
+        # Here we just expire it in 10 years.
+        ten_years_from_now = datetime.datetime.now() + datetime.timedelta(days=10 * 365)
+        expires = ten_years_from_now.isoformat()
+        data = { u'xapp_token': client_app['token'], u'expires_in': expires }
 
-    # We also disable endpoint caching as we don't want client apps to
-    # cache app data.
-    'cache_control': '',
-    'cache_expires': 0,
-
-    'datasource': {
-        'projection': {'token': 1}
-    },
-    'schema': {
-        'client_id': {
-            'type': 'string',
-            'minlength': 8,
-            'required': True
-        },
-        'client_secret': {
-            'type': 'string',
-            'minlength': 8,
-            'required': True
-        },
-        # TODO We should move the token to a separate table, cache it somewhere
-        # (e.g. Redis), and expire it periodically
-        'token': {
-            'type': 'string',
-            'minlength': 8,
-            'required': True
-        }
-    }
-}
+    return render_json(json.dumps(data))

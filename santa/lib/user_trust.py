@@ -12,6 +12,8 @@
 from flask import current_app as app
 from aes_cipher import AESCipher
 from santa.lib.api_errors import ApiException
+from santa.models.domain.user import User
+from santa.models.domain.client_app import ClientApp
 import datetime, json, uuid, dateutil.parser, os, hashlib
 
 class UserTrust:
@@ -64,12 +66,15 @@ class UserTrust:
             raise ApiException("missing user_id in the trust token")
 
         client_id = trust.get('app_id')
-        client_apps = app.data.driver.db['client_apps']
-        if not client_id or not client_apps.find_one({'client_id': client_id}):
+        client_app = ClientApp.objects(client_id=client_id).first()
+        if not client_id or not client_app:
             return None
 
-        users = app.data.driver.db['users']
-        return users.find_one({'email': user_id}) or None
+        user = User.objects(email=user_id).first()
+        if not user:
+            return None
+
+        return user.to_mongo()
 
     def secret_key(self):
         trust_key_value = os.environ.get('TOKEN_TRUST_KEY') or app.config.get('TOKEN_TRUST_KEY')
