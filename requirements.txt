@@ -10,3 +10,4 @@ facebook-sdk==0.4.0
 mock==1.0.1
 mandrill==1.0.53
 mongoengine==0.8.7
+blinker==1.3
