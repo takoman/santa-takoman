@@ -3,14 +3,14 @@ s:
 	source ./venv/bin/activate && python run.py
 
 sp:
-	source ./venv/bin/activate && EVE_SETTINGS=$(shell pwd)/config/settings.prod.py python run.py
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py python run.py
 
 gsp:
-	source ./venv/bin/activate && EVE_SETTINGS=$(shell pwd)/config/settings.prod.py gunicorn -c gunicorn.conf.py run:app
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py gunicorn -c gunicorn.conf.py run:app
 
 # Tests
 test:
-	source ./venv/bin/activate && EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
+	source ./venv/bin/activate && nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
 
 shippable-test:
-	EVE_SETTINGS=$(shell pwd)/config/settings.test.py nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
+	nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
