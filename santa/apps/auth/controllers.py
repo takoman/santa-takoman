@@ -83,4 +83,4 @@ def oauth():
     return jsonify(access_token=access_token, expires_in=expires_in.isoformat())
 
 def is_valid_password(user, password):
-    return user and bcrypt.hashpw(password, user['password']) == user['password']
+    return user and bcrypt.hashpw(password, user.password) == user.password

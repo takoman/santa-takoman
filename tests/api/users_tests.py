@@ -26,8 +26,8 @@ class UsersTests(TestBase):
     # TODO Test validation here...
 
     def test_send_welcome_email_after_create_user(self, emailer_mock, composer_mock, mandrill_mock):
-        # postman = mandrill_mock.return_value
-        # composer = composer_mock.return_value
+        postman = mandrill_mock.return_value
+        composer = composer_mock.return_value
         emailer_mock_instance = emailer_mock.return_value
         emailer_mock_instance.send_email = mock.Mock()
         res = self.test_client.post('/api/v1/users', data=dict(
@@ -39,12 +39,11 @@ class UsersTests(TestBase):
         assert res.status_code == 201
         assert emailer_mock.called
         assert emailer_mock_instance.send_email.called
-        # TODO Not sure why the `assert_called_once_with` does not work
-        # assert emailer_mock.assert_called_once_with(to_name='takochan',
-        #                                             to_email='takochan@takoman.co',
-        #                                             postman=postman,
-        #                                             composer=composer)
-        # assert emailer_mock_instance.send_email.assert_called_with()
+        emailer_mock.assert_called_once_with(to_name='takochan',
+                                             to_email='takochan@takoman.co',
+                                             postman=postman,
+                                             composer=composer)
+        emailer_mock_instance.send_email.asser_called_once_with()
 
     def test_not_send_welcome_email_after_create_user_error(self, emailer_mock, composer_mock, mandrill_mock):
         emailer_mock_instance = emailer_mock.return_value

@@ -9,15 +9,15 @@ def create_app():
     if 'SANTA_SETTINGS' in os.environ:
         app.config.from_envvar('SANTA_SETTINGS')
 
-    connect_db(app)
+    app.db_conn = connect_db(app)
     hook_up_error_handlers(app)
     register_apps(app)
     return app
 
 def connect_db(app):
-    connect(app.config['MONGO_DBNAME'],
-            host=app.config['MONGO_HOST'],
-            port=app.config['MONGO_PORT'])
+    return connect(app.config['MONGO_DBNAME'],
+                   host=app.config['MONGO_HOST'],
+                   port=app.config['MONGO_PORT'])
 
 def hook_up_error_handlers(app):
     @app.errorhandler(ApiException)
