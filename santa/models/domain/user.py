@@ -13,7 +13,7 @@ class User(Document):
     email       = EmailField(max_length=200, required=True, unique=True)
     password    = StringField(max_length=200)
     slug        = StringField(max_length=200)
-    role        = ListField(StringField(choices=[u'user', u'takoman', u'admin']))
+    role        = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
     updated_at  = DateTimeField(default=datetime.datetime.now)
     created_at  = DateTimeField(default=datetime.datetime.now)
 
@@ -38,11 +38,11 @@ class User(Document):
             if social_auth_data['info'].get('urls'):
                 data['urls'] = social_auth_data['info'].get('urls')
 
-        if 'credentials' in social_auth_data:
+        if social_auth_data.get('credentials'):
             data['credentials'] = social_auth_data['credentials']
 
         # TODO flush any complex objects from extra hash
-        if 'extra' in social_auth_data:
+        if social_auth_data.get('extra'):
             pass
 
         social_auth = SocialAuth(**data)
@@ -59,4 +59,6 @@ class User(Document):
                           composer=composer)
         emailer.send_email()
 
-signals.pre_save.connect(User.normalize_user, sender=User)
+# TODO MongoEngine has a bug that modify document in `pre_save_post_validation`
+# won't actually saved.
+signals.pre_save_post_validation.connect(User.normalize_user, sender=User)
