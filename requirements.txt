@@ -8,6 +8,6 @@ flake8==2.1.0
 facebook-sdk==0.4.0
 mock==1.0.1
 mandrill==1.0.53
-git+git://github.com/starsirius/mongoengine.git
+git+git://github.com/starsirius/mongoengine.git@master
 blinker==1.3
-git+git://github.com/starsirius/nose2.git
+git+git://github.com/starsirius/nose2.git@master
