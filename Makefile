@@ -10,7 +10,7 @@ gsp:
 
 # Tests
 test:
-	source ./venv/bin/activate && nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
+	source ./venv/bin/activate && nose2 -c setup.cfg -v && flake8 .
 
 shippable-test:
-	nosetests -c ./.noserc $(shell find tests -name '*.py' ! -name '__init__.py') && flake8 .
+	nose2 -c setup.cfg -v && flake8 .

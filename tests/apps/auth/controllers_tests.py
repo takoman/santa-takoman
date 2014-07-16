@@ -2,24 +2,22 @@
 from tests import TestBase
 from santa.lib.user_trust import UserTrust
 from bson.objectid import ObjectId
+from santa.models.domain.user import User
+from santa.models.domain.social_auth import SocialAuth
 import unittest, json, datetime, dateutil.parser, mock
 
 class AuthControllersTests(TestBase):
 
     def setUp(self):
         super(AuthControllersTests, self).setUp()
-        self.social_user_id = self.db.users.insert({
-            'name': 'Tako Woman',
-            'email': 'takowoman@takoman.co'
-        })
-        self.db.social_auths.insert({
-            "uid": "10152476049619728",
-            "first_name": "Woman",
-            "last_name": "Tako",
-            "user": ObjectId(self.social_user_id),
-            "email": "takowoman@takoman.co",
-            "name": "Tako Woman"
-        })
+        self.user = User(name='Tako Woman',
+                         email='takowoman@takoman.co').save()
+        self.social_auth = SocialAuth(uid="10152476049619728",
+                                      first_name="Woman",
+                                      last_name="Tako",
+                                      user=ObjectId(self.user.id),
+                                      email="takowoman@takoman.co",
+                                      name="Tako Woman").save()
 
     @unittest.skip("test is invalid password")
     def get_is_valid_password(self):
@@ -263,11 +261,10 @@ class AuthControllersTests(TestBase):
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_matching_auth_no_user(self, fb_mock):
-        self.db.social_auths.update(
-            {'uid': '10152476049619728'},
-            # unset operator deletes a particular field
-            {'$unset': {'user': ''}}
-        )
+        # update social auth
+        self.social_auth.user = None
+        self.social_auth.save()
+
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
             'email'   : 'cy@takoman.co',
@@ -288,7 +285,7 @@ class AuthControllersTests(TestBase):
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_matching_auth_no_matching_user(self, fb_mock):
         # remove the user from db
-        self.db.users.remove({'_id': self.social_user_id})
+        self.user.delete()
 
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
