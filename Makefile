@@ -8,6 +8,10 @@ sp:
 gsp:
 	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py gunicorn -c gunicorn.conf.py run:app
 
+# Start the shell
+shell:
+	source ./venv/bin/activate && python manage.py shell
+
 # Tests
 test:
 	source ./venv/bin/activate && nose2 -c setup.cfg -v && flake8 .
