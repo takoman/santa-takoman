@@ -1,4 +1,4 @@
-from flask.ext.script import Shell, Manager
+from flask.ext.script import Manager
 from santa import create_app
 
 app = create_app()
