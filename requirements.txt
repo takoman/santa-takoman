@@ -1,4 +1,5 @@
 Flask==0.10.1
+flask-script==2.0.5
 py-bcrypt==0.4
 gunicorn==18.0
 pycrypto==2.6.1
