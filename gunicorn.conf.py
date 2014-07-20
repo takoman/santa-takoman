@@ -1,24 +1,35 @@
-import os
+# -*- coding: utf-8 -*-
 
-def numCPUs():
-    if not hasattr(os, "sysconf"):
-        raise RuntimeError("No sysconf detected.")
-    return os.sysconf("SC_NPROCESSORS_ONLN")
+import os, multiprocessing
+
+def available_cpu_count():
+    try:
+        return multiprocessing.cpu_count()
+    except (ImportError, NotImplementedError):
+        raise Exception('Can not determine number of CPUs on this system')
 
 def get_log_dir():
-    log_dir = pwd + "/log"
+    log_dir = os.getcwd() + "/log"
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     return log_dir
 
-pwd       = os.getcwd()
 log_dir   = get_log_dir()
 
-bind      = "localhost:5000"
-workers   = numCPUs() * 2 + 1
+# Server Socket
+bind      = "127.0.0.1:5000"
 backlog   = 2048
+
+# Worker Processes
+workers   = available_cpu_count() * 2 + 1
+
+# Server Mechanics
+# Make sure that when using either of these service monitors you do not enable the Gunicorn's daemon mode.
 daemon    = True
-# pidfile   = log_dir + "/gunicorn.pid"
+
+# Logging
 accesslog = log_dir + "/access.log"
 errorlog  = log_dir + "/error.log"
-# worker_class =  "gevent"
+
+# Process Naming
+proc_name = "santa"

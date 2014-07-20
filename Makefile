@@ -7,8 +7,11 @@ s:
 sp:
 	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py python santa/server.py
 
+gs:
+	source ./venv/bin/activate && gunicorn -c gunicorn.conf.py santa.server:app
+
 gsp:
-	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py gunicorn -c gunicorn.conf.py run:app
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py gunicorn -c gunicorn.conf.py santa.server:app
 
 # Start the shell
 shell:
