@@ -9,7 +9,7 @@ def create_app():
     if 'SANTA_SETTINGS' in os.environ:
         app.config.from_envvar('SANTA_SETTINGS')
 
-    app.db_conn = connect_db(app)
+    app.db = connect_db(app)
     hook_up_error_handlers(app)
     register_apps(app)
     return app
