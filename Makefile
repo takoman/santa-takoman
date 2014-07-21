@@ -1,17 +1,28 @@
 SHELL := /bin/bash
 
-# Start the api
+# Start the API server
 s:
 	source ./venv/bin/activate && python santa/server.py
 
+# Start the API server in production mode
 sp:
-	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py python santa/server.py
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings_prod.py python santa/server.py
 
-gs:
+# Start the API server using gunicorn
+sg:
 	source ./venv/bin/activate && gunicorn -c gunicorn.conf.py santa.server:app
 
-gsp:
-	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings.prod.py gunicorn -c gunicorn.conf.py santa.server:app
+# Start the API server using gunicorn in production mode
+sgp:
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings_prod.py gunicorn -c gunicorn.conf.py santa.server:app
+
+# Start the API server using gunicorn monitored by supervisor
+sgs:
+	source ./venv/bin/activate && supervisord -c supervisord.conf
+
+# Start the API server using gunicorn monitored by supervisor in production mode
+sgsp:
+	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings_prod.py supervisord -c supervisord.conf
 
 # Start the shell
 shell:

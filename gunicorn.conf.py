@@ -25,7 +25,7 @@ workers   = available_cpu_count() * 2 + 1
 
 # Server Mechanics
 # Make sure that when using either of these service monitors you do not enable the Gunicorn's daemon mode.
-daemon    = True
+# daemon    = True
 
 # Logging
 accesslog = log_dir + "/access.log"
