@@ -54,8 +54,8 @@ class AppLifeCycle(object):
         # http://stackoverflow.com/questions/24728078/reset-mongoengine-properly-between-tests
         for doc in [User, ClientApp, SocialAuth]:
             doc.drop_collection()
-        test.app.db_conn.drop_database(test.app.config['MONGO_DBNAME'])
-        test.app.db_conn.close()
+        test.app.db.drop_database(test.app.config['MONGO_DBNAME'])
+        test.app.db.close()
 
 class TestBase(unittest.TestCase):
 
@@ -83,8 +83,8 @@ class TestBase(unittest.TestCase):
         # http://stackoverflow.com/questions/24728078/reset-mongoengine-properly-between-tests
         for doc in [User, ClientApp, SocialAuth]:
             doc.drop_collection()
-        self.app.db_conn.drop_database(self.app.config['MONGO_DBNAME'])
-        self.app.db_conn.close()
+        self.app.db.drop_database(self.app.config['MONGO_DBNAME'])
+        self.app.db.close()
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,7 +7,7 @@ manager = Manager(app)
 
 @manager.shell
 def make_shell_context():
-    return dict(app=app, db=app.db_conn)
+    return dict(app=app, db=app.db)
 
 if __name__ == "__main__":
     manager.run()

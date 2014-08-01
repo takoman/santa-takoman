@@ -1,15 +1,27 @@
-import os
+import os, re
 from flask import jsonify, Flask
 from santa.lib.api_errors import ApiException
 from mongoengine import connect
 
 def create_app():
     app = Flask(__name__)
+    # Load configs from the default settings file.
     app.config.from_object('santa.config.settings')
+
+    # Override configs from the file specified in the SANTA_SETTINGS env var.
     if 'SANTA_SETTINGS' in os.environ:
         app.config.from_envvar('SANTA_SETTINGS')
 
-    app.db_conn = connect_db(app)
+    # Override configs directly from env vars. Convert types. Note that all the
+    # configs provided in the env vars have to namespace with `SANTA_` prefix.
+    # E.g. HOST becomes SANTA_HOST.
+    for key, value in os.environ.iteritems():
+        match = re.search(r'^SANTA_(.*)', key)
+        c = match and match.group(1)
+        if c in app.config:
+            app.config[c] = type(app.config[c])(value)
+
+    app.db = connect_db(app)
     hook_up_error_handlers(app)
     register_apps(app)
     return app
