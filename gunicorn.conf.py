@@ -14,10 +14,15 @@ def get_log_dir():
         os.makedirs(log_dir)
     return log_dir
 
+def bind_address():
+    host = os.environ.get('SANTA_HOST', '127.0.0.1')
+    port = os.environ.get('SANTA_PORT', '5000')
+    return host + ":" + port
+
 log_dir   = get_log_dir()
 
 # Server Socket
-bind      = "127.0.0.1:5000"
+bind      = bind_address()
 backlog   = 2048
 
 # Worker Processes
