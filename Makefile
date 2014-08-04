@@ -25,28 +25,22 @@ spg:
 	source ./venv/bin/activate && SANTA_SETTINGS=$(shell pwd)/santa/config/settings_production.py SANTA_HOST=0.0.0.0 SANTA_PORT=7000 gunicorn -c gunicorn.conf.py santa.server:app
 
 # Start the API server using gunicorn monitored by supervisor
+# Pass the mode in the `env` environment variable, for example,
+# 	`env=staging make sgs`      # Run Santa in staging mode
+# 	`env=production make sgs`   # Run Santa in production mode
+# TODO: Need to check the `env` env var; otherwise, supervisor will start all of them.
 sgs:
-	source ./venv/bin/activate
-	# TODO Run supervisord when an instance is already running will error.
-	# Let's ignore it for now and will need a better way to check that.
-	-supervisord -c supervisord.conf
-	supervisorctl -c supervisord.conf start santa:development
-
-# Start the API server in staging mode using gunicorn monitored by supervisor
-ssgs:
-	source ./venv/bin/activate
-	# TODO Run supervisord when an instance is already running will error.
-	# Let's ignore it for now and will need a better way to check that.
-	-supervisord -c supervisord.conf
-	supervisorctl -c supervisord.conf start santa:staging
-
-# Start the API server in production mode using gunicorn monitored by supervisor
-spgs:
-	source ./venv/bin/activate
-	# TODO Run supervisord when an instance is already running will error.
-	# Let's ignore it for now and will need a better way to check that.
-	-supervisord -c supervisord.conf
-	supervisorctl -c supervisord.conf start santa:production
+	source ./venv/bin/activate; \
+	SUPERVISORD_PID=$$(supervisorctl -c supervisord.conf pid); \
+	case $$SUPERVISORD_PID in \
+	  ''|*[!0-9]*) echo 'Starting supervisord...'; supervisord -c supervisord.conf ;; \
+	  *) echo 'Supervisored is already running.' ;; \
+	esac; \
+	SANTA_PID=$$(supervisorctl -c supervisord.conf pid santa:$(env)); \
+	case $$SANTA_PID in \
+	  0|''|*[!0-9]*) echo 'Starting santa $(env)...'; supervisorctl -c supervisord.conf start santa:$(env) ;; \
+	  *) echo 'Reloading santa $(env)...'; kill -HUP $$SANTA_PID ;; \
+	esac; \
 
 # Start the shell
 shell:
