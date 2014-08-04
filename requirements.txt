@@ -11,5 +11,6 @@ mock==1.0.1
 mandrill==1.0.53
 blinker==1.3
 supervisor==3.0
+newrelic==2.22.1.20
 -e git+git://github.com/starsirius/mongoengine.git@no-tests#egg=mongoengine
 -e git+git://github.com/starsirius/nose2.git@bump-up-six-version#egg=nose2
