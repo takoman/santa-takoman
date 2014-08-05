@@ -47,6 +47,6 @@ def register_apps(app):
     from apps.auth.controllers import auth
     app.register_blueprint(site)
     app.register_blueprint(auth)
-    app.register_blueprint(me)
-    app.register_blueprint(users)
-    app.register_blueprint(client_apps)
+    app.register_blueprint(me, url_prefix='/api/v1')
+    app.register_blueprint(users, url_prefix='/api/v1')
+    app.register_blueprint(client_apps, url_prefix='/api/v1')

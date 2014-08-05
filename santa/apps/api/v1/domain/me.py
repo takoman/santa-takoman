@@ -5,7 +5,7 @@ from santa.lib.api_errors import ApiException
 
 me = Blueprint('me', __name__)
 
-@me.route('/api/v1/me', methods=['GET'])
+@me.route('/me', methods=['GET'])
 def get_me():
     auth = AccessTokenAuth()
     access_token = auth.get_access_token(request)
