@@ -7,7 +7,7 @@ import json, datetime
 
 client_apps = Blueprint('client_apps', __name__)
 
-@client_apps.route('/api/v1/xapp_token', methods=['GET'])
+@client_apps.route('/xapp_token', methods=['GET'])
 def get_client_apps():
     client_id = request.args.get('client_id')
     client_secret = request.args.get('client_secret')

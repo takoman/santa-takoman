@@ -10,7 +10,7 @@ from santa.lib.social_auth import SocialFacebook
 
 users = Blueprint('users', __name__)
 
-@users.route('/api/v1/users', methods=['GET'])
+@users.route('/users', methods=['GET'])
 @require_app_auth
 def get_users():
     users = User.objects.all()
@@ -19,7 +19,7 @@ def get_users():
     # https://github.com/mitsuhiko/flask/issues/170
     return render_json(me_to_json(users))
 
-@users.route('/api/v1/users/<user_id>', methods=['GET'])
+@users.route('/users/<user_id>', methods=['GET'])
 @require_app_auth
 def get_user(user_id):
     user = User.objects(id=user_id).first()
@@ -29,7 +29,7 @@ def get_user(user_id):
 #
 # We use the /users endpoints for both credentials and oauth token signups.
 #
-@users.route('/api/v1/users', methods=['POST'])
+@users.route('/users', methods=['POST'])
 @require_app_auth
 def post():
     data = parse_request(request)
@@ -70,7 +70,7 @@ def post():
 
     return render_json(me_to_json(new_user), status=201)
 
-@users.route('/api/v1/users/<user_id>', methods=['PUT'])
+@users.route('/users/<user_id>', methods=['PUT'])
 @require_app_auth
 def put_user(user_id):
     data = parse_request(request)
@@ -95,7 +95,7 @@ def put_user(user_id):
 
     return render_json(me_to_json(user))
 
-@users.route('/api/v1/users/<user_id>', methods=['DELETE'])
+@users.route('/users/<user_id>', methods=['DELETE'])
 @require_app_auth
 def delete_user(user_id):
     user = User.objects(id=user_id).first()
