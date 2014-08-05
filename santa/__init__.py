@@ -41,10 +41,10 @@ def hook_up_error_handlers(app):
 # Hook up Flask blueprints
 def register_apps(app):
     from apps.site.controllers import site
-    from apps.api.domain.users import users
-    from apps.api.domain.client_apps import client_apps
+    from apps.api.v1.domain.users import users
+    from apps.api.v1.domain.client_apps import client_apps
+    from apps.api.v1.domain.me import me
     from apps.auth.controllers import auth
-    from apps.me.controllers import me
     app.register_blueprint(site)
     app.register_blueprint(auth)
     app.register_blueprint(me)

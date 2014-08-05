@@ -77,7 +77,7 @@ class UsersTests(TestBase):
 
         assert res.status_code == 401
 
-    @mock.patch('santa.apps.api.domain.users.SocialFacebook')
+    @mock.patch('santa.apps.api.v1.domain.users.SocialFacebook')
     def test_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
@@ -106,7 +106,7 @@ class UsersTests(TestBase):
         assert social_auth.uid == '10152476049619728'
         assert social_auth.name == 'Tako-Kid'
 
-    @mock.patch('santa.apps.api.domain.users.SocialFacebook')
+    @mock.patch('santa.apps.api.v1.domain.users.SocialFacebook')
     def test_unauthorized_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
