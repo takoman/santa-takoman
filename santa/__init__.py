@@ -44,9 +44,11 @@ def register_apps(app):
     from apps.api.v1.users import users
     from apps.api.v1.client_apps import client_apps
     from apps.api.v1.me import me
+    from apps.api.v1.system import system
     from apps.auth.controllers import auth
     app.register_blueprint(site)
     app.register_blueprint(auth)
     app.register_blueprint(me, url_prefix='/api/v1')
     app.register_blueprint(users, url_prefix='/api/v1')
     app.register_blueprint(client_apps, url_prefix='/api/v1')
+    app.register_blueprint(system, url_prefix='/api/v1')
