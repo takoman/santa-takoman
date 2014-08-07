@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint, jsonify
-from santa.lib.common import render_json
 from mongoengine.connection import get_connection
 
 system = Blueprint('system', __name__)
