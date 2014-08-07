@@ -46,6 +46,15 @@ sgs:
 shell:
 	source ./venv/bin/activate && python santa/manage.py shell
 
+# Bootstrap Santa
+# Need to export the ARCHFLAGS env var on Mac for Xcode 5.1 compilation fix.
+# http://bruteforce.gr/bypassing-clang-error-unknown-argument.html
+bootstrap:
+	virtualenv venv; \
+	export ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future; \
+	source ./venv/bin/activate && pip install -r requirements.txt; \
+	python setup.py develop; \
+
 # Tests
 test:
 	source ./venv/bin/activate && nose2 -c setup.cfg -v && flake8 .
