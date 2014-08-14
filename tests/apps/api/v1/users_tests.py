@@ -24,6 +24,19 @@ class UsersTests(TestBase):
     # TODO Test access control for different roles...
 
     # TODO Test validation here...
+    def test_create_user_by_credentials_duplicate_email(self, emailer_mock, composer_mock, mandrill_mock):
+        user = {
+            'name': 'takochan',
+            'email': 'takochan@takoman.co',
+            'password': 'takochanmansai'
+        }
+        res = self.test_client.post('/api/v1/users',
+            data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
+        res = self.test_client.post('/api/v1/users',
+            data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
+
+        self.assertEqual(res.status_code, 400)
+        self.assertTrue("duplicate unique keys" in res.data)
 
     def test_send_welcome_email_after_create_user(self, emailer_mock, composer_mock, mandrill_mock):
         postman = mandrill_mock.return_value
