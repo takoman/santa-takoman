@@ -36,9 +36,9 @@ def hook_up_error_handlers(app):
     @app.errorhandler(Exception)
     def handle_api_exception(error):
         if any(map(lambda e: isinstance(error, e), [
-            NotRegistered, InvalidDocumentError, LookUpError, DoesNotExist,
-            MultipleObjectsReturned, InvalidQueryError, OperationError,
-            NotUniqueError])):
+               NotRegistered, InvalidDocumentError, LookUpError, DoesNotExist,
+               MultipleObjectsReturned, InvalidQueryError, OperationError,
+               NotUniqueError])):
 
             # TODO: Categorize these with different status_code
             # TODO: Transform error messages to be more informative
