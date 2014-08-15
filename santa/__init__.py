@@ -41,8 +41,12 @@ def hook_up_error_handlers(app):
             NotUniqueError])):
 
             # TODO: Categorize these with different status_code
+            # TODO: Transform error messages to be more informative
+            # e.g. A NotUniqueError might give a "Tried to save duplicate unique keys (E11000 duplicate key error index: santa-test.users.$email_1  dup key: { : \\"takochan@takoman.co\\" })" message
             error = ApiException(str(error))
         elif isinstance(error, ValidationError):
+            # TODO: Transform error messages to be more informative
+            # e.g. A ValidationError might give a "Only lists and tuples may be used in a list field: [\'role\']" message
             error = ApiException(error._format_errors())
         elif isinstance(error, ApiException):
             pass
