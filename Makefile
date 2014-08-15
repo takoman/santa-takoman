@@ -28,18 +28,17 @@ spg:
 # Pass the mode in the `env` environment variable, for example,
 # 	`env=staging make sgs`      # Run Santa in staging mode
 # 	`env=production make sgs`   # Run Santa in production mode
-# TODO: Need to check the `env` env var; otherwise, supervisor will start all of them.
-sgs:
+sgs: check-env
 	source ./venv/bin/activate; \
 	SUPERVISORD_PID=$$(supervisorctl -c supervisord.conf pid); \
 	case $$SUPERVISORD_PID in \
 	  ''|*[!0-9]*) echo 'Starting supervisord...'; supervisord -c supervisord.conf ;; \
-	  *) echo 'Supervisored is already running.' ;; \
+	  *) echo 'Supervisored is already running.'; \
 	esac; \
 	SANTA_PID=$$(supervisorctl -c supervisord.conf pid santa:$(env)); \
 	case $$SANTA_PID in \
 	  0|''|*[!0-9]*) echo 'Starting santa $(env)...'; supervisorctl -c supervisord.conf start santa:$(env) ;; \
-	  *) echo 'Reloading santa $(env)...'; kill -HUP $$SANTA_PID ;; \
+	  *) echo 'Reloading santa $(env)...'; kill -HUP $$SANTA_PID; \
 	esac; \
 
 # Start the shell
@@ -61,3 +60,10 @@ test:
 
 shippable-test:
 	nose2 -c setup.cfg -v && flake8 .
+
+check-env:
+ifndef env
+	$(error Environment variable `env` is undefined.)
+endif
+
+.PHONY: s ss sp sg ssg spg sgs shell bootstrap test shippable-test check-env
