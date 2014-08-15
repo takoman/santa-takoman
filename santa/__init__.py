@@ -2,6 +2,7 @@ import os, re
 from flask import jsonify, Flask
 from santa.lib.api_errors import ApiException
 from mongoengine import connect
+from mongoengine.errors import *
 
 def create_app():
     app = Flask(__name__)
@@ -32,8 +33,26 @@ def connect_db(app):
                    port=app.config['MONGO_PORT'])
 
 def hook_up_error_handlers(app):
-    @app.errorhandler(ApiException)
-    def handle_api_oauth_exception(error):
+    @app.errorhandler(Exception)
+    def handle_api_exception(error):
+        if any(map(lambda e: isinstance(error, e), [
+               NotRegistered, InvalidDocumentError, LookUpError, DoesNotExist,
+               MultipleObjectsReturned, InvalidQueryError, OperationError,
+               NotUniqueError])):
+
+            # TODO: Categorize these with different status_code
+            # TODO: Transform error messages to be more informative
+            # e.g. A NotUniqueError might give a "Tried to save duplicate unique keys (E11000 duplicate key error index: santa-test.users.$email_1  dup key: { : \\"takochan@takoman.co\\" })" message
+            error = ApiException(str(error))
+        elif isinstance(error, ValidationError):
+            # TODO: Transform error messages to be more informative
+            # e.g. A ValidationError might give a "Only lists and tuples may be used in a list field: [\'role\']" message
+            error = ApiException(error._format_errors())
+        elif isinstance(error, ApiException):
+            pass
+        else:
+            error = ApiException(str(error))
+
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response

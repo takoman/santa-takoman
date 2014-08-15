@@ -8,7 +8,7 @@
 from tests import TestBase
 from santa.models.domain.social_auth import SocialAuth
 from santa.models.domain.user import User
-import unittest, mock
+import unittest, mock, json
 
 # Need to patch the emailing services for all the tests to prevent sending
 # "real" testing emails via Mandrill.
@@ -17,46 +17,57 @@ import unittest, mock
 @mock.patch('santa.models.domain.user.Emailer')
 class UsersTests(TestBase):
 
+    #
+    # GET /users
+    #
+
     def test_public_access_users(self, emailer_mock, composer_mock, mandrill_mock):
         res = self.test_client.get('/api/v1/users')
         assert res.status_code == 401
 
     # TODO Test access control for different roles...
 
-    # TODO Test validation here...
+    #
+    # POST /users
+    #
 
-    def test_send_welcome_email_after_create_user(self, emailer_mock, composer_mock, mandrill_mock):
-        postman = mandrill_mock.return_value
-        composer = composer_mock.return_value
-        emailer_mock_instance = emailer_mock.return_value
-        emailer_mock_instance.send_email = mock.Mock()
+    # Validation
+
+    def test_create_user_by_credentials_duplicate_email(self, emailer_mock, composer_mock, mandrill_mock):
+        user = {
+            'name': 'takochan',
+            'email': 'takochan@takoman.co',
+            'password': 'takochanmansai'
+        }
+        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
+        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
+
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("duplicate unique keys", res.data)
+
+    def test_create_user_by_credentialsi_unsupported_signup_type(self, emailer_mock, composer_mock, mandrill_mock):
         res = self.test_client.post('/api/v1/users', data=dict(
-            name='takochan',
             email='takochan@takoman.co',
             password='takochanmansai'
         ), headers={'X-XAPP-TOKEN': 'rudy-token'})
 
-        assert res.status_code == 201
-        assert emailer_mock.called
-        assert emailer_mock_instance.send_email.called
-        emailer_mock.assert_called_once_with(to_name='takochan',
-                                             to_email='takochan@takoman.co',
-                                             postman=postman,
-                                             composer=composer)
-        emailer_mock_instance.send_email.asser_called_once_with()
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("unsupported signup type", res.data)
 
-    def test_not_send_welcome_email_after_create_user_error(self, emailer_mock, composer_mock, mandrill_mock):
-        emailer_mock_instance = emailer_mock.return_value
-        emailer_mock_instance.send_email = mock.Mock()
-        res = self.test_client.post('/api/v1/users', data=dict(
+    def test_create_user_by_credentialsi_invalid_roles(self, emailer_mock, composer_mock, mandrill_mock):
+        # TODO: In order to pass a list in the data, we have to send JSON.
+        # Not sure how to do it with a form.
+        res = self.test_client.post('/api/v1/users', data=json.dumps(dict(
             name='takochan',
             email='takochan@takoman.co',
-            password='takochanmansai'
-        ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
+            password='takochanmansai',
+            role=['invalid-role']
+        )), content_type="application/json", headers={'X-XAPP-TOKEN': 'rudy-token'})
 
-        assert res.status_code == 401
-        assert not emailer_mock.called
-        assert not emailer_mock_instance.send_email.called
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("Value must be one of", res.data)
+
+    # Create by credentials
 
     def test_create_user_by_credentials(self, emailer_mock, composer_mock, mandrill_mock):
         res = self.test_client.post('/api/v1/users', data=dict(
@@ -76,6 +87,8 @@ class UsersTests(TestBase):
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
         assert res.status_code == 401
+
+    # Create by oauth tokens
 
     @mock.patch('santa.apps.api.v1.users.SocialFacebook')
     def test_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
@@ -121,6 +134,41 @@ class UsersTests(TestBase):
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
         assert res.status_code == 401
+
+    # After creation hooks
+
+    def test_send_welcome_email_after_create_user(self, emailer_mock, composer_mock, mandrill_mock):
+        postman = mandrill_mock.return_value
+        composer = composer_mock.return_value
+        emailer_mock_instance = emailer_mock.return_value
+        emailer_mock_instance.send_email = mock.Mock()
+        res = self.test_client.post('/api/v1/users', data=dict(
+            name='takochan',
+            email='takochan@takoman.co',
+            password='takochanmansai'
+        ), headers={'X-XAPP-TOKEN': 'rudy-token'})
+
+        assert res.status_code == 201
+        assert emailer_mock.called
+        assert emailer_mock_instance.send_email.called
+        emailer_mock.assert_called_once_with(to_name='takochan',
+                                             to_email='takochan@takoman.co',
+                                             postman=postman,
+                                             composer=composer)
+        emailer_mock_instance.send_email.asser_called_once_with()
+
+    def test_not_send_welcome_email_after_create_user_error(self, emailer_mock, composer_mock, mandrill_mock):
+        emailer_mock_instance = emailer_mock.return_value
+        emailer_mock_instance.send_email = mock.Mock()
+        res = self.test_client.post('/api/v1/users', data=dict(
+            name='takochan',
+            email='takochan@takoman.co',
+            password='takochanmansai'
+        ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
+
+        assert res.status_code == 401
+        assert not emailer_mock.called
+        assert not emailer_mock_instance.send_email.called
 
 if __name__ == '__main__':
     unittest.main()
