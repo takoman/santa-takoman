@@ -118,6 +118,18 @@ class AuthControllersTests(TestBase):
         res = json.loads(rv.data)
         assert res.get('message') == 'invalid email or password'
 
+    def test_get_access_token_invalid_login_type(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id='rudy-test',
+            client_secret='rudy-secret',
+            grant_type='credentials',
+            email='takowoman@takoman.co',
+            password='password'
+        ))
+        self.assertEqual(rv.status_code, 400)
+        res = json.loads(rv.data)
+        self.assertEqual(res.get('message'), 'invalid login type')
+
     def test_get_access_token_invalid_password(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
             client_id='rudy-test',

@@ -33,6 +33,11 @@ def oauth():
             raise ApiException("missing password")
 
         user = User.objects(email=email).first()
+
+        # User signed up via social but logged in with credentials
+        if user and not user.password:
+            raise ApiException("invalid login type")
+
         if not user or not is_valid_password(user, password):
             raise ApiException("invalid email or password")
 
