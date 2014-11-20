@@ -7,17 +7,18 @@ from santa.models.domain.social_auth import SocialAuth
 from santa.lib.common import parse_request, render_json, me_to_json
 from santa.lib.auth import require_app_auth
 from santa.lib.social_auth import SocialFacebook
+from santa.apps.api.util.paginate import paginate
 
 users = Blueprint('users', __name__)
 
 @users.route('/users', methods=['GET'])
 @require_app_auth
 def get_users():
-    users = User.objects.all()
+    paginated = paginate(User.objects, request.args)
 
     # flask.jsonify prevents us from jsonifying a list for security reasons
     # https://github.com/mitsuhiko/flask/issues/170
-    return render_json(me_to_json(users))
+    return render_json(me_to_json(paginated))
 
 @users.route('/users/<user_id>', methods=['GET'])
 @require_app_auth

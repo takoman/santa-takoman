@@ -44,6 +44,8 @@ def me_to_json(obj):
         return json.dumps(obj.to_mongo(), cls=MongoJSONEncoder)
     if isinstance(obj, BaseQuerySet):
         return json.dumps(list(obj.as_pymongo()), cls=MongoJSONEncoder)
+    if isinstance(obj, list):
+        return json.dumps(map(lambda x: x.to_mongo(), obj), cls=MongoJSONEncoder)
     raise ApiException("can't convert unsupported type to JSON")
 
 def render_json(json, status=200):
