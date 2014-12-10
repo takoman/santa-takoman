@@ -65,7 +65,9 @@ def post():
     email = data.get('email') or (auth_data and auth_data.get('email'))
     data['email'] = email
 
-    new_user = User(**data)
+    # Only pass fields that's defined in the User model to prevent from
+    # raising the FieldDoesNotExist exception.
+    new_user = User(**{ k: v for (k, v) in data.iteritems() if k in User._fields.keys() })
     new_user.save()
     if data.get('provider') and data.get('oauth_token'):
         new_user.link_social_auth(auth_data)
