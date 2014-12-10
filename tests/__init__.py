@@ -9,7 +9,6 @@ import unittest, os
 from santa import create_app
 from santa.models.domain.client_app import ClientApp
 from santa.models.domain.user import User
-from santa.models.domain.social_auth import SocialAuth
 
 # Workaround to be able to use `mock.patch` decorator in Such DSL tests
 def fix_case(f):
@@ -49,11 +48,14 @@ class AppLifeCycle(object):
 
     @classmethod
     def dropDB(cls, test):
-        # TODO Need to call Document.drop_collection() to properly reset
-        # Mongoengine state. Will need to fix this later.
-        # http://stackoverflow.com/questions/24728078/reset-mongoengine-properly-between-tests
-        for doc in [User, ClientApp, SocialAuth]:
-            doc.drop_collection()
+        # NOTE Now we can simply drop the entire database to reset the state.
+        # https://github.com/MongoEngine/mongoengine/pull/823
+        #
+        # Previously we need to call Document.drop_collection() to properly
+        # reset Mongoengine state.
+        # https://github.com/MongoEngine/mongoengine/issues/812
+        # for doc in [User, ClientApp, SocialAuth]:
+        #     doc.drop_collection()
         test.app.db.drop_database(test.app.config['MONGO_DBNAME'])
         test.app.db.close()
 
@@ -78,11 +80,14 @@ class TestBase(unittest.TestCase):
         User(name='Tako Man', email='takoman@takoman.co', password='password').save()
 
     def dropDB(self):
-        # TODO Need to call Document.drop_collection() to properly reset
-        # Mongoengine state. Will need to fix this later.
-        # http://stackoverflow.com/questions/24728078/reset-mongoengine-properly-between-tests
-        for doc in [User, ClientApp, SocialAuth]:
-            doc.drop_collection()
+        # NOTE Now we can simply drop the entire database to reset the state.
+        # https://github.com/MongoEngine/mongoengine/pull/823
+        #
+        # Previously we need to call Document.drop_collection() to properly
+        # reset Mongoengine state.
+        # https://github.com/MongoEngine/mongoengine/issues/812
+        # for doc in [User, ClientApp, SocialAuth]:
+        #     doc.drop_collection()
         self.app.db.drop_database(self.app.config['MONGO_DBNAME'])
         self.app.db.close()
 
