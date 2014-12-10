@@ -108,16 +108,16 @@ class UsersTests(TestBase):
             name='Tako Kid'
         ), headers={'X-XAPP-TOKEN': 'rudy-token'})
 
-        assert res.status_code == 201
+        self.assertEqual(res.status_code, 201)
         user = User.objects(email='kid@takoman.co').first()
-        assert user is not None
-        assert user.email == 'kid@takoman.co'
-        assert user.name == 'Tako Kid'
+        self.assertIsNotNone(user)
+        self.assertEqual(user.email, 'kid@takoman.co')
+        self.assertEqual(user.name, 'Tako Kid')
         social_auth = SocialAuth.objects(user=user).first()
-        assert social_auth is not None
-        assert social_auth.email == 'kid@takoman.co'
-        assert social_auth.uid == '10152476049619728'
-        assert social_auth.name == 'Tako-Kid'
+        self.assertIsNotNone(social_auth)
+        self.assertEqual(social_auth.email, 'kid@takoman.co')
+        self.assertEqual(social_auth.uid, '10152476049619728')
+        self.assertEqual(social_auth.name, 'Tako-Kid')
 
     @mock.patch('santa.apps.api.v1.users.SocialFacebook')
     def test_unauthorized_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
