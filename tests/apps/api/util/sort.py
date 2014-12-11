@@ -3,10 +3,10 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     api util sorting helper
 """
-import unittest, os, santa
+import unittest
+from tests import AppTestCase
 from mongoengine import *
 from datetime import datetime
-from santa import create_app
 from santa.apps.api.util.sort import sort
 
 class Post(Document):
@@ -14,27 +14,14 @@ class Post(Document):
     category   = StringField()
     created_at = DateTimeField(default=datetime.now)
 
-class PaginateTests(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        current_dir = os.path.dirname(os.path.realpath(santa.__file__))
-        os.environ['SANTA_SETTINGS'] = current_dir + '/config/settings_test.py'
+class SortTests(AppTestCase):
+    """Test cases for the sort utility."""
 
     def setUp(self):
-        self.app = create_app()
-        self.test_client = self.app.test_client()
+        super(SortTests, self).setUp()
         Post(title='post 1', category='Sports', created_at=datetime(2014, 11, 29, 8, 30, 20, 000000)).save()
         Post(title='post 2', category='Art', created_at=datetime(2014, 11, 28, 8, 30, 20, 000000)).save()
         Post(title='post 3', category='Science', created_at=datetime(2014, 11, 27, 8, 30, 20, 000000)).save()
-
-    def tearDown(self):
-        # Drop database
-        for doc in [Post]:
-            doc.drop_collection()
-        self.app.db.drop_database(self.app.config['MONGO_DBNAME'])
-        self.app.db.close()
-        del self.app
 
     def test_without_sort_param(self):
         sorted = sort(Post.objects)

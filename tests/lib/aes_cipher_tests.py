@@ -9,20 +9,15 @@ from santa.lib import aes_cipher
 import unittest, json
 
 class AESCipherTests(unittest.TestCase):
-    def setUp(self):
-        return
-
-    def tearDown(self):
-        return
 
     def test_pad(self):
         pad = aes_cipher.pad
-        assert len(pad('extend_me')) == aes_cipher.BS
+        self.assertEqual(len(pad('extend_me')), aes_cipher.BS)
 
     def test_unpad(self):
         pad = aes_cipher.pad
         unpad = aes_cipher.unpad
-        assert unpad(pad('recover_me')) == 'recover_me'
+        self.assertEqual(unpad(pad('recover_me')), 'recover_me')
 
     @unittest.skip("Need to verify encoded string is url safe.")
     def test_aes_encrypt_url_safe(self):
@@ -37,7 +32,7 @@ class AESCipherTests(unittest.TestCase):
         AES = aes_cipher.AESCipher(secret)
         data = [ {'a': 'A', 'b': [2, 4], 'c': 3.0} ]
         data_string = json.dumps(data)
-        assert AES.decrypt(AES.encrypt(data_string)) == data_string
+        self.assertEqual(AES.decrypt(AES.encrypt(data_string)), data_string)
 
 if __name__ == '__main__':
     unittest.main()

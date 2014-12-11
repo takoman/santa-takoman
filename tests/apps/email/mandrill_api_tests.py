@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from tests import TestBase
+from tests import AppTestCase
 from santa.apps.email.models.mandrill_api import MandrillAPI
 import unittest, os, mock, mandrill
 
-class MandrillAPITests(TestBase):
+class MandrillAPITests(AppTestCase):
 
     def test_init_api_key_from_config(self):
         if 'MANDRILL_API_KEY' in os.environ:
             del os.environ['MANDRILL_API_KEY']
         with self.app.app_context():
             mandrill_api = MandrillAPI()
-            assert mandrill_api.api_key == self.app.config.get('MANDRILL_API_KEY')
+            self.assertEqual(mandrill_api.api_key, self.app.config.get('MANDRILL_API_KEY'))
 
     def test_init_api_key_env_override_config(self):
         os.environ['MANDRILL_API_KEY'] = 'api_key_from_env'
         with self.app.app_context():
             mandrill_api = MandrillAPI()
-            assert mandrill_api.api_key == 'api_key_from_env'
+            self.assertEqual(mandrill_api.api_key, 'api_key_from_env')
 
     @mock.patch('santa.apps.email.models.mandrill_api.mandrill')
     def test_send_message_with_mandrill(self, md_mock):

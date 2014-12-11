@@ -5,7 +5,7 @@
 
     api users tests module
 """
-from tests import TestBase
+from tests import AppTestCase
 from santa.models.domain.social_auth import SocialAuth
 from santa.models.domain.user import User
 import unittest, mock, json
@@ -15,7 +15,11 @@ import unittest, mock, json
 @mock.patch('santa.models.domain.user.MandrillAPI')
 @mock.patch('santa.models.domain.user.WelcomeEmailComposer')
 @mock.patch('santa.models.domain.user.Emailer')
-class UsersTests(TestBase):
+class UsersTests(AppTestCase):
+
+    def setUp(self):
+        super(UsersTests, self).setUp()
+        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
 
     #
     # GET /users
@@ -23,7 +27,7 @@ class UsersTests(TestBase):
 
     def test_public_access_users(self, emailer_mock, composer_mock, mandrill_mock):
         res = self.test_client.get('/api/v1/users')
-        assert res.status_code == 401
+        self.assertEqual(res.status_code, 401)
 
     # TODO Test access control for different roles...
 
@@ -76,8 +80,8 @@ class UsersTests(TestBase):
             password='takochanmansai'
         ), headers={'X-XAPP-TOKEN': 'rudy-token'})
 
-        assert res.status_code == 201
-        assert '_id' in res.data
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('_id', res.data)
 
     def test_unauthorized_create_user_by_credentials(self, emailer_mock, composer_mock, mandrill_mock):
         res = self.test_client.post('/api/v1/users', data=dict(
@@ -86,7 +90,7 @@ class UsersTests(TestBase):
             password='takochanmansai'
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
-        assert res.status_code == 401
+        self.assertEqual(res.status_code, 401)
 
     # Create by oauth tokens
 
@@ -133,7 +137,7 @@ class UsersTests(TestBase):
             name='Tako Kid'
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
-        assert res.status_code == 401
+        self.assertEqual(res.status_code, 401)
 
     # After creation hooks
 
@@ -148,14 +152,14 @@ class UsersTests(TestBase):
             password='takochanmansai'
         ), headers={'X-XAPP-TOKEN': 'rudy-token'})
 
-        assert res.status_code == 201
-        assert emailer_mock.called
-        assert emailer_mock_instance.send_email.called
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(emailer_mock.called)
+        self.assertTrue(emailer_mock_instance.send_email.called)
         emailer_mock.assert_called_once_with(to_name='takochan',
                                              to_email='takochan@takoman.co',
                                              postman=postman,
                                              composer=composer)
-        emailer_mock_instance.send_email.asser_called_once_with()
+        emailer_mock_instance.send_email.assert_called_once_with()
 
     def test_not_send_welcome_email_after_create_user_error(self, emailer_mock, composer_mock, mandrill_mock):
         emailer_mock_instance = emailer_mock.return_value
@@ -166,9 +170,9 @@ class UsersTests(TestBase):
             password='takochanmansai'
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
-        assert res.status_code == 401
-        assert not emailer_mock.called
-        assert not emailer_mock_instance.send_email.called
+        self.assertEqual(res.status_code, 401)
+        self.assertFalse(emailer_mock.called)
+        self.assertFalse(emailer_mock_instance.send_email.called)
 
 if __name__ == '__main__':
     unittest.main()

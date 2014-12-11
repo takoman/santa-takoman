@@ -3,35 +3,22 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
     api util pagination helper
 """
-import unittest, os, santa
+import unittest
+from tests import AppTestCase
 from mongoengine import *
-from santa import create_app
 from santa.apps.api.util.paginate import paginate
 from santa.lib.api_errors import ApiException
 
 class Post(Document):
     title = StringField(required=True, max_length=200)
 
-class PaginateTests(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        current_dir = os.path.dirname(os.path.realpath(santa.__file__))
-        os.environ['SANTA_SETTINGS'] = current_dir + '/config/settings_test.py'
+class PaginateTests(AppTestCase):
+    """Test cases for the paginate utility."""
 
     def setUp(self):
-        self.app = create_app()
-        self.test_client = self.app.test_client()
+        super(PaginateTests, self).setUp()
         for i in range(42):  # 0, 1, ..., 40, 41
             Post(title="post: %s" % i).save()
-
-    def tearDown(self):
-        # Drop database
-        for doc in [Post]:
-            doc.drop_collection()
-        self.app.db.drop_database(self.app.config['MONGO_DBNAME'])
-        self.app.db.close()
-        del self.app
 
     def test_without_page_and_size_params(self):
         paginated = paginate(Post.objects)

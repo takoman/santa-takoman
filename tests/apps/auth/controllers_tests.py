@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-from tests import TestBase
+from tests import AppTestCase
 from santa.lib.user_trust import UserTrust
 from bson.objectid import ObjectId
 from santa.models.domain.user import User
 from santa.models.domain.social_auth import SocialAuth
 import unittest, json, datetime, dateutil.parser, mock
 
-class AuthControllersTests(TestBase):
+class AuthControllersTests(AppTestCase):
 
     def setUp(self):
         super(AuthControllersTests, self).setUp()
+        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.user = User(name='Tako Woman',
                          email='takowoman@takoman.co').save()
         self.social_auth = SocialAuth(uid="10152476049619728",
@@ -32,13 +33,13 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         access_token = json.loads(rv.data).get('access_token')
-        assert access_token is not None
+        self.assertIsNotNone(access_token)
         with self.app.app_context():
             user = UserTrust().get_user_from_access_token({
                 'access_token': access_token
             })
-            assert user is not None
-            assert user.get('email') == 'takoman@takoman.co'
+            self.assertIsNotNone(user)
+            self.assertEqual(user.get('email'), 'takoman@takoman.co')
 
     def test_get_expires_in_by_credentials(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -49,11 +50,11 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('expires_in') is not None
+        self.assertIsNotNone(res.get('expires_in'))
         expires_in = dateutil.parser.parse(res.get('expires_in'))
         sixty_days_from_now = datetime.datetime.now() + datetime.timedelta(days=60)
         # Heuristic, check the expires_in is roughly sixty days from now.
-        assert (sixty_days_from_now - expires_in).seconds < 60
+        self.assertLess((sixty_days_from_now - expires_in).seconds, 60)
 
     def test_get_access_token_missing_client_id(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -63,7 +64,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing client_id'
+        self.assertEqual(res.get('message'), 'missing client_id')
 
     def test_get_access_token_invalid_client_id(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -74,7 +75,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'invalid client_id or client_secret'
+        self.assertEqual(res.get('message'), 'invalid client_id or client_secret')
 
     def test_get_access_token_invalid_client_secret(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -85,7 +86,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'invalid client_id or client_secret'
+        self.assertEqual(res.get('message'), 'invalid client_id or client_secret')
 
     def test_get_access_token_missing_email(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -95,7 +96,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing email'
+        self.assertEqual(res.get('message'), 'missing email')
 
     def test_get_access_token_missing_password(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -105,7 +106,7 @@ class AuthControllersTests(TestBase):
             email='takoman@takoman.co'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing password'
+        self.assertEqual(res.get('message'), 'missing password')
 
     def test_get_access_token_invalid_email(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -116,7 +117,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'invalid email or password'
+        self.assertEqual(res.get('message'), 'invalid email or password')
 
     def test_get_access_token_invalid_login_type(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -139,7 +140,7 @@ class AuthControllersTests(TestBase):
             password='thisisworng'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'invalid email or password'
+        self.assertEqual(res.get('message'), 'invalid email or password')
 
     # Since we use patterns like `from a import b`, b is actually a class in
     # the module, not the global scope. So patch directives need to refer to
@@ -177,13 +178,13 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         access_token = json.loads(rv.data).get('access_token')
-        assert access_token is not None
+        self.assertIsNotNone(access_token)
         with self.app.app_context():
             user = UserTrust().get_user_from_access_token({
                 'access_token': access_token
             })
-            assert user is not None
-            assert user.get('email') == 'takowoman@takoman.co'
+            self.assertIsNotNone(user)
+            self.assertEqual(user.get('email'), 'takowoman@takoman.co')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_missing_oauth_provider(self, fb_mock):
@@ -200,7 +201,7 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing oauth provider'
+        self.assertEqual(res.get('message'), 'missing oauth provider')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_missing_oauth_token(self, fb_mock):
@@ -217,7 +218,7 @@ class AuthControllersTests(TestBase):
             oauth_provider='facebook'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing oauth token'
+        self.assertEqual(res.get('message'), 'missing oauth token')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_unsupported_oauth_type(self, fb_mock):
@@ -235,7 +236,7 @@ class AuthControllersTests(TestBase):
             oauth_token='alienbook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'unsupported oauth provider'
+        self.assertEqual(res.get('message'), 'unsupported oauth provider')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_invalid_oauth_token(self, fb_mock):
@@ -250,7 +251,7 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'invalid oauth token'
+        self.assertEqual(res.get('message'), 'invalid oauth token')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_no_matching_auth(self, fb_mock):
@@ -268,8 +269,8 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == \
-            'no account linked to oauth token, uid=1234, name=Chung-Yi Chi, email=cy@takoman.co'
+        self.assertEqual(res.get('message'),
+                         'no account linked to oauth token, uid=1234, name=Chung-Yi Chi, email=cy@takoman.co')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_matching_auth_no_user(self, fb_mock):
@@ -291,8 +292,8 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == \
-            'no account linked to oauth token, uid=10152476049619728, name=Chung-Yi Chi, email=cy@takoman.co'
+        self.assertEqual(res.get('message'),
+                         'no account linked to oauth token, uid=10152476049619728, name=Chung-Yi Chi, email=cy@takoman.co')
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_matching_auth_no_matching_user(self, fb_mock):
@@ -313,7 +314,7 @@ class AuthControllersTests(TestBase):
             oauth_token='facebook-oauth-token'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'missing user associated with this oauth token'
+        self.assertEqual(res.get('message'), 'missing user associated with this oauth token')
 
     def test_get_access_token_unsupported_grant_type(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -324,7 +325,7 @@ class AuthControllersTests(TestBase):
             password='password'
         ))
         res = json.loads(rv.data)
-        assert res.get('message') == 'unsupported grant type'
+        self.assertEqual(res.get('message'), 'unsupported grant type')
 
 if __name__ == '__main__':
     unittest.main()

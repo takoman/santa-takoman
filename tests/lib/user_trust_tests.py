@@ -6,14 +6,16 @@
     lib user_trust tests module
 """
 import unittest, os, datetime
-from tests import TestBase
+from tests import AppTestCase
+from santa.models.domain.user import User
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiException
 
-class ClientAppsTests(TestBase):
+class UserTrustTests(AppTestCase):
 
     def setUp(self):
-        super(ClientAppsTests, self).setUp()
+        super(UserTrustTests, self).setUp()
+        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.options = {
             'user': {'email': 'takoman@takoman.co'},
             'client_app': {'client_id': 'rudy-test'},
@@ -64,7 +66,7 @@ class ClientAppsTests(TestBase):
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
-            assert user is None
+            self.assertIsNone(user)
 
     def test_get_user_from_access_token_no_matching_user(self):
         self.options['user'] = {'email': 'spiderman@takoman.co'}
@@ -72,14 +74,14 @@ class ClientAppsTests(TestBase):
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
-            assert user is None
+            self.assertIsNone(user)
 
     def test_create_access_token_and_extract_user_from_it(self):
         with self.app.app_context():
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
-            assert user.get('email') == 'takoman@takoman.co'
+            self.assertEqual(user.get('email'), 'takoman@takoman.co')
 
     def test_create_utf8_access_token_and_extract_user_from_it(self):
         self.options = {
@@ -92,8 +94,8 @@ class ClientAppsTests(TestBase):
             access_token = user_trust.create_access_token(self.options)
             u_access_token = unicode(access_token, 'utf-8')
             user = user_trust.get_user_from_access_token({'access_token': u_access_token})
-            assert user is not None
-            assert user.get('email') == 'takoman@takoman.co'
+            self.assertIsNotNone(user)
+            self.assertEqual(user.get('email'), 'takoman@takoman.co')
 
 if __name__ == '__main__':
     unittest.main()
