@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from tests import TestBase
+from tests import AppTestCase
 from santa.apps.email.models.emailer import Emailer
 import unittest, mock
 
-class UsersTests(TestBase):
+class UsersTests(AppTestCase):
 
     def test_init_emailer_with_default_value(self):
         emailer = Emailer()
-        assert emailer.to_name is None
-        assert emailer.to_email is None
-        assert emailer.from_name == 'Takoman (代購超人)'
-        assert emailer.from_email == 'it@takoman.co'
-        assert emailer.subject is None
-        assert emailer.cc is None
-        assert emailer.bcc is None
-        assert emailer.reply_to == 'it@takoman.co'
-        assert emailer.html is None
-        assert emailer.sent_at is None
-        assert emailer.postman_send_id is None
-        assert emailer.postman is None
-        assert emailer.composer is None
+        self.assertIsNone(emailer.to_name)
+        self.assertIsNone(emailer.to_email)
+        self.assertEqual(emailer.from_name, 'Takoman (代購超人)')
+        self.assertEqual(emailer.from_email, 'it@takoman.co')
+        self.assertIsNone(emailer.subject)
+        self.assertIsNone(emailer.cc)
+        self.assertIsNone(emailer.bcc)
+        self.assertEqual(emailer.reply_to, 'it@takoman.co')
+        self.assertIsNone(emailer.html)
+        self.assertIsNone(emailer.sent_at)
+        self.assertIsNone(emailer.postman_send_id)
+        self.assertIsNone(emailer.postman)
+        self.assertIsNone(emailer.composer)
 
     def test_init_emailer_with_custom_value(self):
         postman = object()
@@ -39,19 +39,19 @@ class UsersTests(TestBase):
                           postman=postman,
                           composer=composer)
 
-        assert emailer.to_name == 'Chung-Yi'
-        assert emailer.to_email == 'chungyi@takoman.co'
-        assert emailer.from_name == 'Takoman Support'
-        assert emailer.from_email == 'support@takoman.co'
-        assert emailer.subject == '歡迎使用 Takoman'
-        assert emailer.cc == 'pingchieh@takoman.co'
-        assert emailer.bcc == 'nick@takoman.co'
-        assert emailer.reply_to == 'support@takoman.co'
-        assert emailer.html == '<p>Welcome</p>'
-        assert emailer.sent_at == '2014-06-08T18:58:51-0400'
-        assert emailer.postman_send_id == '0001'
-        assert emailer.postman == postman
-        assert emailer.composer == composer
+        self.assertEqual(emailer.to_name, 'Chung-Yi')
+        self.assertEqual(emailer.to_email, 'chungyi@takoman.co')
+        self.assertEqual(emailer.from_name, 'Takoman Support')
+        self.assertEqual(emailer.from_email, 'support@takoman.co')
+        self.assertEqual(emailer.subject, '歡迎使用 Takoman')
+        self.assertEqual(emailer.cc, 'pingchieh@takoman.co')
+        self.assertEqual(emailer.bcc, 'nick@takoman.co')
+        self.assertEqual(emailer.reply_to, 'support@takoman.co')
+        self.assertEqual(emailer.html, '<p>Welcome</p>')
+        self.assertEqual(emailer.sent_at, '2014-06-08T18:58:51-0400')
+        self.assertEqual(emailer.postman_send_id, '0001')
+        self.assertEqual(emailer.postman, postman)
+        self.assertEqual(emailer.composer, composer)
 
     def test_create_message(self):
         class Composer(object):
@@ -69,7 +69,7 @@ class UsersTests(TestBase):
                           html='<p>Welcome</p>',
                           composer=Composer())
 
-        assert emailer.create_message() == {
+        self.assertEqual(emailer.create_message(), {
             'to_name': 'Chung-Yi',
             'to_email': 'chungyi@takoman.co',
             'subject': '歡迎使用 Takoman',
@@ -81,7 +81,7 @@ class UsersTests(TestBase):
             'track_opens': True,
             'test': False,
             'ga_campaign': 'welcome'
-        }
+        })
 
     def test_send_email_without_composer(self):
         postman = object()

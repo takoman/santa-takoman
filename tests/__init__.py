@@ -8,7 +8,6 @@
 import unittest, os
 from santa import create_app
 from santa.models.domain.client_app import ClientApp
-from santa.models.domain.user import User
 
 # Workaround to be able to use `mock.patch` decorator in Such DSL tests
 def fix_case(f):
@@ -59,25 +58,23 @@ class AppLifeCycle(object):
         test.app.db.drop_database(test.app.config['MONGO_DBNAME'])
         test.app.db.close()
 
-class TestBase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
+    """Base test case that sets up/tears down the env, app, and empty database."""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         # Set environment variable to override settings with test settings.
         current_dir = os.path.dirname(os.path.realpath(__file__))
         os.environ['SANTA_SETTINGS'] = current_dir + '/../santa/config/settings_test.py'
 
+    def setUp(self):
         self.app = create_app()
         self.test_client = self.app.test_client()
         self.dropDB()
-        self.setupDB()
 
     def tearDown(self):
         self.dropDB()
         del self.app
-
-    def setupDB(self):
-        ClientApp(client_id='rudy-test', client_secret='rudy-secret', token='rudy-token').save()
-        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
 
     def dropDB(self):
         # NOTE Now we can simply drop the entire database to reset the state.
@@ -90,6 +87,16 @@ class TestBase(unittest.TestCase):
         #     doc.drop_collection()
         self.app.db.drop_database(self.app.config['MONGO_DBNAME'])
         self.app.db.close()
+
+class AppTestCase(BaseTestCase):
+    """App test case that includes a dummy test client app."""
+
+    def setUp(self):
+        super(AppTestCase, self).setUp()
+        ClientApp(client_id='rudy-test', client_secret='rudy-secret', token='rudy-token').save()
+
+    def tearDown(self):
+        super(AppTestCase, self).tearDown()
 
 if __name__ == '__main__':
     unittest.main()
