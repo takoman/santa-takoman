@@ -4,9 +4,9 @@
 
 This doc will assume you've set up common development tools.
 
-## Eve
+## Flask
 
-[Eve](http://python-eve.org/) allows us to build a RESTful API service quickly. It is powered by [Flask](http://flask.pocoo.org/), [MongoDB](https://www.mongodb.org/), and [Redis](http://redis.io/)
+[Flask](http://flask.pocoo.org/) is a Python microframework for building web applications. It is easy and powerful and allows us to build a RESTful API service quickly.
 
 ## Development
 
