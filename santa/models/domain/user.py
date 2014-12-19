@@ -7,8 +7,9 @@ from santa.models.domain.social_auth import SocialAuth
 from santa.apps.email.models.emailer import Emailer
 from santa.apps.email.models.composer import WelcomeEmailComposer
 from santa.apps.email.models.mandrill_api import MandrillAPI
+from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 
-class User(Document):
+class User(UpdatedAtMixin, Document):
     name        = StringField(max_length=200, required=True)
     email       = EmailField(max_length=200, required=True, unique=True)
     password    = StringField(max_length=200)
