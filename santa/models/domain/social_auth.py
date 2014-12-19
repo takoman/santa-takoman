@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from mongoengine import *
+from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 import datetime
 
-class SocialAuth(Document):
+class SocialAuth(UpdatedAtMixin, Document):
     # always required
     uid         = StringField(max_length=200, required=True)
     user        = ReferenceField('User')
