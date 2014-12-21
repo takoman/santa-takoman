@@ -1,5 +1,6 @@
 import os, re
 from flask import jsonify, Flask
+from flask.ext.cors import CORS
 from santa.lib.api_errors import ApiException
 from mongoengine import connect
 from mongoengine.errors import *
@@ -21,6 +22,8 @@ def create_app():
         c = match and match.group(1)
         if c in app.config:
             app.config[c] = type(app.config[c])(value)
+
+    CORS(app)
 
     app.db = connect_db(app)
     hook_up_error_handlers(app)

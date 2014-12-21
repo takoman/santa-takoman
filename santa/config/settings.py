@@ -34,6 +34,12 @@ MONGO_DBNAME    = 'santa-local'
 # Customized configuration
 #
 
+#
+# Flask-Cors
+#
+CORS_ALLOW_HEADERS = ['Content-Type', 'X-XAPP-TOKEN']
+CORS_RESOURCES = {r"/api/*": {"origins": "*"}}
+
 # Be sure to restart your server when you modify this file.
 # Your secret key for verifying the integrity of signed cookies.
 # If you change this key, all old signed cookies will become invalid!
