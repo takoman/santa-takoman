@@ -38,8 +38,10 @@ This doc will assume you've set up common development tools.
    ```bash
    sudo pip install virtualenv
    ```
+ 
+ - Fork/Clone the Santa repository
 
- - Run bootstrap.sh
+ - In Santa, Run bootstrap.sh
 
    ```bash
    sh bootstrap.sh
