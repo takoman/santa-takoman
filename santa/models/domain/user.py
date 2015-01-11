@@ -9,6 +9,8 @@ from santa.apps.email.models.composer import WelcomeEmailComposer
 from santa.apps.email.models.mandrill_api import MandrillAPI
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 
+__all__ = ('User',)
+
 class User(UpdatedAtMixin, Document):
     name        = StringField(max_length=200, required=True)
     email       = EmailField(max_length=200, required=True, unique=True)

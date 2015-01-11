@@ -7,6 +7,8 @@ from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain.product import Product
 from santa.models.domain.order import Order
 
+__all__ = ('OrderLineItem',)
+
 class OrderLineItem(UpdatedAtMixin, Document):
     type        = StringField(choices=[u'product', u'commission', u'shipping_dom_a',
                                        u'shipping_intl', u'shipping_dom_b', u'tax',
