@@ -3,10 +3,8 @@
 import unittest
 from tests import AppTestCase
 from mongoengine import *
-from santa.models.domain.user import User
-from santa.models.domain.order import Order, ORDER_STATUSES
-from santa.models.domain.order_line_item import OrderLineItem
-from santa.models.domain.order_payment import OrderPayment, AllPayPaymentDetails, AllPayOfflinePaymentDetails
+from santa.models.domain import *
+from santa.models.domain.order import ORDER_STATUSES
 
 class OrderPaymentTests(AppTestCase):
     def setUp(self):

@@ -6,6 +6,8 @@ import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain.user import User
 
+__all__ = ('Order',)
+
 SUPPORTED_CURRENCIES = [
     u'TWD',   # Taiwan New Dollar
     u'AED',   # United Arab Emirates Dirham

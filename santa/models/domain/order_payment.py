@@ -6,6 +6,8 @@ import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain.order import Order
 
+__all__ = ('AllPayOfflinePaymentDetails', 'AllPayPaymentDetails', 'OrderPayment')
+
 SUPPORTED_PAYMENT_METHODS = [
     u'ALLPAY'
 ]

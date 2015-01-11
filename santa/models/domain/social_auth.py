@@ -4,6 +4,8 @@ from mongoengine import *
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 import datetime
 
+__all__ = ('SocialAuth',)
+
 class SocialAuth(UpdatedAtMixin, Document):
     # always required
     uid         = StringField(max_length=200, required=True)
