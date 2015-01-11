@@ -171,15 +171,19 @@ SUPPORTED_CURRENCIES = [
     # u'ZWD', # Zimbabwe Dollar
 ]
 
+ORDER_STATUSES = [
+    u'new', u'invoiced', u'paid', u'merchant_purchased',
+    u'merchant_received', u'international_shipped',
+    u'domestic_shipped', u'delivered', u'closed',
+    u'canceled', u'refunded'
+]
+
 class Order(UpdatedAtMixin, Document):
     customer        = ReferenceField(User, required=True)
     merchant        = ReferenceField(User, required=True)  # TODO: Should have a separate Merchant document
     # shipping      = ReferenceField(Shipment)
 
-    status          = StringField(choices=[u'new', u'invoiced', u'paid', u'merchant_purchased',
-                                           u'merchant_received', u'international_shipped',
-                                           u'domestic_shipped', u'delivered', u'closed',
-                                           u'canceled', u'refunded'], default=u'new')
+    status          = StringField(choices=ORDER_STATUSES, default=u'new')
     line_items      = ListField(ReferenceField('OrderLineItem'))
     total           = FloatField()  # in target currency
     currency_source = StringField(choices=SUPPORTED_CURRENCIES)
