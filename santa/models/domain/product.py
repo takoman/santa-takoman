@@ -9,7 +9,7 @@ __all__ = ('Product',)
 
 class Product(UpdatedAtMixin, Document):
     title             = StringField(max_length=200, required=True)
-    seller_product_id = StringField(max_length=40)  # Product ID from the seller to helpidentify the same product, e.g. ASIN on Amazon.
+    seller_product_id = StringField(max_length=40)  # Product ID from the seller to help identify the same product, e.g. ASIN on Amazon.
     brand             = StringField(max_length=200)
     color             = StringField(max_length=40)
     size              = StringField(max_length=40)
