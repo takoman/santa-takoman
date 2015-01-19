@@ -15,10 +15,10 @@ import unittest, mock, json
 @mock.patch('santa.models.domain.user.MandrillAPI')
 @mock.patch('santa.models.domain.user.WelcomeEmailComposer')
 @mock.patch('santa.models.domain.user.Emailer')
-class UsersTests(AppTestCase):
+class UsersEndpointsTests(AppTestCase):
 
     def setUp(self):
-        super(UsersTests, self).setUp()
+        super(UsersEndpointsTests, self).setUp()
         User(name='Tako Man', email='takoman@takoman.co', password='password').save()
 
     #

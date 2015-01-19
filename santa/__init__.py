@@ -64,6 +64,7 @@ def hook_up_error_handlers(app):
 def register_apps(app):
     from apps.site.controllers import site
     from apps.api.v1.users import users
+    from apps.api.v1.products import products
     from apps.api.v1.client_apps import client_apps
     from apps.api.v1.me import me
     from apps.api.v1.system import system
@@ -72,5 +73,6 @@ def register_apps(app):
     app.register_blueprint(auth)
     app.register_blueprint(me, url_prefix='/api/v1')
     app.register_blueprint(users, url_prefix='/api/v1')
+    app.register_blueprint(products, url_prefix='/api/v1')
     app.register_blueprint(client_apps, url_prefix='/api/v1')
     app.register_blueprint(system, url_prefix='/api/v1')
