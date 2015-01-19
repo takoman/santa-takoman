@@ -34,7 +34,7 @@ def get_user(user_id):
 #
 @users.route('/users', methods=['POST'])
 @require_app_auth
-def post():
+def create_user():
     data = parse_request(request)
 
     # If signing up via oauth tokens
