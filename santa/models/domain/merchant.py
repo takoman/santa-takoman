@@ -16,6 +16,7 @@ SUPPORTED_COUNTRIES = [c.alpha2.encode('utf-8') for c in pycountry.countries]
 
 class Merchant(UpdatedAtMixin, Document):
     user              = ReferenceField(User, required=True)
+    merchant_name     = StringField(required=True)
     source_countries  = ListField(StringField(choices=SUPPORTED_COUNTRIES))
     # allpay_account  = ReferenceField(PaymentAccount)
     updated_at        = DateTimeField(default=datetime.datetime.now)

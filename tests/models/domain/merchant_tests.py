@@ -9,11 +9,11 @@ class MerchantTests(AppTestCase):
     def setUp(self):
         super(MerchantTests, self).setUp()
         self.user = User(name='seller', email='seller@gmail.com').save()
-        Merchant(user=self.user).save()
+        Merchant(user=self.user, merchant_name='翔の飛行屋美國代買、美國代購').save()
         self.merchant = Merchant.objects.first()
 
     def test_required_properties(self):
-        with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['user'\].*"):
+        with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['user', 'merchant_name'\].*"):
             Merchant().save()
         self.assertEqual(self.merchant.user, self.user)
 
