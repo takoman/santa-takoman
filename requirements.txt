@@ -14,5 +14,6 @@ supervisor==3.0
 newrelic==2.22.1.20
 freezegun==0.2.2
 flask-cors==1.10.2
+pycountry==1.10
 -e git+git://github.com/starsirius/mongoengine.git@no-tests#egg=mongoengine
 -e git+git://github.com/starsirius/nose2.git@bump-up-six-version#egg=nose2
