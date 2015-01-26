@@ -27,7 +27,6 @@ def create_product():
 
     return render_json(me_to_json(new_product), status=201)
 
-
 @products.route('/products/<product_id>', methods=['PUT'])
 @require_app_auth
 def update_product(product_id):
@@ -48,7 +47,6 @@ def update_product(product_id):
     product.save()
 
     return render_json(me_to_json(product))
-
 
 @products.route('/products/<product_id>', methods=['DELETE'])
 @require_app_auth

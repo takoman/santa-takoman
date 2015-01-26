@@ -50,7 +50,8 @@ def hook_up_error_handlers(app):
         elif isinstance(error, ValidationError):
             # TODO: Transform error messages to be more informative
             # e.g. A ValidationError might give a "Only lists and tuples may be used in a list field: [\'role\']" message
-            error = ApiException(error._format_errors())
+            message = error._format_errors() or error.message or 'unknown error'
+            error = ApiException(message)
         elif isinstance(error, ApiException):
             pass
         else:
@@ -64,6 +65,7 @@ def hook_up_error_handlers(app):
 def register_apps(app):
     from apps.site.controllers import site
     from apps.api.v1.users import users
+    from apps.api.v1.merchants import merchants
     from apps.api.v1.products import products
     from apps.api.v1.client_apps import client_apps
     from apps.api.v1.me import me
@@ -73,6 +75,7 @@ def register_apps(app):
     app.register_blueprint(auth)
     app.register_blueprint(me, url_prefix='/api/v1')
     app.register_blueprint(users, url_prefix='/api/v1')
+    app.register_blueprint(merchants, url_prefix='/api/v1')
     app.register_blueprint(products, url_prefix='/api/v1')
     app.register_blueprint(client_apps, url_prefix='/api/v1')
     app.register_blueprint(system, url_prefix='/api/v1')
