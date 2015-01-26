@@ -4,7 +4,7 @@ from mongoengine import *
 from mongoengine import signals
 import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
-from santa.models.domain.user import User
+from santa.models.domain import *
 
 __all__ = ('Order',)
 
@@ -182,7 +182,7 @@ ORDER_STATUSES = [
 
 class Order(UpdatedAtMixin, Document):
     customer        = ReferenceField(User, required=True)
-    merchant        = ReferenceField(User, required=True)  # TODO: Should have a separate Merchant document
+    merchant        = ReferenceField(Merchant, required=True)
     # shipping      = ReferenceField(Shipment)
 
     status          = StringField(choices=ORDER_STATUSES, default=u'new')
