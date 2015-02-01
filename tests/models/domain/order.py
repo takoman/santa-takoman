@@ -3,15 +3,14 @@
 import unittest
 from tests import AppTestCase
 from mongoengine import *
-from santa.models.domain.user import User
-from santa.models.domain.order import Order
-from santa.models.domain.order_line_item import OrderLineItem
+from santa.models.domain import *
 
 class OrderTests(AppTestCase):
     def setUp(self):
         super(OrderTests, self).setUp()
         self.customer = User(name='buyer', email='buyer@gmail.com').save()
-        self.merchant = User(name='seller', email='seller@gmail.com').save()
+        self.merchant_user = User(name='seller', email='seller@gmail.com').save()
+        self.merchant = Merchant(user=self.merchant_user, merchant_name='My Shop').save()
         Order(customer=self.customer, merchant=self.merchant).save()
         self.order = Order.objects.first()
 
