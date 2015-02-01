@@ -155,7 +155,7 @@ SUPPORTED_CURRENCIES = [
     # u'TZS', # Tanzania Shilling
     # u'UAH', # Ukraine Hryvnia
     # u'UGX', # Uganda Shilling
-    # u'USD', # United States Dollar
+    u'USD',   # United States Dollar
     # u'UYU', # Uruguay Peso
     # u'UZS', # Uzbekistan Som
     # u'VEF', # Venezuela Bolivar
@@ -196,7 +196,7 @@ class Order(UpdatedAtMixin, Document):
     # updating it won't trigger any price updates. To update prices due to
     # exchange rate update, we have to manually update the line item prices
     # in normalized currency.
-    exchange_rate   = FloatField  # source/target, e.g. USD/TWD = 30.00
+    exchange_rate   = FloatField()  # source/target, e.g. USD/TWD = 30.00
     notes           = StringField()
     updated_at      = DateTimeField(default=datetime.datetime.now)
     created_at      = DateTimeField(default=datetime.datetime.now)

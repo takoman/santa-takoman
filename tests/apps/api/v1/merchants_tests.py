@@ -50,7 +50,7 @@ class MerchantsEndpointsTests(AppTestCase):
             'merchant_name': u'翔の飛行屋美國、日本代買代購'
         }, merchant)
 
-    def test_get_not_valid_object_id_merchant(self):
+    def test_get_merchant_by_invalid_object_id(self):
         res = self.test_client.get(
             '/api/v1/merchants/no-this-merchant', headers={'X-XAPP-TOKEN': 'rudy-token'})
         self.assertEqual(res.status_code, 400)
@@ -94,8 +94,8 @@ class MerchantsEndpointsTests(AppTestCase):
                                    content_type='application/json',
                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
         self.assertEqual(res.status_code, 200)
-        created_merchant = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_merchant_dict, created_merchant)
+        updated_merchant = json.loads(res.get_data())
+        self.assertDictContainsSubset(updated_merchant_dict, updated_merchant)
 
     def test_update_a_non_existing_merchant(self):
         res = self.test_client.put('/api/v1/merchants/' + str(ObjectId()),
@@ -125,6 +125,7 @@ class MerchantsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 404)
         self.assertIn("merchant not found", res.data)
 
+    @unittest.skip("Not yet implemented.")
     def test_delete_user_also_delete_merchant(self):
         pass
 
