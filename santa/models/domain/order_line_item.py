@@ -32,3 +32,4 @@ class OrderLineItem(UpdatedAtMixin, Document):
         line_item.order.save()
 
 signals.post_save.connect(OrderLineItem.update_order_total, sender=OrderLineItem)
+# TODO: We should update the total when an order line item is created/updated/deleted.
