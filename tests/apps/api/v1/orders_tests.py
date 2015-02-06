@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tests import AppTestCase
+from tests.factories import *
 from santa.models.domain import *
 from bson.objectid import ObjectId
 import unittest, json
@@ -9,10 +10,10 @@ class OrdersEndpointsTests(AppTestCase):
 
     def setUp(self):
         super(OrdersEndpointsTests, self).setUp()
-        self.buyer = User(name='Buyer B.', email='buyer@takoman.co', password='password').save()
-        self.seller = User(name='Seller S.', email='seller@takoman.co', password='password').save()
-        self.merchant = Merchant(user=self.seller, merchant_name=u'翔の飛行屋美國、日本代買代購').save()
-        self.order = Order(customer=self.buyer, merchant=self.merchant).save()
+        self.order = OrderFactory.create()
+        self.customer = self.order.customer
+        self.merchant = self.order.merchant
+        self.seller = self.merchant.user
 
     #
     # GET /orders
@@ -30,7 +31,7 @@ class OrdersEndpointsTests(AppTestCase):
 
         self.assertDictContainsSubset({
             '_id': str(self.order.id),
-            'customer': str(self.buyer.id),
+            'customer': str(self.customer.id),
             'merchant': str(self.merchant.id),
         }, orders[0])
 
@@ -44,7 +45,7 @@ class OrdersEndpointsTests(AppTestCase):
         order = json.loads(res.get_data())
         self.assertDictContainsSubset({
             '_id': str(self.order.id),
-            'customer': str(self.buyer.id),
+            'customer': str(self.customer.id),
             'merchant': str(self.merchant.id)
         }, order)
 
@@ -64,11 +65,10 @@ class OrdersEndpointsTests(AppTestCase):
     # POST /orders
     #
     def test_create_an_order(self):
-        buyer = User(name='Iron Man', email='ironman@takoman.co', password='password').save()
-        seller = User(name='Cat Woman', email='catwoman@takoman.co', password='password').save()
-        merchant = Merchant(user=seller, merchant_name=u'貓女の機車專賣').save()
+        merchant = MerchantFactory.create()
+        customer = UserFactory.create()
         new_order_dict = {
-            'customer': str(buyer.id),
+            'customer': str(customer.id),
             'merchant': str(merchant.id),
             'currency_source': 'USD',
             'exchange_rate': 30,
@@ -86,11 +86,10 @@ class OrdersEndpointsTests(AppTestCase):
     # PUT /orders/<order_id>
     #
     def test_update_an_order(self):
-        updated_buyer = User(name='Super Man', email='superman@takoman.co', password='password').save()
-        updated_seller = User(name='Super Woman', email='superwoman@takoman.co', password='password').save()
-        updated_merchant = Merchant(user=updated_seller, merchant_name=u'女超人の機車專賣').save()
+        updated_customer = UserFactory.create()
+        updated_merchant = MerchantFactory.create()
         updated_order_dict = {
-            'customer': str(updated_buyer.id),
+            'customer': str(updated_customer.id),
             'merchant': str(updated_merchant.id),
             'currency_source': 'GBP',
             'exchange_rate': 40.00,
