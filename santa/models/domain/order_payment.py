@@ -50,14 +50,19 @@ class AllPayPaymentDetails(EmbeddedDocument):
     offline_payment_details = EmbeddedDocumentField(AllPayOfflinePaymentDetails)
 
 class OrderPayment(UpdatedAtMixin, Document):
-    external_id = StringField(required=True)  # MerchantTradeNo
+    external_id = StringField(required=True)  # TradeNo - 歐付寶的交易編號
     order       = ReferenceField(Order)
+    payment_account = ReferenceField(PaymentAccount)
     total       = FloatField()
     result      = StringField(choices=[u'success', u'failure'])
     message     = StringField()
     updated_at  = DateTimeField(default=datetime.datetime.now)
     created_at  = DateTimeField(default=datetime.datetime.now)
     details     = GenericEmbeddedDocumentField()
+
+    meta = {
+        'collection': 'order_payments'
+    }
 
     @classmethod
     def update_order_status(cls, sender, document, **kwargs):
