@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from mongoengine import *
-from mongoengine import signals
 import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain import *
@@ -29,4 +28,4 @@ class PaymentAccount(UpdatedAtMixin, Document):
     }
 
 class AllPayAccount(PaymentAccount):
-    provider = 'AllPay'
+    provider = StringField(default='AllPay', choices=['AllPay'])
