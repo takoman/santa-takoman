@@ -22,7 +22,7 @@ class OrderPaymentTests(AppTestCase):
         self.assertEqual(self.payment.order, self.order)
 
     def test_defined_properties(self):
-        for p in ['external_id', 'order', 'total', 'result', 'message', 'details',
+        for p in ['external_id', 'order', 'payment_account', 'total', 'result', 'message', 'details',
                   'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.payment, p))
 

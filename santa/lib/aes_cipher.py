@@ -15,8 +15,10 @@ from Crypto.Cipher import AES
 import base64, json
 
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
-unpad = lambda s: s[0:-ord(s[-1])]
+def pad(s):
+    return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+def unpad(s):
+    return s[0:-ord(s[-1])]
 
 class AESCipher:
     def __init__( self, key ):
