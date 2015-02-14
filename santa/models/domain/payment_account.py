@@ -5,7 +5,7 @@ import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain import *
 
-__all__ = ('AllPayAccount',)
+__all__ = ('PaymentAccount', 'AllPayAccount')
 
 SUPPORTED_PAYMENT_GATEWAYS = [
     'AllPay',
