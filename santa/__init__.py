@@ -69,6 +69,8 @@ def register_apps(app):
     from apps.api.v1.products import products
     from apps.api.v1.orders import orders
     from apps.api.v1.order_line_items import order_line_items
+    from apps.api.v1.order_payments import order_payments
+    from apps.api.v1.payment_accounts import payment_accounts
     from apps.api.v1.client_apps import client_apps
     from apps.api.v1.me import me
     from apps.api.v1.system import system
@@ -81,5 +83,7 @@ def register_apps(app):
     app.register_blueprint(products, url_prefix='/api/v1')
     app.register_blueprint(orders, url_prefix='/api/v1')
     app.register_blueprint(order_line_items, url_prefix='/api/v1')
+    app.register_blueprint(order_payments, url_prefix='/api/v1')
+    app.register_blueprint(payment_accounts, url_prefix='/api/v1')
     app.register_blueprint(client_apps, url_prefix='/api/v1')
     app.register_blueprint(system, url_prefix='/api/v1')
