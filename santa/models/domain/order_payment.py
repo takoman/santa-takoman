@@ -58,7 +58,9 @@ class OrderPayment(UpdatedAtMixin, Document):
     message         = StringField()
     updated_at      = DateTimeField(default=datetime.datetime.now)
     created_at      = DateTimeField(default=datetime.datetime.now)
-    details         = GenericEmbeddedDocumentField()
+    # TODO: GenericEmbeddedDocumentField will create an additional _cls attribute
+    # details         = GenericEmbeddedDocumentField()
+    details         = EmbeddedDocumentField(AllPayPaymentDetails)
 
     meta = {
         'collection': 'order_payments'
