@@ -71,4 +71,3 @@ def delete_payment_account(payment_account_id):
     payment_account.delete()
 
     return render_json(me_to_json(payment_account))
-

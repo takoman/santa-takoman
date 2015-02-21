@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from tests import AppTestCase
-from santa.lib.common import me_to_json
 from tests.factories import *
 from santa.models.domain import *
+from santa.lib.common import me_to_json
+from santa.lib.util import date_to_str
 from bson.objectid import ObjectId
+from dateutil import parser
 import unittest, json
 
 class OrderPaymentsEndpointsTests(AppTestCase):
@@ -77,10 +79,10 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                 'return_message': 'paid',
                 'trade_no': 'tn-1',
                 'trade_amount': 1000,
-                # 'payment_date': '2012/03/20 13:04:29',
+                'payment_date': '2012/03/20 13:04:29',
                 'payment_type': 'ATM_TAISHIN',
                 'payment_type_charge_fee': 25,
-                # 'trade_date': '2012/03/16 12:03:12',
+                'trade_date': '2012/03/16 12:03:12',
                 'simulate_paid': 0,
                 'offline_payment_details': {
                     'merchant_id': 'mid-1',
@@ -90,8 +92,8 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                     'trade_no': 'tn-1',
                     'trade_amount': 1000,
                     'payment_type': 'ATM_TAISHIN',
-                    # 'trade_date': '2012/03/16 12:03:12',
-                    # 'expire_date': '2012/03/23 12:03:12',
+                    'trade_date': '2012/03/16 12:03:12',
+                    'expire_date': '2012/03/23 12:03:12',
                     'bank_code': '812',
                     'v_account': '9103522175887271'
                 }
@@ -103,6 +105,21 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': 'rudy-token'})
         self.assertEqual(res.status_code, 201)
         created_order_payment = json.loads(res.get_data())
+
+        # The API converts the timestamps to RFC 1123 format, so we have to
+        # manually convert them here for the assertion.
+        # https://github.com/takoman/santa/blob/ec0bf9d63e9a92ffeda78405629449323f06c738/santa/lib/common.py#L18
+
+        # We may register new methods for equality check of timestamps.
+        # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
+        new_order_payment_dict['details']['payment_date'] = date_to_str(
+            parser.parse(new_order_payment_dict['details']['payment_date']))
+        new_order_payment_dict['details']['trade_date'] = date_to_str(
+            parser.parse(new_order_payment_dict['details']['trade_date']))
+        new_order_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
+            parser.parse(new_order_payment_dict['details']['offline_payment_details']['trade_date']))
+        new_order_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
+            parser.parse(new_order_payment_dict['details']['offline_payment_details']['expire_date']))
         self.assertDictContainsSubset(new_order_payment_dict, created_order_payment)
 
     #
@@ -125,10 +142,10 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                 'return_message': 'paid',
                 'trade_no': 'tn-188',
                 'trade_amount': 300.99,
-                # 'payment_date': '2012/03/20 13:04:29',
+                'payment_date': '2012/03/20 13:04:29',
                 'payment_type': 'ATM_BOT',
                 'payment_type_charge_fee': 25,
-                # 'trade_date': '2012/03/16 12:03:12',
+                'trade_date': '2012/03/16 12:03:12',
                 'simulate_paid': 0,
                 'offline_payment_details': {
                     'merchant_id': 'mid-199',
@@ -138,8 +155,8 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                     'trade_no': 'tn-188',
                     'trade_amount': 300.99,
                     'payment_type': 'ATM_BOT',
-                    # 'trade_date': '2012/03/16 12:03:12',
-                    # 'expire_date': '2012/03/23 12:03:12',
+                    'trade_date': '2012/03/16 12:03:12',
+                    'expire_date': '2012/03/23 12:03:12',
                     'bank_code': '813',
                     'v_account': '8993522175997382'
                 }
@@ -153,6 +170,21 @@ class OrderPaymentsEndpointsTests(AppTestCase):
         updated_order_payment = json.loads(res.get_data())
         self.assertEqual(len(OrderPayment.objects), 1)
         self.assertEqual(str(self.order_payment.id), updated_order_payment['_id'])
+
+        # The API converts the timestamps to RFC 1123 format, so we have to
+        # manually convert them here for the assertion.
+        # https://github.com/takoman/santa/blob/ec0bf9d63e9a92ffeda78405629449323f06c738/santa/lib/common.py#L18
+
+        # We may register new methods for equality check of timestamps.
+        # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
+        updated_order_payment_dict['details']['payment_date'] = date_to_str(
+            parser.parse(updated_order_payment_dict['details']['payment_date']))
+        updated_order_payment_dict['details']['trade_date'] = date_to_str(
+            parser.parse(updated_order_payment_dict['details']['trade_date']))
+        updated_order_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
+            parser.parse(updated_order_payment_dict['details']['offline_payment_details']['trade_date']))
+        updated_order_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
+            parser.parse(updated_order_payment_dict['details']['offline_payment_details']['expire_date']))
         self.assertDictContainsSubset(updated_order_payment_dict, updated_order_payment)
 
     def test_update_a_non_existing_order_payment(self):

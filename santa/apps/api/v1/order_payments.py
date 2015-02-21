@@ -44,7 +44,6 @@ def create_order_payment():
 def update_order_payment(order_payment_id):
     data = parse_request(request)
 
-    known_fields = OrderPayment._fields.keys()
     order_payment = OrderPayment.objects(id=order_payment_id).first()
     if not order_payment:
         raise ApiException('order payment not found', 404)
