@@ -21,7 +21,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
 
     def test_rudy_access_payment_accounts(self):
         res = self.test_client.get(
-            '/api/v1/payment_accounts', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/payment_accounts', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         payment_accounts = json.loads(res.get_data())
         self.assertEqual(len(payment_accounts), 1)
@@ -37,7 +37,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
     #
     def test_get_certain_payment_account(self):
         res = self.test_client.get(
-            '/api/v1/payment_accounts/' + str(self.allpay_account.id), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/payment_accounts/' + str(self.allpay_account.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         allpay_account = json.loads(res.get_data())
         self.assertDictContainsSubset({
@@ -48,13 +48,13 @@ class PaymentAccountsEndpointsTests(AppTestCase):
 
     def test_get_payment_account_by_invalid_object_id(self):
         res = self.test_client.get(
-            '/api/v1/payment_accounts/no-this-payment_account', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/payment_accounts/no-this-payment_account', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
     def test_get_non_existing_payment_account(self):
         res = self.test_client.get(
-            '/api/v1/payment_accounts/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/payment_accounts/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("payment account not found", res.data)
 
@@ -71,7 +71,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/payment_accounts',
                                     data=json.dumps(new_payment_account_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_payment_account = json.loads(res.get_data())
         self.assertDictContainsSubset(new_payment_account_dict, created_payment_account)
@@ -88,7 +88,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/payment_accounts/' + str(self.allpay_account.id),
                                    data=json.dumps(updated_payment_account_dict),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_payment_account = json.loads(res.get_data())
         self.assertDictContainsSubset(updated_payment_account_dict, updated_payment_account)
@@ -97,7 +97,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/payment_accounts/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("payment account not found", res.data)
 
@@ -106,10 +106,10 @@ class PaymentAccountsEndpointsTests(AppTestCase):
     #
     def test_delete_an_payment_account(self):
         res = self.test_client.get('/api/v1/payment_accounts/' + str(self.allpay_account.id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         payment_account = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/payment_accounts/' + str(self.allpay_account.id),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_payment_account = json.loads(res.get_data())
         self.assertDictEqual(payment_account, deleted_payment_account)
@@ -117,7 +117,7 @@ class PaymentAccountsEndpointsTests(AppTestCase):
 
     def test_delete_a_non_existing_payment_account(self):
         res = self.test_client.delete(
-            '/api/v1/payment_accounts/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/payment_accounts/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("payment account not found", res.data)
 

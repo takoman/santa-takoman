@@ -26,8 +26,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_by_credentials(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'
@@ -43,8 +43,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_expires_in_by_credentials(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'
@@ -58,7 +58,7 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_missing_client_id(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_secret='rudy-secret',
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'
@@ -69,7 +69,7 @@ class AuthControllersTests(AppTestCase):
     def test_get_access_token_invalid_client_id(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
             client_id='wrong',
-            client_secret='rudy-secret',
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'
@@ -79,7 +79,7 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_invalid_client_secret(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
+            client_id=self.client_app.client_id,
             client_secret='wrong',
             grant_type='credentials',
             email='takoman@takoman.co',
@@ -90,8 +90,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_missing_email(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             password='password'
         ))
@@ -100,8 +100,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_missing_password(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co'
         ))
@@ -110,8 +110,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_invalid_email(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='nobody@takoman.co',
             password='password'
@@ -121,8 +121,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_invalid_login_type(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takowoman@takoman.co',
             password='password'
@@ -133,8 +133,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_invalid_password(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='thisisworng'
@@ -171,8 +171,8 @@ class AuthControllersTests(AppTestCase):
         }
 
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook',
             oauth_token='facebook-oauth-token'
@@ -195,8 +195,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_token='facebook-oauth-token'
         ))
@@ -212,8 +212,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook'
         ))
@@ -229,8 +229,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='assbook',
             oauth_token='alienbook-oauth-token'
@@ -244,8 +244,8 @@ class AuthControllersTests(AppTestCase):
         fb_instance.get_auth_data.return_value = None
 
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook',
             oauth_token='facebook-oauth-token'
@@ -262,8 +262,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook',
             oauth_token='facebook-oauth-token'
@@ -285,8 +285,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook',
             oauth_token='facebook-oauth-token'
@@ -307,8 +307,8 @@ class AuthControllersTests(AppTestCase):
             'name'    : 'Chung-Yi Chi'
         }
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='oauth_token',
             oauth_provider='facebook',
             oauth_token='facebook-oauth-token'
@@ -318,8 +318,8 @@ class AuthControllersTests(AppTestCase):
 
     def test_get_access_token_unsupported_grant_type(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='wrong',
             email='takoman@takoman.co',
             password='password'

@@ -25,8 +25,8 @@ class MeControllersTests(AppTestCase):
 
     def test_access_token_in_header(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'
@@ -41,8 +41,8 @@ class MeControllersTests(AppTestCase):
 
     def test_access_token_in_query_string(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
-            client_id='rudy-test',
-            client_secret='rudy-secret',
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
             grant_type='credentials',
             email='takoman@takoman.co',
             password='password'

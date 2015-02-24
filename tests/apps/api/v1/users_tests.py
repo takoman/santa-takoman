@@ -43,8 +43,8 @@ class UsersEndpointsTests(AppTestCase):
             'email': 'takochan@takoman.co',
             'password': 'takochanmansai'
         }
-        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
-        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': 'rudy-token'})
+        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': self.client_app_token})
+        res = self.test_client.post('/api/v1/users', data=user, headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 400)
         self.assertIn("duplicate unique keys", res.data)
@@ -53,7 +53,7 @@ class UsersEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/users', data=dict(
             email='takochan@takoman.co',
             password='takochanmansai'
-        ), headers={'X-XAPP-TOKEN': 'rudy-token'})
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 400)
         self.assertIn("unsupported signup type", res.data)
@@ -66,7 +66,7 @@ class UsersEndpointsTests(AppTestCase):
             email='takochan@takoman.co',
             password='takochanmansai',
             role=['invalid-role']
-        )), content_type="application/json", headers={'X-XAPP-TOKEN': 'rudy-token'})
+        )), content_type="application/json", headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 400)
         self.assertIn("Value must be one of", res.data)
@@ -78,7 +78,7 @@ class UsersEndpointsTests(AppTestCase):
             name='takochan',
             email='takochan@takoman.co',
             password='takochanmansai'
-        ), headers={'X-XAPP-TOKEN': 'rudy-token'})
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 201)
         self.assertIn('_id', res.data)
@@ -110,7 +110,7 @@ class UsersEndpointsTests(AppTestCase):
             oauth_token='DWzojAv2dkr8Dd',
             provider='facebook',
             name='Tako Kid'
-        ), headers={'X-XAPP-TOKEN': 'rudy-token'})
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 201)
         user = User.objects(email='kid@takoman.co').first()
@@ -150,7 +150,7 @@ class UsersEndpointsTests(AppTestCase):
             name='takochan',
             email='takochan@takoman.co',
             password='takochanmansai'
-        ), headers={'X-XAPP-TOKEN': 'rudy-token'})
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
 
         self.assertEqual(res.status_code, 201)
         self.assertTrue(emailer_mock.called)

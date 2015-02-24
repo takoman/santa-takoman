@@ -43,7 +43,8 @@ class AppLifeCycle(object):
 
     @classmethod
     def setupDB(cls, test):
-        ClientApp(name='client_test_app', client_id='rudy-test', client_secret='rudy-secret', token='rudy-token').save()
+        test.client_app = ClientApp(name='client-test-app').save()
+        test.client_app_token = test.client_app.token
 
     @classmethod
     def dropDB(cls, test):
@@ -93,7 +94,8 @@ class AppTestCase(BaseTestCase):
 
     def setUp(self):
         super(AppTestCase, self).setUp()
-        ClientApp(name='client-test-app', client_id='rudy-test', client_secret='rudy-secret', token='rudy-token').save()
+        self.client_app = ClientApp(name='client-test-app').save()
+        self.client_app_token = self.client_app.token
 
     def tearDown(self):
         super(AppTestCase, self).tearDown()

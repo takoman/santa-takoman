@@ -24,7 +24,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
 
     def test_rudy_access_order_payments(self):
         res = self.test_client.get(
-            '/api/v1/order_payments', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_payments', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         order_payments = json.loads(res.get_data())
         self.assertEqual(len(order_payments), 1)
@@ -39,7 +39,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
     #
     def test_get_certain_order_payment(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/' + str(self.order_payment.id), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_payments/' + str(self.order_payment.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         order_payment = json.loads(res.get_data())
         self.assertDictContainsSubset(
@@ -49,13 +49,13 @@ class OrderPaymentsEndpointsTests(AppTestCase):
 
     def test_get_order_payment_by_invalid_object_id(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/no-this-order_payment', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_payments/no-this-order_payment', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
     def test_get_non_existing_order_payment(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order payment not found", res.data)
 
@@ -102,7 +102,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/order_payments',
                                     data=json.dumps(new_order_payment_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_order_payment = json.loads(res.get_data())
 
@@ -165,7 +165,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/order_payments/' + str(self.order_payment.id),
                                    data=json.dumps(updated_order_payment_dict),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_order_payment = json.loads(res.get_data())
         self.assertEqual(len(OrderPayment.objects), 1)
@@ -191,7 +191,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/order_payments/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order payment not found", res.data)
 
@@ -200,10 +200,10 @@ class OrderPaymentsEndpointsTests(AppTestCase):
     #
     def test_delete_an_order_payment(self):
         res = self.test_client.get('/api/v1/order_payments/' + str(self.order_payment.id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         order_payment = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/order_payments/' + str(self.order_payment.id),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_order_payment = json.loads(res.get_data())
         self.assertDictEqual(order_payment, deleted_order_payment)
@@ -211,7 +211,7 @@ class OrderPaymentsEndpointsTests(AppTestCase):
 
     def test_delete_a_non_existing_order_payment(self):
         res = self.test_client.delete(
-            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order payment not found", res.data)
 
