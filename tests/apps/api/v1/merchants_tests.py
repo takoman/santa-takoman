@@ -22,7 +22,7 @@ class MerchantsEndpointsTests(AppTestCase):
 
     def test_rudy_access_products(self):
         res = self.test_client.get(
-            '/api/v1/merchants', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/merchants', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         merchants = json.loads(res.get_data())
         self.assertEqual(len(merchants), 1)
@@ -41,7 +41,7 @@ class MerchantsEndpointsTests(AppTestCase):
 
     def test_get_certain_merchant(self):
         res = self.test_client.get(
-            '/api/v1/merchants/' + str(self.merchant.id), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/merchants/' + str(self.merchant.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         merchant = json.loads(res.get_data())
         self.assertDictContainsSubset({
@@ -52,13 +52,13 @@ class MerchantsEndpointsTests(AppTestCase):
 
     def test_get_merchant_by_invalid_object_id(self):
         res = self.test_client.get(
-            '/api/v1/merchants/no-this-merchant', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/merchants/no-this-merchant', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
     def test_get_not_existing_merchant(self):
         res = self.test_client.get(
-            '/api/v1/merchants/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/merchants/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("merchant not found", res.data)
 
@@ -74,7 +74,7 @@ class MerchantsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/merchants',
                                     data=json.dumps(new_merchant_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_merchant = json.loads(res.get_data())
         self.assertDictContainsSubset(new_merchant_dict, created_merchant)
@@ -92,7 +92,7 @@ class MerchantsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/merchants/' + str(self.merchant.id),
                                    data=json.dumps(updated_merchant_dict),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_merchant = json.loads(res.get_data())
         self.assertDictContainsSubset(updated_merchant_dict, updated_merchant)
@@ -101,7 +101,7 @@ class MerchantsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/merchants/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("merchant not found", res.data)
 
@@ -110,10 +110,10 @@ class MerchantsEndpointsTests(AppTestCase):
     #
     def test_delete_a_merchant(self):
         res = self.test_client.get('/api/v1/merchants/' + str(self.merchant.id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         merchant = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/merchants/' + str(self.merchant.id),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_merchant = json.loads(res.get_data())
         self.assertDictEqual(merchant, deleted_merchant)
@@ -121,7 +121,7 @@ class MerchantsEndpointsTests(AppTestCase):
 
     def test_delete_a_non_existing_merchant(self):
         res = self.test_client.delete(
-            '/api/v1/merchants/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/merchants/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("merchant not found", res.data)
 

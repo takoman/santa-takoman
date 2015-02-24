@@ -56,19 +56,19 @@ class OrderLineItemsEndpointsTests(AppTestCase):
 
     def test_rudy_access_order_line_items_without_order(self):
         res = self.test_client.get('/api/v1/order_line_items',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("missing order id", res.data)
 
     def test_rudy_access_order_line_items_with_non_existing_order(self):
         res = self.test_client.get('/api/v1/order_line_items?order_id=' + str(ObjectId()),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order not found", res.data)
 
     def test_rudy_access_order_line_items_with_order(self):
         res = self.test_client.get('/api/v1/order_line_items?order_id=' + str(self.order.id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         items = json.loads(res.get_data())
         self.assertEqual(len(items), 4)
@@ -81,14 +81,14 @@ class OrderLineItemsEndpointsTests(AppTestCase):
     def test_get_certain_order_line_item(self):
         for i, item in enumerate(self.items):
             res = self.test_client.get(
-                '/api/v1/order_line_items/' + str(item.id), headers={'X-XAPP-TOKEN': 'rudy-token'})
+                '/api/v1/order_line_items/' + str(item.id), headers={'X-XAPP-TOKEN': self.client_app_token})
             self.assertEqual(res.status_code, 200)
             fetched_item = json.loads(res.get_data())
             self.assertDictContainsSubset(self.items_dict[i], fetched_item)
 
     def test_get_certain_order_line_item_with_non_existing_id(self):
         res = self.test_client.get(
-            '/api/v1/order_line_items/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/order_line_items/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order line item not found", res.data)
 
@@ -106,7 +106,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/order_line_items',
                                     data=json.dumps(item_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("missing order id", res.data)
 
@@ -122,7 +122,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/order_line_items',
                                     data=json.dumps(item_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order not found", res.data)
 
@@ -137,7 +137,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/order_line_items',
                                     data=json.dumps(item_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("product not found", res.data)
 
@@ -153,7 +153,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/order_line_items',
                                     data=json.dumps(item_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_item = json.loads(res.get_data())
         self.assertDictContainsSubset(item_dict, created_item)
@@ -165,7 +165,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/order_line_items/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order line item not found", res.data)
 
@@ -181,7 +181,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/order_line_items/' + str(item.id),
                                    data=json.dumps(updated_item_dict),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_item = json.loads(res.get_data())
         self.assertDictContainsSubset(updated_item_dict, updated_item)
@@ -191,10 +191,10 @@ class OrderLineItemsEndpointsTests(AppTestCase):
     #
     def test_delete_an_order_line_item(self):
         res = self.test_client.get('api/v1/order_line_items/' + str(self.items[0].id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         item = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/order_line_items/' + str(self.items[0].id),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_item = json.loads(res.get_data())
         self.assertDictEqual(item, deleted_item)
@@ -202,7 +202,7 @@ class OrderLineItemsEndpointsTests(AppTestCase):
 
     def test_delete_a_non_existing_order_line_item(self):
         res = self.test_client.delete('api/v1/order_line_items/' + str(ObjectId()),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order line item not found", res.data)
 

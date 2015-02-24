@@ -15,11 +15,11 @@ class ClientAppsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
 
     def test_get_xapp_token(self):
-        query = { 'client_id': 'rudy-test', 'client_secret': 'rudy-secret' }
+        query = { 'client_id': self.client_app.client_id, 'client_secret': self.client_app.client_secret }
         res = self.test_client.get('/api/v1/xapp_token', query_string=query)
         res_obj = json.loads(res.get_data())
         self.assertIn('xapp_token', res_obj)
-        self.assertEqual(res_obj['xapp_token'], 'rudy-token')
+        self.assertEqual(res_obj['xapp_token'], self.client_app_token)
         self.assertIn('expires_in', res_obj)
         # TODO assert res.expires_in is valid timestamp string
 

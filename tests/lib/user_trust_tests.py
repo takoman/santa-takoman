@@ -18,7 +18,7 @@ class UserTrustTests(AppTestCase):
         User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.options = {
             'user': {'email': 'takoman@takoman.co'},
-            'client_app': {'client_id': 'rudy-test'},
+            'client_app': {'client_id': self.client_app.client_id},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
         }
 
@@ -86,7 +86,7 @@ class UserTrustTests(AppTestCase):
     def test_create_utf8_access_token_and_extract_user_from_it(self):
         self.options = {
             'user': {u'email': u'takoman@takoman.co'},
-            'client_app': {u'client_id': u'rudy-test'},
+            'client_app': {u'client_id': unicode(self.client_app.client_id, 'utf-8')},
             'expires_in': datetime.datetime.today() + datetime.timedelta(days=7)
         }
         with self.app.app_context():

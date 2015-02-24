@@ -24,7 +24,7 @@ class OrdersEndpointsTests(AppTestCase):
 
     def test_rudy_access_products(self):
         res = self.test_client.get(
-            '/api/v1/orders', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/orders', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         orders = json.loads(res.get_data())
         self.assertEqual(len(orders), 1)
@@ -40,7 +40,7 @@ class OrdersEndpointsTests(AppTestCase):
     #
     def test_get_certain_order(self):
         res = self.test_client.get(
-            '/api/v1/orders/' + str(self.order.id), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/orders/' + str(self.order.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         order = json.loads(res.get_data())
         self.assertDictContainsSubset({
@@ -51,13 +51,13 @@ class OrdersEndpointsTests(AppTestCase):
 
     def test_get_order_by_invalid_object_id(self):
         res = self.test_client.get(
-            '/api/v1/orders/no-this-order', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/orders/no-this-order', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
     def test_get_non_existing_order(self):
         res = self.test_client.get(
-            '/api/v1/orders/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/orders/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order not found", res.data)
 
@@ -77,7 +77,7 @@ class OrdersEndpointsTests(AppTestCase):
         res = self.test_client.post('/api/v1/orders',
                                     data=json.dumps(new_order_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_order = json.loads(res.get_data())
         self.assertDictContainsSubset(new_order_dict, created_order)
@@ -98,7 +98,7 @@ class OrdersEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/orders/' + str(self.order.id),
                                    data=json.dumps(updated_order_dict),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_order = json.loads(res.get_data())
         self.assertDictContainsSubset(updated_order_dict, updated_order)
@@ -107,7 +107,7 @@ class OrdersEndpointsTests(AppTestCase):
         res = self.test_client.put('/api/v1/orders/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order not found", res.data)
 
@@ -116,10 +116,10 @@ class OrdersEndpointsTests(AppTestCase):
     #
     def test_delete_an_order(self):
         res = self.test_client.get('/api/v1/orders/' + str(self.order.id),
-                                   headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
         order = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/orders/' + str(self.order.id),
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_order = json.loads(res.get_data())
         self.assertDictEqual(order, deleted_order)
@@ -127,7 +127,7 @@ class OrdersEndpointsTests(AppTestCase):
 
     def test_delete_a_non_existing_order(self):
         res = self.test_client.delete(
-            '/api/v1/orders/' + str(ObjectId()), headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/orders/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("order not found", res.data)
 

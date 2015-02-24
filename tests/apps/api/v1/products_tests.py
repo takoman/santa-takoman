@@ -23,7 +23,7 @@ class ProductsEndpointsTests(AppTestCase):
 
     def test_rudy_access_products(self):
         res = self.test_client.get(
-            '/api/v1/products', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/products', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         products = json.loads(res.get_data())
         self.assertEqual(len(products), 1)
@@ -53,7 +53,7 @@ class ProductsEndpointsTests(AppTestCase):
                                     # http://werkzeug.pocoo.org/docs/0.9/test/#werkzeug.test.EnvironBuilder
                                     data=json.dumps(new_product_dict),
                                     content_type='application/json',
-                                    headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_product = json.loads(res.get_data())
         self.assertDictContainsSubset(new_product_dict, created_product)
@@ -69,7 +69,7 @@ class ProductsEndpointsTests(AppTestCase):
             'description': u'男孩/女孩-刀叉組：Arthur : 800/組（含運）含: 1 x 盤子 (20cm), 1 x 碗(12cm) and 1 x 馬克杯.可使用於冷凍、烤箱、微波爐、洗碗機'
         }
         res = self.test_client.get(
-            '/api/v1/products', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/products', headers={'X-XAPP-TOKEN': self.client_app_token})
         product = json.loads(res.get_data())[0]
 
         res = self.test_client.put(
@@ -81,7 +81,7 @@ class ProductsEndpointsTests(AppTestCase):
                 'description': updated_product_dict['description']
             }),
             content_type='application/json',
-            headers={'X-XAPP-TOKEN': 'rudy-token'})
+            headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_product = json.loads(res.get_data())
         self.assertDictContainsSubset(updated_product_dict, updated_product)
@@ -91,10 +91,10 @@ class ProductsEndpointsTests(AppTestCase):
     #
     def test_delete_a_product(self):
         res = self.test_client.get(
-            '/api/v1/products', headers={'X-XAPP-TOKEN': 'rudy-token'})
+            '/api/v1/products', headers={'X-XAPP-TOKEN': self.client_app_token})
         product = json.loads(res.get_data())[0]
         res = self.test_client.delete('api/v1/products/' + product['_id'],
-                                      headers={'X-XAPP-TOKEN': 'rudy-token'})
+                                      headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_product = json.loads(res.get_data())
         self.assertDictEqual(product, deleted_product)
