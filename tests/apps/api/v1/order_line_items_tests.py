@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tests import AppTestCase
+from tests.factories import *
 from santa.models.domain import *
 from bson.objectid import ObjectId
 import unittest, json
@@ -13,8 +14,8 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         seller = User(name='Seller S.', email='seller@takoman.co', password='password').save()
         merchant = Merchant(user=seller, merchant_name=u'翔の飛行屋美國、日本代買代購').save()
         self.order = Order(customer=buyer, merchant=merchant).save()
-        product1 = Product(title=u'雙人牌7 Piece Knife Block Set').save()
-        product2 = Product(title=u'海賊王漫畫全集（附海報）').save()
+        product1 = ProductFactory.create()
+        product2 = ProductFactory.create()
         self.items_dict = [
             {
                 'type': 'product',

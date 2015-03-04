@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tests import AppTestCase
+from tests.factories import *
 from santa.models.domain import *
 import unittest, json
 
@@ -8,10 +9,11 @@ class ProductsEndpointsTests(AppTestCase):
 
     def setUp(self):
         super(ProductsEndpointsTests, self).setUp()
-        Product(title=u'雙人牌Zwilling Henckels Pure 7 Piece Knife Block Set',
-                brand=u'雙人牌',
-                urls=['http://www.amazon.com/Zwilling-Henckels-Pure-Piece-Knife/dp/B005HVEGPW'],
-                description=u'德國刀具舉世聞名，雖然差我們金門菜刀一點，但也是極品中的極品啦！這是眾所皆知的雙人牌，在台灣響當當的指甲剪，記得一把也要一兩千！現在刀組含架子正特價呢！原價20,000，現13000').save()
+        ProductFactory.create(
+            title=u'雙人牌Zwilling Henckels Pure 7 Piece Knife Block Set',
+            brand=u'雙人牌',
+            urls=['http://www.amazon.com/Zwilling-Henckels-Pure-Piece-Knife/dp/B005HVEGPW'],
+            description=u'德國刀具舉世聞名，雖然差我們金門菜刀一點，但也是極品中的極品啦！這是眾所皆知的雙人牌，在台灣響當當的指甲剪，記得一把也要一兩千！現在刀組含架子正特價呢！原價20,000，現13000')
 
     #
     # GET /products
