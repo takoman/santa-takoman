@@ -4,11 +4,12 @@ import unittest
 from tests import AppTestCase
 from mongoengine import *
 from santa.models.domain import *
+from tests.factories import *
 
 class ClientAppsTests(AppTestCase):
     def setUp(self):
         super(ClientAppsTests, self).setUp()
-        self.client_app = ClientApp(name='Elk').save()
+        self.client_app = ClientAppFactory.create()
 
     def test_required_properties(self):
         with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['name'\].*"):
