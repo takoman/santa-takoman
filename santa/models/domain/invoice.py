@@ -15,7 +15,7 @@ INVOICE_STATUSES = [
 class Invoice(UpdatedAtMixin, Document):
     invoice_no          = SequenceField(value_decorator=lambda x: "%012d" % (x,))
     order               = ReferenceField(Order, required=True)
-    invoice_line_items  = ListField(ReferenceField('InvoiceLineItem'))
+    invoice_line_items  = ListField(ReferenceField('InvoiceLineItem'), default=[])
     total               = FloatField()  # in target currency
     status              = StringField(choices=INVOICE_STATUSES, default='draft')
     notes               = StringField()

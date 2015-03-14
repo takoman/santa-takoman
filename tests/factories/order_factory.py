@@ -13,6 +13,7 @@ class OrderFactory(MongoEngineFactory):
 
     customer = factory.SubFactory(UserFactory)
     merchant = factory.SubFactory(MerchantFactory)
+    # TODO: We should just have an order reference in order line item.
     line_items = []
     total = 0.00
     currency_source = 'USD'

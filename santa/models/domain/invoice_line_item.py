@@ -11,7 +11,7 @@ __all__ = ('InvoiceLineItem',)
 class InvoiceLineItem(UpdatedAtMixin, Document):
     invoice         = ReferenceField(Invoice, required=True)
     order_line_item = ReferenceField(OrderLineItem, required=True)
-    price           = FloatField()   # In target currency.
+    price           = FloatField()  # In target currency.
     quantity        = IntField()
     notes           = StringField()
     updated_at      = DateTimeField(default=datetime.datetime.now)
@@ -28,4 +28,3 @@ class InvoiceLineItem(UpdatedAtMixin, Document):
 
 # Update the invoice total when an invoice line item is created/updated/deleted.
 signals.post_save.connect(InvoiceLineItem.update_invoice_total, sender=InvoiceLineItem)
-signals.post_delete.connect(InvoiceLineItem.update_invoice_total, sender=InvoiceLineItem)
