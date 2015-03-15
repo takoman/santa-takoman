@@ -181,25 +181,25 @@ ORDER_STATUSES = [
 ]
 
 class Order(UpdatedAtMixin, Document):
-    customer        = ReferenceField(User, required=True)
-    merchant        = ReferenceField(Merchant, required=True)
-    # shipping      = ReferenceField(Shipment)
+    customer          = ReferenceField(User, required=True)
+    merchant          = ReferenceField(Merchant, required=True)
+    # shipping        = ReferenceField(Shipment)
 
-    status          = StringField(choices=ORDER_STATUSES, default=u'new')
-    line_items      = ListField(ReferenceField('OrderLineItem'))
-    total           = FloatField()  # in target currency
-    currency_source = StringField(choices=SUPPORTED_CURRENCIES)
-    currency_target = StringField(choices=SUPPORTED_CURRENCIES, default=u'TWD')
+    status            = StringField(choices=ORDER_STATUSES, default=u'new')
+    order_line_items  = ListField(ReferenceField('OrderLineItem'))
+    total             = FloatField()  # in target currency
+    currency_source   = StringField(choices=SUPPORTED_CURRENCIES)
+    currency_target   = StringField(choices=SUPPORTED_CURRENCIES, default=u'TWD')
 
     # All the prices, e.g. order.total and line_item.price, are normalized
     # in target currency. Exchange rate here is for reporting purposes, and
     # updating it won't trigger any price updates. To update prices due to
     # exchange rate update, we have to manually update the line item prices
     # in normalized currency.
-    exchange_rate   = FloatField()  # source/target, e.g. USD/TWD = 30.00
-    notes           = StringField()
-    updated_at      = DateTimeField(default=datetime.datetime.now)
-    created_at      = DateTimeField(default=datetime.datetime.now)
+    exchange_rate     = FloatField()  # source/target, e.g. USD/TWD = 30.00
+    notes             = StringField()
+    updated_at        = DateTimeField(default=datetime.datetime.now)
+    created_at        = DateTimeField(default=datetime.datetime.now)
 
     meta = {
         'collection': 'orders'
@@ -212,6 +212,6 @@ class Order(UpdatedAtMixin, Document):
         return
 
     def calculate_total(self):
-        return sum([item.price * item.quantity for item in self.line_items])
+        return sum([item.price * item.quantity for item in self.order_line_items])
 
 signals.pre_save_post_validation.connect(Order.update_total, sender=Order)
