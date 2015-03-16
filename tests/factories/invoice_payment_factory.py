@@ -5,7 +5,7 @@ from santa.models.domain import *
 from factory.mongoengine import MongoEngineFactory
 from . import *
 
-__all__ = ('OrderPaymentFactory',)
+__all__ = ('InvoicePaymentFactory',)
 
 class AllPayATMOfflinePaymentDetailsFactory(MongoEngineFactory):
     class Meta:
@@ -42,12 +42,12 @@ class AllPayPaymentDetailsFactory(MongoEngineFactory):
     simulate_paid     = 0
     offline_payment_details = factory.SubFactory(AllPayATMOfflinePaymentDetailsFactory)
 
-class OrderPaymentFactory(MongoEngineFactory):
+class InvoicePaymentFactory(MongoEngineFactory):
     class Meta:
-        model = OrderPayment
+        model = InvoicePayment
 
     external_id = factory.Sequence(lambda n: '{0}'.format(n))
-    order = factory.SubFactory(OrderFactory)
+    invoice = factory.SubFactory(InvoiceFactory)
     payment_account = factory.SubFactory(AllPayAccountFactory)
     total = 1000.00
     result = 'success'

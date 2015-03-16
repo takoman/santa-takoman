@@ -9,7 +9,7 @@ from order_line_item_factory import *
 from invoice_factory import *
 from invoice_line_item_factory import *
 from allpay_account_factory import *
-from order_payment_factory import *
+from invoice_payment_factory import *
 
 __all__ = (client_app_factory.__all__ +
            user_factory.__all__ +
@@ -20,4 +20,4 @@ __all__ = (client_app_factory.__all__ +
            invoice_factory.__all__ +
            invoice_line_item_factory.__all__ +
            allpay_account_factory.__all__ +
-           order_payment_factory.__all__)
+           invoice_payment_factory.__all__)

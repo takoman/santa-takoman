@@ -4,9 +4,9 @@ from mongoengine import *
 from mongoengine import signals
 import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
-from santa.models.domain.order import Order
+from santa.models.domain import *
 
-__all__ = ('AllPayOfflinePaymentDetails', 'AllPayPaymentDetails', 'OrderPayment')
+__all__ = ('AllPayOfflinePaymentDetails', 'AllPayPaymentDetails', 'InvoicePayment')
 
 SUPPORTED_PAYMENT_METHODS = [
     u'ALLPAY'
@@ -49,9 +49,9 @@ class AllPayPaymentDetails(EmbeddedDocument):
     check_mac_value   = StringField()
     offline_payment_details = EmbeddedDocumentField(AllPayOfflinePaymentDetails)
 
-class OrderPayment(UpdatedAtMixin, Document):
+class InvoicePayment(UpdatedAtMixin, Document):
     external_id     = StringField(required=True)  # TradeNo - 歐付寶的交易編號
-    order           = ReferenceField(Order)
+    invoice         = ReferenceField(Invoice)
     payment_account = ReferenceField('PaymentAccount')
     total           = FloatField()
     result          = StringField(choices=[u'success', u'failure'])
@@ -63,14 +63,14 @@ class OrderPayment(UpdatedAtMixin, Document):
     details         = EmbeddedDocumentField(AllPayPaymentDetails)
 
     meta = {
-        'collection': 'order_payments'
+        'collection': 'invoice_payments'
     }
 
     @classmethod
-    def update_order_status(cls, sender, document, **kwargs):
+    def update_invoice_status(cls, sender, document, **kwargs):
         payment = document
-        if payment.result == u'success' and payment.order.status in ['new', 'invoiced']:
-            payment.order.status = u'paid'
-            payment.order.save()
+        if payment.result == u'success' and payment.invoice.status in ['unpaid']:
+            payment.invoice.status = u'paid'
+            payment.invoice.save()
 
-signals.post_save.connect(OrderPayment.update_order_status, sender=OrderPayment)
+signals.post_save.connect(InvoicePayment.update_invoice_status, sender=InvoicePayment)
