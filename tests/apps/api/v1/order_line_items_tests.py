@@ -159,6 +159,13 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         created_item = json.loads(res.get_data())
         self.assertDictContainsSubset(item_dict, created_item)
 
+        # The order should have 1 more order line items.
+        res = self.test_client.get('/api/v1/order_line_items?order_id=' + str(self.order.id),
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        items = json.loads(res.get_data())
+        self.assertEqual(len(items), 5)
+
     #
     # PUT /order_line_items/<order_line_item_id>
     #
