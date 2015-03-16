@@ -1,31 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from tests import AppTestCase
 from mongoengine import *
 from santa.models.domain import *
+from tests import AppTestCase
+from tests.factories import *
 
 class OrderTests(AppTestCase):
     def setUp(self):
         super(OrderTests, self).setUp()
-        self.customer = User(name='buyer', email='buyer@gmail.com').save()
-        self.merchant_user = User(name='seller', email='seller@gmail.com').save()
-        self.merchant = Merchant(user=self.merchant_user, merchant_name='My Shop').save()
-        Order(customer=self.customer, merchant=self.merchant).save()
-        self.order = Order.objects.first()
+        self.order = OrderFactory.create()
 
     def test_required_properties(self):
         with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['customer', 'merchant'\].*"):
             Order().save()
         with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['merchant'\].*"):
-            Order(customer=self.customer).save()
+            Order(customer=UserFactory.create()).save()
         with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['customer'\].*"):
-            Order(merchant=self.merchant).save()
-        self.assertEqual(self.order.customer, self.customer)
-        self.assertEqual(self.order.merchant, self.merchant)
+            Order(merchant=MerchantFactory.create()).save()
 
     def test_defined_properties(self):
-        for p in ['customer', 'merchant', 'status', 'line_items', 'currency_source',
+        for p in ['customer', 'merchant', 'status', 'order_line_items', 'currency_source',
                   'currency_target', 'exchange_rate', 'notes', 'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.order, p))
 
@@ -66,24 +61,24 @@ class OrderTests(AppTestCase):
 
     def test_calculate_total(self):
         order_line_items = []
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='product', price=299, quantity=3).save())
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='coupon', price=-100, quantity=2).save())
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='commission', price=250, quantity=1).save())
-        self.order.line_items = order_line_items
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='product', price=299, quantity=3))
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='coupon', price=-100, quantity=2))
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='commission', price=250, quantity=1))
+        self.order.order_line_items = order_line_items
         self.assertEqual(self.order.calculate_total(), 299 * 3 + -100 * 2 + 250)
 
     def test_update_total_signal(self):
         order_line_items = []
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='product', price=299, quantity=3).save())
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='coupon', price=-100, quantity=2).save())
-        order_line_items.append(OrderLineItem(
-            order=self.order, type='commission', price=250, quantity=1).save())
-        self.order.line_items = order_line_items
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='product', price=299, quantity=3))
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='coupon', price=-100, quantity=2))
+        order_line_items.append(OrderLineItemFactory.create(
+            order=self.order, type='commission', price=250, quantity=1))
+        self.order.order_line_items = order_line_items
         self.order.save()
         self.assertEqual(self.order.total, 299 * 3 + -100 * 2 + 250)
 
