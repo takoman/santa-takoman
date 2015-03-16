@@ -9,65 +9,65 @@ from bson.objectid import ObjectId
 from dateutil import parser
 import unittest, json
 
-class OrderPaymentsEndpointsTests(AppTestCase):
+class InvoicePaymentsEndpointsTests(AppTestCase):
 
     def setUp(self):
-        super(OrderPaymentsEndpointsTests, self).setUp()
-        self.order_payment = OrderPaymentFactory.create()
+        super(InvoicePaymentsEndpointsTests, self).setUp()
+        self.invoice_payment = InvoicePaymentFactory.create()
 
     #
-    # GET /order_payments
+    # GET /invoice_payments
     #
-    def test_public_access_order_payments(self):
-        res = self.test_client.get('/api/v1/order_payments')
+    def test_public_access_invoice_payments(self):
+        res = self.test_client.get('/api/v1/invoice_payments')
         self.assertEqual(res.status_code, 401)
 
-    def test_rudy_access_order_payments(self):
+    def test_rudy_access_invoice_payments(self):
         res = self.test_client.get(
-            '/api/v1/order_payments', headers={'X-XAPP-TOKEN': self.client_app_token})
+            '/api/v1/invoice_payments', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
-        order_payments = json.loads(res.get_data())
-        self.assertEqual(len(order_payments), 1)
+        invoice_payments = json.loads(res.get_data())
+        self.assertEqual(len(invoice_payments), 1)
 
         self.assertDictContainsSubset(
-            json.loads(me_to_json(self.order_payment)),
-            order_payments[0]
+            json.loads(me_to_json(self.invoice_payment)),
+            invoice_payments[0]
         )
 
     #
-    # GET /order_payments/<order_payment_id>
+    # GET /invoice_payments/<invoice_payment_id>
     #
-    def test_get_certain_order_payment(self):
+    def test_get_certain_invoice_payment(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/' + str(self.order_payment.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+            '/api/v1/invoice_payments/' + str(self.invoice_payment.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
-        order_payment = json.loads(res.get_data())
+        invoice_payment = json.loads(res.get_data())
         self.assertDictContainsSubset(
-            json.loads(me_to_json(self.order_payment)),
-            order_payment
+            json.loads(me_to_json(self.invoice_payment)),
+            invoice_payment
         )
 
-    def test_get_order_payment_by_invalid_object_id(self):
+    def test_get_invoice_payment_by_invalid_object_id(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/no-this-order_payment', headers={'X-XAPP-TOKEN': self.client_app_token})
+            '/api/v1/invoice_payments/no-this-invoice_payment', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
-    def test_get_non_existing_order_payment(self):
+    def test_get_non_existing_invoice_payment(self):
         res = self.test_client.get(
-            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
+            '/api/v1/invoice_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
-        self.assertIn("order payment not found", res.data)
+        self.assertIn("invoice payment not found", res.data)
 
     #
-    # POST /order_payments
+    # POST /invoice_payments
     #
-    def test_create_an_order_payment(self):
-        order = OrderFactory.create()
+    def test_create_an_invoice_payment(self):
+        invoice = InvoiceFactory.create()
         allpay_account = AllPayAccountFactory.create()
-        new_order_payment_dict = {
+        new_invoice_payment_dict = {
             'external_id': '1',
-            'order': str(order.id),
+            'invoice': str(invoice.id),
             'payment_account': str(allpay_account.id),
             'total': 1000,
             'result': 'success',
@@ -99,12 +99,12 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                 }
             }
         }
-        res = self.test_client.post('/api/v1/order_payments',
-                                    data=json.dumps(new_order_payment_dict),
+        res = self.test_client.post('/api/v1/invoice_payments',
+                                    data=json.dumps(new_invoice_payment_dict),
                                     content_type='application/json',
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
-        created_order_payment = json.loads(res.get_data())
+        created_invoice_payment = json.loads(res.get_data())
 
         # The API converts the timestamps to RFC 1123 format, so we have to
         # manually convert them here for the assertion.
@@ -112,25 +112,25 @@ class OrderPaymentsEndpointsTests(AppTestCase):
 
         # We may register new methods for equality check of timestamps.
         # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
-        new_order_payment_dict['details']['payment_date'] = date_to_str(
-            parser.parse(new_order_payment_dict['details']['payment_date']))
-        new_order_payment_dict['details']['trade_date'] = date_to_str(
-            parser.parse(new_order_payment_dict['details']['trade_date']))
-        new_order_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
-            parser.parse(new_order_payment_dict['details']['offline_payment_details']['trade_date']))
-        new_order_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
-            parser.parse(new_order_payment_dict['details']['offline_payment_details']['expire_date']))
-        self.assertDictContainsSubset(new_order_payment_dict, created_order_payment)
+        new_invoice_payment_dict['details']['payment_date'] = date_to_str(
+            parser.parse(new_invoice_payment_dict['details']['payment_date']))
+        new_invoice_payment_dict['details']['trade_date'] = date_to_str(
+            parser.parse(new_invoice_payment_dict['details']['trade_date']))
+        new_invoice_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
+            parser.parse(new_invoice_payment_dict['details']['offline_payment_details']['trade_date']))
+        new_invoice_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
+            parser.parse(new_invoice_payment_dict['details']['offline_payment_details']['expire_date']))
+        self.assertDictContainsSubset(new_invoice_payment_dict, created_invoice_payment)
 
     #
-    # PUT /order_payments/<order_payment_id>
+    # PUT /invoice_payments/<invoice_payment_id>
     #
-    def test_update_an_order_payment(self):
-        order = OrderFactory.create()
+    def test_update_an_invoice_payment(self):
+        invoice = InvoiceFactory.create()
         allpay_account = AllPayAccountFactory.create()
-        updated_order_payment_dict = {
+        updated_invoice_payment_dict = {
             'external_id': '999',
-            'order': str(order.id),
+            'invoice': str(invoice.id),
             'payment_account': str(allpay_account.id),
             'total': 300.99,
             'result': 'success',
@@ -162,14 +162,14 @@ class OrderPaymentsEndpointsTests(AppTestCase):
                 }
             }
         }
-        res = self.test_client.put('/api/v1/order_payments/' + str(self.order_payment.id),
-                                   data=json.dumps(updated_order_payment_dict),
+        res = self.test_client.put('/api/v1/invoice_payments/' + str(self.invoice_payment.id),
+                                   data=json.dumps(updated_invoice_payment_dict),
                                    content_type='application/json',
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
-        updated_order_payment = json.loads(res.get_data())
-        self.assertEqual(len(OrderPayment.objects), 1)
-        self.assertEqual(str(self.order_payment.id), updated_order_payment['_id'])
+        updated_invoice_payment = json.loads(res.get_data())
+        self.assertEqual(len(InvoicePayment.objects), 1)
+        self.assertEqual(str(self.invoice_payment.id), updated_invoice_payment['_id'])
 
         # The API converts the timestamps to RFC 1123 format, so we have to
         # manually convert them here for the assertion.
@@ -177,43 +177,43 @@ class OrderPaymentsEndpointsTests(AppTestCase):
 
         # We may register new methods for equality check of timestamps.
         # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
-        updated_order_payment_dict['details']['payment_date'] = date_to_str(
-            parser.parse(updated_order_payment_dict['details']['payment_date']))
-        updated_order_payment_dict['details']['trade_date'] = date_to_str(
-            parser.parse(updated_order_payment_dict['details']['trade_date']))
-        updated_order_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
-            parser.parse(updated_order_payment_dict['details']['offline_payment_details']['trade_date']))
-        updated_order_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
-            parser.parse(updated_order_payment_dict['details']['offline_payment_details']['expire_date']))
-        self.assertDictContainsSubset(updated_order_payment_dict, updated_order_payment)
+        updated_invoice_payment_dict['details']['payment_date'] = date_to_str(
+            parser.parse(updated_invoice_payment_dict['details']['payment_date']))
+        updated_invoice_payment_dict['details']['trade_date'] = date_to_str(
+            parser.parse(updated_invoice_payment_dict['details']['trade_date']))
+        updated_invoice_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
+            parser.parse(updated_invoice_payment_dict['details']['offline_payment_details']['trade_date']))
+        updated_invoice_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
+            parser.parse(updated_invoice_payment_dict['details']['offline_payment_details']['expire_date']))
+        self.assertDictContainsSubset(updated_invoice_payment_dict, updated_invoice_payment)
 
-    def test_update_a_non_existing_order_payment(self):
-        res = self.test_client.put('/api/v1/order_payments/' + str(ObjectId()),
+    def test_update_a_non_existing_invoice_payment(self):
+        res = self.test_client.put('/api/v1/invoice_payments/' + str(ObjectId()),
                                    data=json.dumps({}),
                                    content_type='application/json',
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
-        self.assertIn("order payment not found", res.data)
+        self.assertIn("invoice payment not found", res.data)
 
     #
-    # DELETE /order_payments/<order_payment_id>
+    # DELETE /invoice_payments/<invoice_payment_id>
     #
-    def test_delete_an_order_payment(self):
-        res = self.test_client.get('/api/v1/order_payments/' + str(self.order_payment.id),
+    def test_delete_an_invoice_payment(self):
+        res = self.test_client.get('/api/v1/invoice_payments/' + str(self.invoice_payment.id),
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
-        order_payment = json.loads(res.get_data())
-        res = self.test_client.delete('api/v1/order_payments/' + str(self.order_payment.id),
+        invoice_payment = json.loads(res.get_data())
+        res = self.test_client.delete('api/v1/invoice_payments/' + str(self.invoice_payment.id),
                                       headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
-        deleted_order_payment = json.loads(res.get_data())
-        self.assertDictEqual(order_payment, deleted_order_payment)
-        self.assertEqual(len(OrderPayment.objects()), 0)
+        deleted_invoice_payment = json.loads(res.get_data())
+        self.assertDictEqual(invoice_payment, deleted_invoice_payment)
+        self.assertEqual(len(InvoicePayment.objects()), 0)
 
-    def test_delete_a_non_existing_order_payment(self):
+    def test_delete_a_non_existing_invoice_payment(self):
         res = self.test_client.delete(
-            '/api/v1/order_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
+            '/api/v1/invoice_payments/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
-        self.assertIn("order payment not found", res.data)
+        self.assertIn("invoice payment not found", res.data)
 
 if __name__ == '__main__':
     unittest.main()
