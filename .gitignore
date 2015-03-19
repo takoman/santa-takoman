@@ -6,6 +6,7 @@ venv
 
 *.sw[po]
 *.log
+.env
 
 # OS X
 .DS_Store

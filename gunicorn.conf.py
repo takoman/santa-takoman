@@ -33,8 +33,9 @@ workers   = available_cpu_count() * 2 + 1
 # daemon    = True
 
 # Logging
-accesslog = log_dir + "/access.log"
-errorlog  = log_dir + "/error.log"
+# accesslog = log_dir + "/access.log"
+# errorlog  = log_dir + "/error.log"
+loglevel = 'debug'
 
 # Process Naming
 proc_name = "santa"

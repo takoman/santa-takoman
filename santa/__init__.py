@@ -1,4 +1,4 @@
-import os, re
+import os, re, json
 from flask import jsonify, Flask
 from flask.ext.cors import CORS
 from santa.lib.api_errors import ApiException
@@ -10,18 +10,21 @@ def create_app():
     # Load configs from the default settings file.
     app.config.from_object('santa.config.settings')
 
-    # Override configs from the file specified in the SANTA_SETTINGS env var.
-    if 'SANTA_SETTINGS' in os.environ:
-        app.config.from_envvar('SANTA_SETTINGS')
+    # Override configs from the env specified in the SANTA_ENV env var.
+    if 'SANTA_ENV' in os.environ and os.environ['SANTA_ENV'] != 'development':
+        app.config.from_object('santa.config.settings_' + os.environ['SANTA_ENV'])
 
-    # Override configs directly from env vars. Convert types. Note that all the
-    # configs provided in the env vars have to namespace with `SANTA_` prefix.
-    # E.g. HOST becomes SANTA_HOST.
+    # Override configs directly from env vars. Convert types by parsing as JSON.
+    # Note that all the configs provided in the env vars have to namespace with
+    # `SANTA_` prefix, e.g. HOST becomes SANTA_HOST.
     for key, value in os.environ.iteritems():
         match = re.search(r'^SANTA_(.*)', key)
         c = match and match.group(1)
         if c in app.config:
-            app.config[c] = type(app.config[c])(value)
+            try:
+                app.config[c] = json.loads(value)
+            except ValueError:
+                app.config[c] = value
 
     CORS(app)
 
