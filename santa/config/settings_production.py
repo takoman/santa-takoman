@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    settings_test.py
-    ~~~~~~~~~~~~~~~~
+    settings_production.py
+    ~~~~~~~~~~~~~~~
 
-    Settings for the test environment.
+    Settings for the production environment.
     The settings defined here will *override* the default settings.
     * This file should only define Flask built-in configurations
     (http://flask.pocoo.org/docs/0.10/config/#builtin-configuration-values).
@@ -14,4 +14,4 @@
 # Flask configuration
 #
 
-DEBUG = True
+DEBUG = False

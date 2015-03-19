@@ -28,8 +28,12 @@ class AppLifeCycle(object):
 
     @classmethod
     def testSetUp(cls, test):
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        os.environ['SANTA_SETTINGS'] = current_dir + '/../santa/config/settings_test.py'
+        # We don't use a .env file in test environment, so we manually
+        # set the necessary env vars in the test setup.
+        os.environ['SANTA_ENV'] = 'test'
+        os.environ['SANTA_MONGO_DBNAME'] = 'santa-test'
+        os.environ['SANTA_MONGO_HOST'] = 'localhost'
+        os.environ['SANTA_MONGO_PORT'] = '27017'
 
         test.app = create_app()
         test.test_client = test.app.test_client()
@@ -64,9 +68,12 @@ class BaseTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Set environment variable to override settings with test settings.
-        current_dir = os.path.dirname(os.path.realpath(__file__))
-        os.environ['SANTA_SETTINGS'] = current_dir + '/../santa/config/settings_test.py'
+        # We don't use a .env file in test environment, so we manually
+        # set the necessary env vars in the test setup.
+        os.environ['SANTA_ENV'] = 'test'
+        os.environ['SANTA_MONGO_DBNAME'] = 'santa-test'
+        os.environ['SANTA_MONGO_HOST'] = 'localhost'
+        os.environ['SANTA_MONGO_PORT'] = '27017'
 
     def setUp(self):
         self.app = create_app()
