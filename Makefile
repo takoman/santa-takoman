@@ -1,24 +1,28 @@
 SHELL := /bin/bash
-LOG_DIR = ./log
+LOG_DIR = log
+SUPERVISORD_DIR = supervisord
+SUPERVISORD_TEMPLATE_DIR = $(SUPERVISORD_DIR)/supervisord-templates
 
 # Start the API server
 s:
 	source ./venv/bin/activate && foreman start
 
-# Start the API server with supervisor
+# Start the API server with Supervisord.
+# Note that `supervisorctl update` will reload the program configs and
+# restart the programs (if the programs have autostart=true).
+# `start all` just in case `update` does not start the programs.
 ssp:
 	source ./venv/bin/activate; \
 	mkdir -p $(LOG_DIR); \
-	SUPERVISORD_PID=$$(supervisorctl -c supervisord.conf pid); \
+	foreman export --template $(SUPERVISORD_TEMPLATE_DIR) --app santa --log $(LOG_DIR) supervisord $(SUPERVISORD_DIR); \
+	SUPERVISORD_PID=$$(supervisorctl -c $(SUPERVISORD_DIR)/santa.conf pid); \
 	case $$SUPERVISORD_PID in \
-	  ''|*[!0-9]*) echo 'Starting supervisord...'; supervisord -c supervisord.conf ;; \
-	  *) echo 'Supervisored is already running.'; \
+	  ''|*[!0-9]*) echo 'Starting Supervisord...'; supervisord -c $(SUPERVISORD_DIR)/santa.conf ;; \
+	  *) echo 'Supervisord is already running.'; \
 	esac; \
-	SANTA_PID=$$(supervisorctl -c supervisord.conf pid santa:api); \
-	case $$SANTA_PID in \
-	  0|''|*[!0-9]*) echo 'Starting santa api...'; supervisorctl -c supervisord.conf start santa:api ;; \
-	  *) echo 'Reloading santa api...'; kill -HUP $$SANTA_PID; \
-	esac; \
+	echo 'Reloading Supervisord config and restarting Santa...'; \
+	supervisorctl -c $(SUPERVISORD_DIR)/santa.conf update; \
+	supervisorctl -c $(SUPERVISORD_DIR)/santa.conf start all; \
 
 # Start the shell
 shell:

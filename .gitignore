@@ -10,3 +10,6 @@ venv
 
 # OS X
 .DS_Store
+
+# supervisord
+supervisord/santa.conf
