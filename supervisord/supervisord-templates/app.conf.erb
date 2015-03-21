@@ -10,7 +10,7 @@
 file=/tmp/supervisor.sock   ; (the path to the socket file)
 
 [supervisord]
-logfile=%(here)s/log/supervisord.log ; (main log file;default $CWD/supervisord.log)
+logfile=<%= log %>/supervisord.log   ; (main log file;default $CWD/supervisord.log)
 logfile_maxbytes=50MB                ; (max main logfile bytes b4 rotation;default 50MB)
 logfile_backups=10                   ; (num of main logfile rotation backups;default 10)
 loglevel=info                        ; (log level;default info; others: debug,warn,trace)
@@ -25,16 +25,34 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  for a unix socket
 
-[program:api]
-command=newrelic-admin run-program foreman run gunicorn -c gunicorn.conf.py santa.server:app
-;directory=/path/to/project
-;user=nobody
-autostart=false
+<%
+app_names = []
+engine.each_process do |name, process|
+  1.upto(engine.formation[name]) do |num|
+    port = engine.port_for(process, num)
+    local_name = "#{name}-#{num}"
+    full_name = "#{app}-#{local_name}"
+    environment = engine.env.map do |key, value|
+      "#{key}=\"#{shell_quote(value)}\""
+    end
+    app_names << local_name
+-%>
+[program:<%= local_name %>]
+command=<%= "#{'newrelic-admin run-program ' if name == 'api'}#{process.command}" %>
+; `supervisorctl update` will need autostart set to true
+; to auto restart the program; otherwise, the program
+; will stop after `supervisorctl update`.
+autostart=true
 autorestart=true
-redirect_stderr=false
-;stopsignal=QUIT               ; signal used to kill process (default TERM)
-stdout_logfile=%(here)s/log/santa-api-out.log
-stderr_logfile=%(here)s/log/santa-api-err.log
+stopsignal=QUIT                  ; signal used to kill process (default TERM)
+stdout_logfile=<%= log %>/<%= full_name %>.log
+stderr_logfile=<%= log %>/<%= full_name %>.error.log
+directory=<%= engine.root %>
+environment=<%= environment.join(',') %>
 
-[group:santa]
-programs=api
+<%
+  end
+end
+-%>
+[group:<%= app %>]
+programs=<%= app_names.join(',') %>
