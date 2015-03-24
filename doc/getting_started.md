@@ -10,12 +10,12 @@ This doc will assume you've set up common development tools.
 
 ## Development
 
-### Install and run MongoDB
+#### Install and run MongoDB
 
  - Install [MongoDB](http://docs.mongodb.org/manual/installation/)
  - Run [MongoDB](http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/)
 
-### Install Python and Python-dev
+#### Install Python and Python-dev
  - Install Python
  - Install Python-dev (needed to compile bcrypt)
 
@@ -24,7 +24,7 @@ This doc will assume you've set up common development tools.
    sudo apt-get install python-dev
    ```
 
-### Install Santa
+#### Install Santa
  - Install pip
 
    On Ubuntu:
@@ -41,18 +41,35 @@ This doc will assume you've set up common development tools.
  
  - Fork/Clone the Santa repository
 
- - In Santa, Run bootstrap.sh
+ - Bootstrap your local Santa
 
    ```bash
-   sh bootstrap.sh
+   cd santa
+   make bootstrap
    ```
 
-### Run Santa
-```bash
-make s
-```
+ - Set up environment variables in your local `.env` file for `foreman`.
+   ```bash
+   cp .env.example .env
+   # Modify the environment variables in .env
+   ```
 
-### Run tests
+#### Run Santa
+ - We use [foreman](https://github.com/ddollar/foreman) to manage our app in development. Install foreman if you don't have it on your local.
+ - Run the app
+
+   ```bash
+   make s
+   ```
+
+ - Santa should now be running at http://localhost:5000/
+
+#### Run tests
 ```bash
 make test
+```
+
+#### Run shell
+```bash
+make shell
 ```

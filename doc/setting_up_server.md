@@ -55,31 +55,35 @@ https://help.github.com/articles/generating-ssh-keys#platform-linux
 
 Please follow the getting started doc for more details.
 
-Install MongoDB
+ - Install MongoDB
 
-Install Python
-```bash
-$ sudo apt-get install python-dev
-$ sudo apt-get install python-pip
-```
+ - Install Python
+   ```bash
+   sudo apt-get install python-dev
+   sudo apt-get install python-pip
+   ```
 
-Install virtualenv
-```bash
-$ sudo pip install virtualenv
-```
+ - Install virtualenv
+   ```bash
+   sudo pip install virtualenv
+   ```
 
-Clone Santa
-```bash
-$ git clone git@github.com:takoman/santa.git
-```
+ - Clone Santa
+   ```bash
+   git clone git@github.com:takoman/santa.git
+   ```
 
-Bootstrap Santa
-```bash
-$ cd santa
-$ make bootstrap
-```
+ - Bootstrap Santa
+   ```bash
+   cd santa
+   make bootstrap
+   ```
 
-Create config files for your environment (staging or production)
+ - Set up environment variables in `.env` using `.env.example` as an example.
+   ```bash
+   cp .env.example .env
+   # Modify the environment variables in .env
+   ```
 
 ## Set up Nginx
 
