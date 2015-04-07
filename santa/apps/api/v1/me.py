@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from santa.lib.auth import AccessTokenAuth
 from santa.lib.api_errors import ApiException
+from santa.lib.common import render_json, MongoJSONEncoder
+import json
 
 me = Blueprint('me', __name__)
 
@@ -16,4 +18,6 @@ def get_me():
     if not user:
         raise ApiException("access token is invalid or has expired", 401)
 
-    return jsonify(email=user['email'])
+    filtered = {k: v for k, v in user.iteritems() if k is not 'password'}
+
+    return render_json(json.dumps(filtered, cls=MongoJSONEncoder))

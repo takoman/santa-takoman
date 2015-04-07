@@ -3,10 +3,10 @@ import unittest, json
 from tests import AppTestCase
 from santa.models.domain.user import User
 
-class MeControllersTests(AppTestCase):
+class MeTests(AppTestCase):
 
     def setUp(self):
-        super(MeControllersTests, self).setUp()
+        super(MeTests, self).setUp()
         User(name='Tako Man', email='takoman@takoman.co', password='password').save()
 
     def test_anonymous_user_access_me(self):
@@ -53,6 +53,25 @@ class MeControllersTests(AppTestCase):
         res = json.loads(rv.data)
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(res.get('email'), 'takoman@takoman.co')
+
+    def test_return_my_info_without_password(self):
+        rv = self.test_client.post('/oauth2/access_token', data=dict(
+            client_id=self.client_app.client_id,
+            client_secret=self.client_app.client_secret,
+            grant_type='credentials',
+            email='takoman@takoman.co',
+            password='password'
+        ))
+        access_token = json.loads(rv.data).get('access_token')
+        rv = self.test_client.get(
+            '/api/v1/me?access_token=' + access_token)
+        res = json.loads(rv.data)
+        self.assertEqual(rv.status_code, 200)
+        self.assertDictContainsSubset({
+            'email': 'takoman@takoman.co',
+            'name': 'Tako Man',
+        }, res)
+        self.assertNotIn('password', res)
 
 if __name__ == '__main__':
     unittest.main()

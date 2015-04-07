@@ -60,7 +60,7 @@ MONGO_PASSWORD = None
 #
 # Flask-Cors
 #
-CORS_ALLOW_HEADERS = ['Content-Type', 'X-XAPP-TOKEN']
+CORS_ALLOW_HEADERS = ['Content-Type', 'X-XAPP-TOKEN', 'X-ACCESS-TOKEN']
 CORS_RESOURCES = {r"/api/*": {"origins": "*"}}
 
 # Be sure to restart your server when you modify this file.
