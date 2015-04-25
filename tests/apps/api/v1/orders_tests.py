@@ -3,6 +3,7 @@
 from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
+from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
 import unittest, json
 
@@ -18,22 +19,19 @@ class OrdersEndpointsTests(AppTestCase):
     #
     # GET /orders
     #
-    def test_public_access_merchants(self):
+    def test_public_access_orders(self):
         res = self.test_client.get('/api/v1/orders')
         self.assertEqual(res.status_code, 401)
 
-    def test_rudy_access_products(self):
+    def test_rudy_access_orders(self):
         res = self.test_client.get(
             '/api/v1/orders', headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         orders = json.loads(res.get_data())
         self.assertEqual(len(orders), 1)
 
-        self.assertDictContainsSubset({
-            '_id': str(self.order.id),
-            'customer': str(self.customer.id),
-            'merchant': str(self.merchant.id),
-        }, orders[0])
+        expected = json.loads(me_to_json(Order.objects))
+        self.assertListEqual(orders, expected)
 
     #
     # GET /orders/<order_id>
@@ -43,11 +41,8 @@ class OrdersEndpointsTests(AppTestCase):
             '/api/v1/orders/' + str(self.order.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         order = json.loads(res.get_data())
-        self.assertDictContainsSubset({
-            '_id': str(self.order.id),
-            'customer': str(self.customer.id),
-            'merchant': str(self.merchant.id)
-        }, order)
+        expected = json.loads(me_to_json(Order.objects(id=order['_id']).first()))
+        self.assertDictEqual(order, expected)
 
     def test_get_order_by_invalid_object_id(self):
         res = self.test_client.get(
@@ -80,7 +75,8 @@ class OrdersEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_order = json.loads(res.get_data())
-        self.assertDictContainsSubset(new_order_dict, created_order)
+        expected = json.loads(me_to_json(Order.objects(id=created_order['_id']).first()))
+        self.assertDictEqual(created_order, expected)
 
     #
     # PUT /orders/<order_id>
@@ -101,7 +97,8 @@ class OrdersEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_order = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_order_dict, updated_order)
+        expected = json.loads(me_to_json(Order.objects(id=updated_order['_id']).first()))
+        self.assertDictEqual(updated_order, expected)
 
     def test_update_a_non_existing_order(self):
         res = self.test_client.put('/api/v1/orders/' + str(ObjectId()),

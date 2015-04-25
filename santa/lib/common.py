@@ -2,7 +2,7 @@
 
 from flask import Response
 from bson.objectid import ObjectId
-from mongoengine import Document
+from mongoengine import *
 from mongoengine.queryset.base import BaseQuerySet
 from santa.lib.util import date_to_str
 from santa.lib.api_errors import ApiException
@@ -34,6 +34,20 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # delegate rendering to base class method
             return super(MongoJSONEncoder, self).default(obj)
 
+def and_friends_to_mongo(doc):
+    """ Fetch one level of reference fields, including those in lists,
+    and convert them to mongo as well.
+    """
+    m = doc.to_mongo()
+    for k in m:
+        if k is '_id':
+            continue
+        if isinstance(m[k], ObjectId):
+            m[k] = doc[k].to_mongo()
+        elif isinstance(m[k], list):
+            m[k] = [doc[k][i].to_mongo() if isinstance(r, ObjectId) else r for i, r in enumerate(m[k])]
+    return m
+
 def me_to_json(obj):
     """ Converts a mongoengine object to JSON string.
 
@@ -41,11 +55,11 @@ def me_to_json(obj):
                 Document or a BaseQuerySet.
     """
     if isinstance(obj, Document):
-        return json.dumps(obj.to_mongo(), cls=MongoJSONEncoder)
+        return json.dumps(and_friends_to_mongo(obj), cls=MongoJSONEncoder)
     if isinstance(obj, BaseQuerySet):
-        return json.dumps(list(obj.as_pymongo()), cls=MongoJSONEncoder)
+        return json.dumps([and_friends_to_mongo(doc) for doc in obj], cls=MongoJSONEncoder)
     if isinstance(obj, list):
-        return json.dumps(map(lambda x: x.to_mongo(), obj), cls=MongoJSONEncoder)
+        return json.dumps(map(lambda x: and_friends_to_mongo(x), obj), cls=MongoJSONEncoder)
     raise ApiException("can't convert unsupported type to JSON")
 
 def render_json(json, status=200):

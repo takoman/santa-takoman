@@ -3,6 +3,7 @@
 from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
+from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
 import unittest, json
 
@@ -25,12 +26,8 @@ class PaymentAccountsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         payment_accounts = json.loads(res.get_data())
         self.assertEqual(len(payment_accounts), 1)
-
-        self.assertDictContainsSubset({
-            '_id': str(self.allpay_account.id),
-            'customer': str(self.allpay_account.customer.id),
-            'provider': str(self.allpay_account.provider)
-        }, payment_accounts[0])
+        expected = json.loads(me_to_json(PaymentAccount.objects))
+        self.assertListEqual(payment_accounts, expected)
 
     #
     # GET /payment_accounts/<payment_account_id>
@@ -40,11 +37,8 @@ class PaymentAccountsEndpointsTests(AppTestCase):
             '/api/v1/payment_accounts/' + str(self.allpay_account.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         allpay_account = json.loads(res.get_data())
-        self.assertDictContainsSubset({
-            '_id': str(self.allpay_account.id),
-            'customer': str(self.allpay_account.customer.id),
-            'provider': str(self.allpay_account.provider)
-        }, allpay_account)
+        expected = json.loads(me_to_json(PaymentAccount.objects(id=allpay_account['_id']).first()))
+        self.assertDictEqual(allpay_account, expected)
 
     def test_get_payment_account_by_invalid_object_id(self):
         res = self.test_client.get(
@@ -74,7 +68,8 @@ class PaymentAccountsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_payment_account = json.loads(res.get_data())
-        self.assertDictContainsSubset(new_payment_account_dict, created_payment_account)
+        expected = json.loads(me_to_json(PaymentAccount.objects(id=created_payment_account['_id']).first()))
+        self.assertDictEqual(created_payment_account, expected)
 
     #
     # PUT /payment_accounts/<payment_account_id>
@@ -91,7 +86,8 @@ class PaymentAccountsEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_payment_account = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_payment_account_dict, updated_payment_account)
+        expected = json.loads(me_to_json(PaymentAccount.objects(id=updated_payment_account['_id']).first()))
+        self.assertDictEqual(updated_payment_account, expected)
 
     def test_update_a_non_existing_payment_account(self):
         res = self.test_client.put('/api/v1/payment_accounts/' + str(ObjectId()),

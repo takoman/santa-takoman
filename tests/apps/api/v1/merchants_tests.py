@@ -2,6 +2,7 @@
 
 from tests import AppTestCase
 from santa.models.domain import *
+from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
 import unittest, json
 
@@ -26,14 +27,8 @@ class MerchantsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         merchants = json.loads(res.get_data())
         self.assertEqual(len(merchants), 1)
-
-        # TODO: The user attributes should be embedded in the response;
-        # not just the BSON ID.
-        self.assertDictContainsSubset({
-            '_id': str(self.merchant.id),
-            'user': str(self.user.id),
-            'merchant_name': u'翔の飛行屋美國、日本代買代購'
-        }, merchants[0])
+        expected = json.loads(me_to_json(Merchant.objects))
+        self.assertListEqual(merchants, expected)
 
     #
     # GET /merchants/<merchant_id>
@@ -44,11 +39,8 @@ class MerchantsEndpointsTests(AppTestCase):
             '/api/v1/merchants/' + str(self.merchant.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         merchant = json.loads(res.get_data())
-        self.assertDictContainsSubset({
-            '_id': str(self.merchant.id),
-            'user': str(self.user.id),
-            'merchant_name': u'翔の飛行屋美國、日本代買代購'
-        }, merchant)
+        expected = json.loads(me_to_json(Merchant.objects(id=merchant['_id']).first()))
+        self.assertDictEqual(merchant, expected)
 
     def test_get_merchant_by_invalid_object_id(self):
         res = self.test_client.get(
@@ -77,7 +69,8 @@ class MerchantsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_merchant = json.loads(res.get_data())
-        self.assertDictContainsSubset(new_merchant_dict, created_merchant)
+        expected = json.loads(me_to_json(Merchant.objects(id=created_merchant['_id']).first()))
+        self.assertDictEqual(created_merchant, expected)
 
     #
     # PUT /merchants/<merchant_id>
@@ -95,7 +88,8 @@ class MerchantsEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_merchant = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_merchant_dict, updated_merchant)
+        expected = json.loads(me_to_json(Merchant.objects(id=updated_merchant['_id']).first()))
+        self.assertDictEqual(updated_merchant, expected)
 
     def test_update_a_non_existing_merchant(self):
         res = self.test_client.put('/api/v1/merchants/' + str(ObjectId()),
