@@ -4,9 +4,7 @@ from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
 from santa.lib.common import me_to_json
-from santa.lib.util import date_to_str
 from bson.objectid import ObjectId
-from dateutil import parser
 import unittest, json
 
 class InvoicePaymentsEndpointsTests(AppTestCase):
@@ -29,10 +27,8 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
         invoice_payments = json.loads(res.get_data())
         self.assertEqual(len(invoice_payments), 1)
 
-        self.assertDictContainsSubset(
-            json.loads(me_to_json(self.invoice_payment)),
-            invoice_payments[0]
-        )
+        expected = json.loads(me_to_json(InvoicePayment.objects))
+        self.assertListEqual(invoice_payments, expected)
 
     #
     # GET /invoice_payments/<invoice_payment_id>
@@ -42,10 +38,9 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
             '/api/v1/invoice_payments/' + str(self.invoice_payment.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         invoice_payment = json.loads(res.get_data())
-        self.assertDictContainsSubset(
-            json.loads(me_to_json(self.invoice_payment)),
-            invoice_payment
-        )
+
+        expected = json.loads(me_to_json(InvoicePayment.objects(id=invoice_payment['_id']).first()))
+        self.assertDictEqual(invoice_payment, expected)
 
     def test_get_invoice_payment_by_invalid_object_id(self):
         res = self.test_client.get(
@@ -106,21 +101,8 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 201)
         created_invoice_payment = json.loads(res.get_data())
 
-        # The API converts the timestamps to RFC 1123 format, so we have to
-        # manually convert them here for the assertion.
-        # https://github.com/takoman/santa/blob/ec0bf9d63e9a92ffeda78405629449323f06c738/santa/lib/common.py#L18
-
-        # We may register new methods for equality check of timestamps.
-        # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
-        new_invoice_payment_dict['details']['payment_date'] = date_to_str(
-            parser.parse(new_invoice_payment_dict['details']['payment_date']))
-        new_invoice_payment_dict['details']['trade_date'] = date_to_str(
-            parser.parse(new_invoice_payment_dict['details']['trade_date']))
-        new_invoice_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
-            parser.parse(new_invoice_payment_dict['details']['offline_payment_details']['trade_date']))
-        new_invoice_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
-            parser.parse(new_invoice_payment_dict['details']['offline_payment_details']['expire_date']))
-        self.assertDictContainsSubset(new_invoice_payment_dict, created_invoice_payment)
+        expected = json.loads(me_to_json(InvoicePayment.objects(id=created_invoice_payment['_id']).first()))
+        self.assertDictEqual(created_invoice_payment, expected)
 
     #
     # PUT /invoice_payments/<invoice_payment_id>
@@ -169,23 +151,8 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         updated_invoice_payment = json.loads(res.get_data())
         self.assertEqual(len(InvoicePayment.objects), 1)
-        self.assertEqual(str(self.invoice_payment.id), updated_invoice_payment['_id'])
-
-        # The API converts the timestamps to RFC 1123 format, so we have to
-        # manually convert them here for the assertion.
-        # https://github.com/takoman/santa/blob/ec0bf9d63e9a92ffeda78405629449323f06c738/santa/lib/common.py#L18
-
-        # We may register new methods for equality check of timestamps.
-        # https://docs.python.org/2/library/unittest.html#unittest.TestCase.assertDictContainsSubset
-        updated_invoice_payment_dict['details']['payment_date'] = date_to_str(
-            parser.parse(updated_invoice_payment_dict['details']['payment_date']))
-        updated_invoice_payment_dict['details']['trade_date'] = date_to_str(
-            parser.parse(updated_invoice_payment_dict['details']['trade_date']))
-        updated_invoice_payment_dict['details']['offline_payment_details']['trade_date'] = date_to_str(
-            parser.parse(updated_invoice_payment_dict['details']['offline_payment_details']['trade_date']))
-        updated_invoice_payment_dict['details']['offline_payment_details']['expire_date'] = date_to_str(
-            parser.parse(updated_invoice_payment_dict['details']['offline_payment_details']['expire_date']))
-        self.assertDictContainsSubset(updated_invoice_payment_dict, updated_invoice_payment)
+        expected = json.loads(me_to_json(InvoicePayment.objects(id=updated_invoice_payment['_id']).first()))
+        self.assertDictEqual(updated_invoice_payment, expected)
 
     def test_update_a_non_existing_invoice_payment(self):
         res = self.test_client.put('/api/v1/invoice_payments/' + str(ObjectId()),

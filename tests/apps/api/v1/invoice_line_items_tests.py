@@ -4,6 +4,7 @@ from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
 from bson.objectid import ObjectId
+from santa.lib.common import me_to_json
 import unittest, json
 
 class InvoiceLineItemsEndpointsTests(AppTestCase):
@@ -94,9 +95,7 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         response_items = json.loads(res.get_data())
         self.assertEqual(len(response_items), 4)
-        for i, invoice_line_item_dict in enumerate(self.invoice_line_items_dict):
-            self.assertDictContainsSubset(invoice_line_item_dict, response_items[i])
-            self.assertEqual(str(self.invoice_line_items[i].order_line_item.id), response_items[i]['order_line_item'])
+        self.assertListEqual(response_items, json.loads(me_to_json(self.invoice_line_items)))
 
     #
     # GET /invoice_line_items/<invoice_line_item_id>
@@ -107,8 +106,7 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
                 '/api/v1/invoice_line_items/' + str(item.id), headers={'X-XAPP-TOKEN': self.client_app_token})
             self.assertEqual(res.status_code, 200)
             fetched_item = json.loads(res.get_data())
-            self.assertDictContainsSubset(self.invoice_line_items_dict[i], fetched_item)
-            self.assertEqual(str(item.order_line_item.id), fetched_item['order_line_item'])
+            self.assertDictEqual(fetched_item, json.loads(me_to_json(item)))
 
     def test_get_certain_invoice_line_item_with_non_existing_id(self):
         res = self.test_client.get(
@@ -200,7 +198,8 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_item = json.loads(res.get_data())
-        self.assertDictContainsSubset(item_dict, created_item)
+        expected = InvoiceLineItem.objects(id=created_item['_id']).first()
+        self.assertDictEqual(created_item, json.loads(me_to_json(expected)))
 
         # The invoice should have 1 more invoice line items.
         res = self.test_client.get('/api/v1/invoice_line_items?invoice_id=' + str(self.invoice.id),
@@ -236,7 +235,8 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_item = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_item_dict, updated_item)
+        expected = InvoiceLineItem.objects(id=updated_item['_id']).first()
+        self.assertDictContainsSubset(updated_item, json.loads(me_to_json(expected)))
 
     #
     # DELETE /invoice_line_items/<invoice_line_item_id>

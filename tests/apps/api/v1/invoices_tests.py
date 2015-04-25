@@ -4,6 +4,7 @@ from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
 from santa.lib.util import date_to_str
+from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
 import unittest, json, datetime
 
@@ -27,12 +28,8 @@ class InvoicesEndpointsTests(AppTestCase):
         invoices = json.loads(res.get_data())
         self.assertEqual(len(invoices), 1)
 
-        self.assertDictContainsSubset({
-            '_id': str(self.invoice.id),
-            'order': str(self.invoice.order.id),
-            'invoice_line_items': [],
-            'status': 'draft'
-        }, invoices[0])
+        expected = json.loads(me_to_json(Invoice.objects))
+        self.assertListEqual(invoices, expected)
 
     #
     # GET /invoices/<invoice_id>
@@ -42,12 +39,8 @@ class InvoicesEndpointsTests(AppTestCase):
             '/api/v1/invoices/' + str(self.invoice.id), headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         invoice = json.loads(res.get_data())
-        self.assertDictContainsSubset({
-            '_id': str(self.invoice.id),
-            'order': str(self.invoice.order.id),
-            'invoice_line_items': [],
-            'status': 'draft'
-        }, invoice)
+        expected = json.loads(me_to_json(Invoice.objects(id=invoice['_id']).first()))
+        self.assertDictEqual(invoice, expected)
 
     def test_get_invoice_by_invalid_object_id(self):
         res = self.test_client.get(
@@ -78,7 +71,8 @@ class InvoicesEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_invoice = json.loads(res.get_data())
-        self.assertDictContainsSubset(new_invoice_dict, created_invoice)
+        expected = json.loads(me_to_json(Invoice.objects(id=created_invoice['_id']).first()))
+        self.assertDictEqual(created_invoice, expected)
 
     #
     # PUT /invoices/<invoice_id>
@@ -97,7 +91,8 @@ class InvoicesEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_invoice = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_invoice_dict, updated_invoice)
+        expected = json.loads(me_to_json(Invoice.objects(id=updated_invoice['_id']).first()))
+        self.assertDictEqual(updated_invoice, expected)
 
     def test_update_a_non_existing_invoice(self):
         res = self.test_client.put('/api/v1/invoices/' + str(ObjectId()),

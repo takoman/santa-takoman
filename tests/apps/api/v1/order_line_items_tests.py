@@ -3,6 +3,7 @@
 from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
+from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
 import unittest, json
 
@@ -73,8 +74,8 @@ class OrderLineItemsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         items = json.loads(res.get_data())
         self.assertEqual(len(items), 4)
-        for i, item_dict in enumerate(self.items_dict):
-            self.assertDictContainsSubset(item_dict, items[i])
+        expected = json.loads(me_to_json(OrderLineItem.objects))
+        self.assertListEqual(items, expected)
 
     #
     # GET /order_line_items/<order_line_item_id>
@@ -85,7 +86,8 @@ class OrderLineItemsEndpointsTests(AppTestCase):
                 '/api/v1/order_line_items/' + str(item.id), headers={'X-XAPP-TOKEN': self.client_app_token})
             self.assertEqual(res.status_code, 200)
             fetched_item = json.loads(res.get_data())
-            self.assertDictContainsSubset(self.items_dict[i], fetched_item)
+            expected = json.loads(me_to_json(OrderLineItem.objects(id=fetched_item['_id']).first()))
+            self.assertDictEqual(fetched_item, expected)
 
     def test_get_certain_order_line_item_with_non_existing_id(self):
         res = self.test_client.get(
@@ -157,7 +159,8 @@ class OrderLineItemsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_item = json.loads(res.get_data())
-        self.assertDictContainsSubset(item_dict, created_item)
+        expected = json.loads(me_to_json(OrderLineItem.objects(id=created_item['_id']).first()))
+        self.assertDictEqual(created_item, expected)
 
         # The order should have 1 more order line items.
         res = self.test_client.get('/api/v1/order_line_items?order_id=' + str(self.order.id),
@@ -192,7 +195,8 @@ class OrderLineItemsEndpointsTests(AppTestCase):
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_item = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_item_dict, updated_item)
+        expected = json.loads(me_to_json(OrderLineItem.objects(id=updated_item['_id']).first()))
+        self.assertDictEqual(updated_item, expected)
 
     #
     # DELETE /order_line_items/<order_line_item_id>

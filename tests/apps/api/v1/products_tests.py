@@ -3,6 +3,7 @@
 from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
+from santa.lib.common import me_to_json
 import unittest, json
 
 class ProductsEndpointsTests(AppTestCase):
@@ -29,14 +30,8 @@ class ProductsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         products = json.loads(res.get_data())
         self.assertEqual(len(products), 1)
-
-        product_dict = {
-            'title': u'雙人牌Zwilling Henckels Pure 7 Piece Knife Block Set',
-            'brand': u'雙人牌',
-            'urls': ['http://www.amazon.com/Zwilling-Henckels-Pure-Piece-Knife/dp/B005HVEGPW'],
-            'description': u'德國刀具舉世聞名，雖然差我們金門菜刀一點，但也是極品中的極品啦！這是眾所皆知的雙人牌，在台灣響當當的指甲剪，記得一把也要一兩千！現在刀組含架子正特價呢！原價20,000，現13000'
-        }
-        self.assertDictContainsSubset(product_dict, products[0])
+        expected = json.loads(me_to_json(Product.objects))
+        self.assertListEqual(products, expected)
 
     #
     # POST /products
@@ -58,7 +53,8 @@ class ProductsEndpointsTests(AppTestCase):
                                     headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 201)
         created_product = json.loads(res.get_data())
-        self.assertDictContainsSubset(new_product_dict, created_product)
+        expected = json.loads(me_to_json(Product.objects(id=created_product['_id']).first()))
+        self.assertDictEqual(created_product, expected)
 
     #
     # PUT /products/<product_id>
@@ -86,7 +82,8 @@ class ProductsEndpointsTests(AppTestCase):
             headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         updated_product = json.loads(res.get_data())
-        self.assertDictContainsSubset(updated_product_dict, updated_product)
+        expected = json.loads(me_to_json(Product.objects(id=updated_product['_id']).first()))
+        self.assertDictEqual(updated_product, expected)
 
     #
     # DELETE /products/<product_id>
