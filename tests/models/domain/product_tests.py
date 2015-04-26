@@ -46,18 +46,22 @@ with such.A('Product model') as it:
         @it.should('have images attribute with embedded images')
         def test_have_images_attributes_with_embedded_images(case):
             images = [
-                Image(image_url='https://takoman.co/path/to/image1/:version.jpg'),
-                Image(image_url='https://takoman.co/path/to/image2/:version.jpg', image_versions=['small', 'original'])
+                Image(small='https://takoman.co/path/to/image1/small.jpg',
+                      original='https://takoman.co/path/to/image1/original.jpg'),
+                Image(large='https://takoman.co/path/to/image2/large.jpg',
+                      original='https://takoman.co/path/to/image2/original.jpg')
             ]
             Product(title='御茶園極上紅茶', images=images).save()
             product_images = Product.objects(title='御茶園極上紅茶').first().images
             case.assertEqual(len(product_images), 2)
-            case.assertEqual(product_images[0].image_url,
-                             'https://takoman.co/path/to/image1/:version.jpg')
-            case.assertEqual(product_images[0].image_versions, ['original'])
-            case.assertEqual(product_images[1].image_url,
-                             'https://takoman.co/path/to/image2/:version.jpg')
-            case.assertEqual(product_images[1].image_versions, ['small', 'original'])
+            case.assertEqual(product_images[0].small,
+                             'https://takoman.co/path/to/image1/small.jpg')
+            case.assertEqual(product_images[0].original,
+                             'https://takoman.co/path/to/image1/original.jpg')
+            case.assertEqual(product_images[1].large,
+                             'https://takoman.co/path/to/image2/large.jpg')
+            case.assertEqual(product_images[1].original,
+                             'https://takoman.co/path/to/image2/original.jpg')
 
         with it.having('created_at and updated_at'):
             @it.should('have default created_at and updated_at timestamps')
