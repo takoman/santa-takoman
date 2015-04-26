@@ -17,6 +17,16 @@ def get_products():
 
     return render_json(me_to_json(paginated_and_sorted))
 
+@products.route('/products/<product_id>', methods=['GET'])
+@require_app_auth
+def get_product(product_id):
+    product = Product.objects(id=product_id).first()
+
+    if not product:
+        raise ApiException('product not found', 404)
+
+    return render_json(me_to_json(product))
+
 @products.route('/products', methods=['POST'])
 @require_app_auth
 def create_product():

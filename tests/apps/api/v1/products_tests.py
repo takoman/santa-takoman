@@ -4,13 +4,14 @@ from tests import AppTestCase
 from tests.factories import *
 from santa.models.domain import *
 from santa.lib.common import me_to_json
+from bson.objectid import ObjectId
 import unittest, json
 
 class ProductsEndpointsTests(AppTestCase):
 
     def setUp(self):
         super(ProductsEndpointsTests, self).setUp()
-        ProductFactory.create(
+        self.product = ProductFactory.create(
             title=u'雙人牌Zwilling Henckels Pure 7 Piece Knife Block Set',
             brand=u'雙人牌',
             urls=['http://www.amazon.com/Zwilling-Henckels-Pure-Piece-Knife/dp/B005HVEGPW'],
@@ -32,6 +33,29 @@ class ProductsEndpointsTests(AppTestCase):
         self.assertEqual(len(products), 1)
         expected = json.loads(me_to_json(Product.objects))
         self.assertListEqual(products, expected)
+
+    #
+    # GET /products/<product_id>
+    #
+    def test_get_certain_product(self):
+        res = self.test_client.get(
+            '/api/v1/products/' + str(self.product.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        product = json.loads(res.get_data())
+        expected = json.loads(me_to_json(Product.objects(id=product['_id']).first()))
+        self.assertDictEqual(product, expected)
+
+    def test_get_product_by_invalid_object_id(self):
+        res = self.test_client.get(
+            '/api/v1/products/no-this-product', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("not a valid ObjectId", res.data)
+
+    def test_get_non_existing_product(self):
+        res = self.test_client.get(
+            '/api/v1/products/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 404)
+        self.assertIn("product not found", res.data)
 
     #
     # POST /products
