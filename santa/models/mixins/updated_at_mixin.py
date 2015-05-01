@@ -9,6 +9,6 @@ class UpdatedAtMixin(object):
     @classmethod
     def update_updated_at(cls, sender, document, **kwargs):
         if issubclass(sender, cls):
-            document.updated_at = datetime.datetime.now()
+            document.updated_at = datetime.datetime.utcnow()
 
 signals.pre_save.connect(UpdatedAtMixin.update_updated_at)

@@ -55,7 +55,7 @@ class UserTrust:
         if not expires_in_str:
             raise ApiException("missing expires in the trust token")
 
-        if datetime.datetime.now() > dateutil.parser.parse(expires_in_str):
+        if datetime.datetime.utcnow() > dateutil.parser.parse(expires_in_str):
             raise ApiException("token expired: " + ", ".join(
                 filter(None, map(
                     lambda x: x[0] + "=" + x[1] if x[0] != 'salt' else '', trust.items()

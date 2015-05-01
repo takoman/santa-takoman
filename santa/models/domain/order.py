@@ -198,8 +198,8 @@ class Order(UpdatedAtMixin, Document):
     # in normalized currency.
     exchange_rate     = FloatField()  # source/target, e.g. USD/TWD = 30.00
     notes             = StringField()
-    updated_at        = DateTimeField(default=datetime.datetime.now)
-    created_at        = DateTimeField(default=datetime.datetime.now)
+    updated_at        = DateTimeField(default=datetime.datetime.utcnow)
+    created_at        = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'orders'

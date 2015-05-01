@@ -17,8 +17,8 @@ class User(UpdatedAtMixin, Document):
     password    = StringField(max_length=200)
     slug        = StringField(max_length=200)
     role        = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
-    updated_at  = DateTimeField(default=datetime.datetime.now)
-    created_at  = DateTimeField(default=datetime.datetime.now)
+    updated_at  = DateTimeField(default=datetime.datetime.utcnow)
+    created_at  = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'users'

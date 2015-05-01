@@ -65,7 +65,7 @@ with such.A('User model') as it:
             @it.should('have default created_at and updated_at timestamps')
             def test_default_created_at_and_updated_at():
                 User(name='Takoman', email='takoman@takoman.co').save()
-                now = datetime.datetime.now()
+                now = datetime.datetime.utcnow()
                 created_at = User.objects(email='takoman@takoman.co').first().created_at
                 updated_at = User.objects(email='takoman@takoman.co').first().updated_at
                 # TODO: We should freeze the time, like TimeCop in Ruby

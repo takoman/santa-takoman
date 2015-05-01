@@ -13,7 +13,7 @@ class Hero(Document):
     name = StringField()
     friends = ListField(ReferenceField('self'))
     images = ListField(EmbeddedDocumentField(Image))
-    created_at = DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
 
 class MeToJsonTests(AppTestCase):
     def setUp(self):

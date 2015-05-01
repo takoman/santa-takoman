@@ -11,11 +11,11 @@ from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 
 class Post(Document):
     title      = StringField(required=True, max_length=200)
-    updated_at = DateTimeField(default=datetime.datetime.now)
+    updated_at = DateTimeField(default=datetime.datetime.utcnow)
 
 class UpdatablePost(UpdatedAtMixin, Document):
     title      = StringField(required=True, max_length=200)
-    updated_at = DateTimeField(default=datetime.datetime.now)
+    updated_at = DateTimeField(default=datetime.datetime.utcnow)
 
 class UpdatedAtMixinTests(AppTestCase):
     """Test cases for the updated_at mixin."""

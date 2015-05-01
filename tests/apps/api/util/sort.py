@@ -12,7 +12,7 @@ from santa.apps.api.util.sort import sort
 class Post(Document):
     title      = StringField(required=True)
     category   = StringField()
-    created_at = DateTimeField(default=datetime.now)
+    created_at = DateTimeField(default=datetime.utcnow)
 
 class SortTests(AppTestCase):
     """Test cases for the sort utility."""

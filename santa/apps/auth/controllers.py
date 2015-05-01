@@ -20,7 +20,7 @@ def oauth():
     if not client_app:
         raise ApiException("invalid client_id or client_secret")
 
-    expires_in = datetime.datetime.now() + datetime.timedelta(days=60)
+    expires_in = datetime.datetime.utcnow() + datetime.timedelta(days=60)
 
     grant_type = form.get('grant_type')
     if grant_type == 'credentials':

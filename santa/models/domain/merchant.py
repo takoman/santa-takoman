@@ -19,8 +19,8 @@ class Merchant(UpdatedAtMixin, Document):
     merchant_name     = StringField(required=True)
     source_countries  = ListField(StringField(choices=SUPPORTED_COUNTRIES))
     # allpay_account  = ReferenceField(PaymentAccount)
-    updated_at        = DateTimeField(default=datetime.datetime.now)
-    created_at        = DateTimeField(default=datetime.datetime.now)
+    updated_at        = DateTimeField(default=datetime.datetime.utcnow)
+    created_at        = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'merchants'
