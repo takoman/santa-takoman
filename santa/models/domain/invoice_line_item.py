@@ -14,8 +14,8 @@ class InvoiceLineItem(UpdatedAtMixin, Document):
     price           = FloatField()  # In target currency.
     quantity        = IntField()
     notes           = StringField()
-    updated_at      = DateTimeField(default=datetime.datetime.now)
-    created_at      = DateTimeField(default=datetime.datetime.now)
+    updated_at      = DateTimeField(default=datetime.datetime.utcnow)
+    created_at      = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'invoice_line_items'

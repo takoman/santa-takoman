@@ -17,8 +17,8 @@ class Product(UpdatedAtMixin, Document):
     urls              = ListField(URLField())
     description       = StringField()  # Public product description
     notes             = StringField()  # Product notes, for internal use
-    updated_at        = DateTimeField(default=datetime.datetime.now)
-    created_at        = DateTimeField(default=datetime.datetime.now)
+    updated_at        = DateTimeField(default=datetime.datetime.utcnow)
+    created_at        = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'products'

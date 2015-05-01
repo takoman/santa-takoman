@@ -56,8 +56,8 @@ class InvoicePayment(UpdatedAtMixin, Document):
     total           = FloatField()
     result          = StringField(choices=[u'success', u'failure'])
     message         = StringField()
-    updated_at      = DateTimeField(default=datetime.datetime.now)
-    created_at      = DateTimeField(default=datetime.datetime.now)
+    updated_at      = DateTimeField(default=datetime.datetime.utcnow)
+    created_at      = DateTimeField(default=datetime.datetime.utcnow)
     # TODO: GenericEmbeddedDocumentField will create an additional _cls attribute
     # details         = GenericEmbeddedDocumentField()
     details         = EmbeddedDocumentField(AllPayPaymentDetails)

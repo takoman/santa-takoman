@@ -13,7 +13,7 @@ class Hero(Document):
     name = StringField()
     friends = ListField(ReferenceField('self'))
     images = ListField(EmbeddedDocumentField(Image))
-    created_at = DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeField(default=datetime.datetime.utcnow)
 
 class MeToJsonTests(AppTestCase):
     def setUp(self):
@@ -38,20 +38,20 @@ class MeToJsonTests(AppTestCase):
                 '_id': str(self.iron_man.id),
                 'name': 'Iron Man',
                 'images': [{ 'image_url': 'http://iron.man' }],
-                'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                'created_at': '2000-01-01T00:00:00+00:00',
                 'friends': [
                     {
                         '_id': str(self.super_man.id),
                         'name': 'Super Man',
                         'images': [{ 'image_url': 'http://super.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                        'created_at': '2000-01-01T00:00:00+00:00',
                         'friends': [str(self.bat_man.id)]
                     },
                     {
                         '_id': str(self.spider_man.id),
                         'name': 'Spider Man',
                         'images': [{ 'image_url': 'http://spider.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                        'created_at': '2000-01-01T00:00:00+00:00',
                         'friends': [str(self.iron_man.id), str(self.super_man.id), str(self.bat_man.id)]
                     }
                 ]
@@ -65,20 +65,20 @@ class MeToJsonTests(AppTestCase):
                 '_id': str(self.iron_man.id),
                 'name': 'Iron Man',
                 'images': [{ 'image_url': 'http://iron.man' }],
-                'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                'created_at': '2000-01-01T00:00:00+00:00',
                 'friends': [
                     {
                         '_id': str(self.super_man.id),
                         'name': 'Super Man',
                         'images': [{ 'image_url': 'http://super.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                        'created_at': '2000-01-01T00:00:00+00:00',
                         'friends': [str(self.bat_man.id)]
                     },
                     {
                         '_id': str(self.spider_man.id),
                         'name': 'Spider Man',
                         'images': [{ 'image_url': 'http://spider.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                        'created_at': '2000-01-01T00:00:00+00:00',
                         'friends': [str(self.iron_man.id), str(self.super_man.id), str(self.bat_man.id)]
                     }
                 ]
@@ -92,21 +92,21 @@ class MeToJsonTests(AppTestCase):
                 '_id': str(self.iron_man.id),
                 'name': 'Iron Man',
                 'images': [{ 'image_url': 'http://iron.man' }],
-                'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT',
+                'created_at': '2000-01-01T00:00:00+00:00',
                 'friends': [
                     {
                         '_id': str(self.super_man.id),
                         'friends': [str(self.bat_man.id)],
                         'name': 'Super Man',
                         'images': [{ 'image_url': 'http://super.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT'
+                        'created_at': '2000-01-01T00:00:00+00:00'
                     },
                     {
                         '_id': str(self.spider_man.id),
                         'friends': [str(self.iron_man.id), str(self.super_man.id), str(self.bat_man.id)],
                         'name': 'Spider Man',
                         'images': [{ 'image_url': 'http://spider.man' }],
-                        'created_at': 'Sat, 01 Jan 2000 00:00:00 GMT'
+                        'created_at': '2000-01-01T00:00:00+00:00'
                     }
                 ]
             }]

@@ -18,4 +18,4 @@ class InvoiceFactory(MongoEngineFactory):
     total = 0.00
     status = 'draft'
     notes = '不隨便的 invoice 備註'
-    due_at = datetime.datetime.now() + datetime.timedelta(days=7)
+    due_at = datetime.datetime.utcnow() + datetime.timedelta(days=7)

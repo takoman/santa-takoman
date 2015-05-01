@@ -25,8 +25,8 @@ class SocialAuth(UpdatedAtMixin, Document):
     credentials = DictField()
     extra       = DictField()
 
-    updated_at  = DateTimeField(default=datetime.datetime.now)
-    created_at  = DateTimeField(default=datetime.datetime.now)
+    updated_at  = DateTimeField(default=datetime.datetime.utcnow)
+    created_at  = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'social_auths'

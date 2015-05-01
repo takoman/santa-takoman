@@ -52,7 +52,7 @@ class AuthControllersTests(AppTestCase):
         res = json.loads(rv.data)
         self.assertIsNotNone(res.get('expires_in'))
         expires_in = dateutil.parser.parse(res.get('expires_in'))
-        sixty_days_from_now = datetime.datetime.now() + datetime.timedelta(days=60)
+        sixty_days_from_now = datetime.datetime.utcnow() + datetime.timedelta(days=60)
         # Heuristic, check the expires_in is roughly sixty days from now.
         self.assertLess((sixty_days_from_now - expires_in).seconds, 60)
 

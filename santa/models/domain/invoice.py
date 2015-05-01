@@ -19,10 +19,10 @@ class Invoice(UpdatedAtMixin, Document):
     total               = FloatField()  # in target currency
     status              = StringField(choices=INVOICE_STATUSES, default='draft')
     notes               = StringField()
-    # invoiced_at       = DateTimeField(default=datetime.datetime.now)  # Should be the same as created_at now.
-    due_at              = DateTimeField(default=datetime.datetime.now)
-    created_at          = DateTimeField(default=datetime.datetime.now)
-    updated_at          = DateTimeField(default=datetime.datetime.now)
+    # invoiced_at       = DateTimeField(default=datetime.datetime.utcnow)  # Should be the same as created_at now.
+    due_at              = DateTimeField(default=datetime.datetime.utcnow)
+    created_at          = DateTimeField(default=datetime.datetime.utcnow)
+    updated_at          = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'invoices'

@@ -14,11 +14,11 @@ class BaseJSONEncoder(json.JSONEncoder):
     """
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
-            # convert any datetime to RFC 1123 format
+            # convert any datetime to ISO-8601 format
             return date_to_str(obj)
         elif isinstance(obj, (datetime.time, datetime.date)):
-            # should not happen since the only supported date-like format
-            # supported at dmain schema level is 'datetime' .
+            # should not happen since the only date-like format
+            # supported at domain schema level is 'datetime'.
             return obj.isoformat()
         return json.JSONEncoder.default(self, obj)
 

@@ -17,7 +17,7 @@ def get_client_apps():
     if client_app:
         # Ideally, we have to expire tokens periodically and generate new ones.
         # Here we just expire it in 10 years.
-        ten_years_from_now = datetime.datetime.now() + datetime.timedelta(days=10 * 365)
+        ten_years_from_now = datetime.datetime.utcnow() + datetime.timedelta(days=10 * 365)
         expires = ten_years_from_now.isoformat()
         data = { u'xapp_token': client_app['token'], u'expires_in': expires }
 

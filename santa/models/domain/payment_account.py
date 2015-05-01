@@ -19,8 +19,8 @@ class PaymentAccount(UpdatedAtMixin, Document):
     external_id = StringField()
     provider    = StringField(choices=SUPPORTED_PAYMENT_GATEWAYS, required=True)
     customer    = ReferenceField(User, required=True)
-    updated_at  = DateTimeField(default=datetime.datetime.now)
-    created_at  = DateTimeField(default=datetime.datetime.now)
+    updated_at  = DateTimeField(default=datetime.datetime.utcnow)
+    created_at  = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'allow_inheritance': True,

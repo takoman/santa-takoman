@@ -19,8 +19,8 @@ class OrderLineItem(UpdatedAtMixin, Document):
     order       = ReferenceField(Order, required=True)
     product     = ReferenceField(Product)  # A line item can be associated with a product or not.
     notes       = StringField()
-    updated_at  = DateTimeField(default=datetime.datetime.now)
-    created_at  = DateTimeField(default=datetime.datetime.now)
+    updated_at  = DateTimeField(default=datetime.datetime.utcnow)
+    created_at  = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'order_line_items'

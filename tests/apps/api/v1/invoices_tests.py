@@ -59,7 +59,7 @@ class InvoicesEndpointsTests(AppTestCase):
     #
     def test_create_an_invoice(self):
         order = OrderFactory.create()
-        due_at = date_to_str(datetime.datetime.now() + datetime.timedelta(days=21))
+        due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
         new_invoice_dict = {
             'order': str(order.id),
             'notes': u'附上簽名照乙張',
@@ -79,7 +79,7 @@ class InvoicesEndpointsTests(AppTestCase):
     #
     def test_update_an_invoice(self):
         order = OrderFactory.create()
-        due_at = date_to_str(datetime.datetime.now() + datetime.timedelta(days=28))
+        due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=28))
         updated_invoice_dict = {
             'order': str(order.id),
             'notes': u'機車要加大鎖喔！！(((o(*ﾟ▽ﾟ*)o)))',

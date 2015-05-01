@@ -67,7 +67,7 @@ with such.A('Product model') as it:
             @it.should('have default created_at and updated_at timestamps')
             def test_have_default_created_at_and_updated_at(case):
                 Product(title='iPhone 99s').save()
-                now = datetime.datetime.now()
+                now = datetime.datetime.utcnow()
                 created_at = Product.objects(title='iPhone 99s').first().created_at
                 updated_at = Product.objects(title='iPhone 99s').first().updated_at
                 # TODO: We should freeze time with something like freezegun.
