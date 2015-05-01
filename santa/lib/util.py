@@ -11,8 +11,9 @@ def str_to_date(string):
 
 
 def date_to_str(date):
-    """ Converts a naive datetime value to the corresponding ISO-8601 string.
+    """ Converts a naive datetime value to the corresponding ISO-8601 string,
+    without the microseconds component.
 
     :param date: the datetime value to convert.
     """
-    return arrow.get(date).isoformat() if date else None
+    return arrow.get(date.replace(microsecond=0)).isoformat() if date else None
