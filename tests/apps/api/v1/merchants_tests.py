@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tests import AppTestCase
+from tests.factories import *
 from santa.models.domain import *
 from santa.lib.common import me_to_json
 from bson.objectid import ObjectId
@@ -28,6 +29,22 @@ class MerchantsEndpointsTests(AppTestCase):
         merchants = json.loads(res.get_data())
         self.assertEqual(len(merchants), 1)
         expected = json.loads(me_to_json(Merchant.objects))
+        self.assertListEqual(merchants, expected)
+
+    def test_get_merchants_by_user_id(self):
+        MerchantFactory.create()
+        MerchantFactory.create()
+        res = self.test_client.get(
+            '/api/v1/merchants', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        merchants = json.loads(res.get_data())
+        self.assertEqual(len(merchants), 3)
+        res = self.test_client.get('/api/v1/merchants?user_id=' + str(self.user.id),
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        merchants = json.loads(res.get_data())
+        self.assertEqual(len(merchants), 1)
+        expected = json.loads(me_to_json(Merchant.objects(user=str(self.user.id))))
         self.assertListEqual(merchants, expected)
 
     #
