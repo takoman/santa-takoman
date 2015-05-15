@@ -12,12 +12,8 @@ class OrderTests(AppTestCase):
         self.order = OrderFactory.create()
 
     def test_required_properties(self):
-        with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['customer', 'merchant'\].*"):
-            Order().save()
         with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['merchant'\].*"):
-            Order(customer=UserFactory.create()).save()
-        with self.assertRaisesRegexp(ValidationError, ".*Field is required: \['customer'\].*"):
-            Order(merchant=MerchantFactory.create()).save()
+            Order().save()
 
     def test_defined_properties(self):
         for p in ['customer', 'merchant', 'status', 'order_line_items', 'currency_source',
