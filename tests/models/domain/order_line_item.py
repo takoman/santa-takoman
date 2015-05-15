@@ -21,8 +21,7 @@ class OrderLineItemTests(AppTestCase):
             self.assertTrue(hasattr(self.order_line_item, p))
 
     def test_allowed_type(self):
-        for t in ['product', 'commission', 'shipping_dom_a', 'shipping_intl',
-                  'shipping_dom_b', 'tax', 'discount', 'coupon', 'fee']:
+        for t in ['product', 'commission', 'shipping', 'tax', 'discount', 'coupon', 'fee']:
             try:
                 self.order_line_item.type = t
                 self.order_line_item.save()
