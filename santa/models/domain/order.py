@@ -181,7 +181,7 @@ ORDER_STATUSES = [
 ]
 
 class Order(UpdatedAtMixin, Document):
-    customer          = ReferenceField(User, required=True)
+    customer          = ReferenceField(User)
     merchant          = ReferenceField(Merchant, required=True)
     # shipping        = ReferenceField(Shipment)
 
