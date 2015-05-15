@@ -14,8 +14,13 @@ merchants = Blueprint('merchants', __name__)
 @merchants.route('/merchants', methods=['GET'])
 @require_app_auth
 def get_merchants():
+    merchants = Merchant.objects
+    user_id = request.args.get('user_id', None)
+    if user_id:
+        merchants = merchants(user=user_id)
+
     paginated_and_sorted = paginate(sort(
-        Merchant.objects, request.args), request.args)
+        merchants, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 
