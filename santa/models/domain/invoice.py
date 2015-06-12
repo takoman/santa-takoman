@@ -37,4 +37,4 @@ class Invoice(UpdatedAtMixin, Document):
     def calculate_total(self):
         return sum([item.price * item.quantity for item in self.invoice_line_items])
 
-signals.pre_save_post_validation.connect(Invoice.update_total, sender=Invoice)
+signals.pre_save.connect(Invoice.update_total, sender=Invoice)

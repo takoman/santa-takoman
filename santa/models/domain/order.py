@@ -4,6 +4,7 @@ from mongoengine import *
 from mongoengine import signals
 import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
+from santa.models.mixins.updatable_mixin import UpdatableMixin
 from santa.models.domain import *
 
 __all__ = ('Order',)
@@ -180,7 +181,7 @@ ORDER_STATUSES = [
     u'canceled', u'refunded'
 ]
 
-class Order(UpdatedAtMixin, Document):
+class Order(UpdatableMixin, UpdatedAtMixin, Document):
     customer          = ReferenceField(User)
     merchant          = ReferenceField(Merchant, required=True)
     # shipping        = ReferenceField(Shipment)
@@ -214,4 +215,4 @@ class Order(UpdatedAtMixin, Document):
     def calculate_total(self):
         return sum([item.price * item.quantity for item in self.order_line_items])
 
-signals.pre_save_post_validation.connect(Order.update_total, sender=Order)
+signals.pre_save.connect(Order.update_total, sender=Order)

@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from mongoengine import *
-from mongoengine import signals
-import datetime, bcrypt
 from santa.models.domain.social_auth import SocialAuth
 from santa.apps.email.models.emailer import Emailer
 from santa.apps.email.models.composer import WelcomeEmailComposer
 from santa.apps.email.models.mandrill_api import MandrillAPI
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
+from santa.models.util.fields import PasswordField
+import datetime
 
 __all__ = ('User',)
 
 class User(UpdatedAtMixin, Document):
     name        = StringField(max_length=200, required=True)
     email       = EmailField(max_length=200, required=True, unique=True)
-    password    = StringField(max_length=200)
+    password    = PasswordField(max_length=200)
     slug        = StringField(max_length=200)
     role        = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
     updated_at  = DateTimeField(default=datetime.datetime.utcnow)
@@ -24,14 +24,10 @@ class User(UpdatedAtMixin, Document):
         'collection': 'users'
     }
 
-    @classmethod
-    def normalize_user(cls, sender, document, **kwargs):
-        user = document
-        if user.password:
-            user.password = bcrypt.hashpw(user.password, bcrypt.gensalt())
-        user.email = user.email.lower()
-
-        return
+    def clean(self):
+        """Pre validation/data cleaning"""
+        if self.email:
+            self.email = self.email.lower()
 
     def link_social_auth(self, social_auth_data):
         data = {'uid': social_auth_data.get('uid'), 'user': self}
@@ -61,7 +57,3 @@ class User(UpdatedAtMixin, Document):
                           postman=postman,
                           composer=composer)
         emailer.send_email()
-
-# TODO MongoEngine has a bug that modify document in `pre_save_post_validation`
-# won't actually saved.
-signals.pre_save_post_validation.connect(User.normalize_user, sender=User)

@@ -3,7 +3,7 @@ flask-script==2.0.5
 py-bcrypt==0.4
 gunicorn==18.0
 pycrypto==2.6.1
-pymongo==2.7.1
+pymongo==2.8
 python-dateutil==2.2
 flake8==2.1.0
 facebook-sdk==0.4.0
@@ -17,5 +17,5 @@ flask-cors==1.10.2
 pycountry==1.10
 factory_boy==2.4.1
 arrow==0.5.4
--e git+git://github.com/starsirius/mongoengine.git@no-tests#egg=mongoengine
+-e git+git://github.com/starsirius/mongoengine.git@0.9.x-no-tests#egg=mongoengine
 -e git+git://github.com/starsirius/nose2.git@bump-up-six-version#egg=nose2
