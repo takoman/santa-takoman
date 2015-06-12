@@ -17,5 +17,5 @@ flask-cors==1.10.2
 pycountry==1.10
 factory_boy==2.4.1
 arrow==0.5.4
--e git+git://github.com/starsirius/mongoengine.git@master#egg=mongoengine
+-e git+git://github.com/starsirius/mongoengine.git@0.9.x-no-tests#egg=mongoengine
 -e git+git://github.com/starsirius/nose2.git@bump-up-six-version#egg=nose2
