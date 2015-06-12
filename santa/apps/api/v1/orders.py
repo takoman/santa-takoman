@@ -44,19 +44,12 @@ def create_order():
 def update_order(order_id):
     data = parse_request(request)
 
-    known_fields = Order._fields.keys()
     order = Order.objects(id=order_id).first()
     if not order:
         raise ApiException('order not found', 404)
 
-    for k, v in data.iteritems():
-        if k in known_fields:
-            if (isinstance(Order._fields[k], ReferenceField)):
-                v = Order._fields[k].document_type.objects(id=v).first()
-                if not v:
-                    raise ApiException(k + ' not found')
-            setattr(order, k, v)
-    order.save()
+    order.update_with_dict(data)
+    order.reload()
 
     return render_json(me_to_json(order))
 
