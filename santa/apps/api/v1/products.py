@@ -42,19 +42,12 @@ def create_product():
 def update_product(product_id):
     data = parse_request(request)
 
-    known_fields = Product._fields.keys()
-
-    # Mongoengine update doesn't support validation now
-    # https://github.com/MongoEngine/mongoengine/issues/453
-    # So, we use save()
     product = Product.objects(id=product_id).first()
     if not product:
-        raise ApiException('product not found')
+        raise ApiException('product not found', 404)
 
-    for k, v in data.iteritems():
-        if k in known_fields:
-            setattr(product, k, v)
-    product.save()
+    product.update_with_validation(data)
+    product.reload()
 
     return render_json(me_to_json(product))
 

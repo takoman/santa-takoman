@@ -5,7 +5,7 @@ from santa.lib.api_errors import ApiException
 
 class UpdatableMixin(object):
 
-    def update_with_dict(self, data):
+    def update_with_validation(self, data):
         """Update the document with data passed in as a dict. Unknown
         fields will simply be ignored. A Referencefield can be an ObjectId,
         a string ObjectId, or a dict. If it is a dict, it will use the

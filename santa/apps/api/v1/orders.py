@@ -48,7 +48,7 @@ def update_order(order_id):
     if not order:
         raise ApiException('order not found', 404)
 
-    order.update_with_dict(data)
+    order.update_with_validation(data)
     order.reload()
 
     return render_json(me_to_json(order))
