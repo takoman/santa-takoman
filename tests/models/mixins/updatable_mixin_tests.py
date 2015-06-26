@@ -43,7 +43,7 @@ class UpdatableMixinTests(AppTestCase):
             "title": "Endless Love",
             "urls": ["http://takoman.co/new-post1", "http://takoman.co/new-post1-1"]
         }
-        self.post.update_with_dict(data)
+        self.post.update_with_validation(data)
         self.post.reload()
         self.assertEqual(self.post.title, data["title"])
         self.assertEqual(self.post.urls, data["urls"])
@@ -63,7 +63,7 @@ class UpdatableMixinTests(AppTestCase):
                 }
             ]
         }
-        self.post.update_with_dict(data)
+        self.post.update_with_validation(data)
         self.post.reload()
         self.assertEqual(self.post.title, data["title"])
         self.assertEqual(self.post.urls, data["urls"])
@@ -86,7 +86,7 @@ class UpdatableMixinTests(AppTestCase):
             ],
             "author": str(new_author.id)
         }
-        self.post.update_with_dict(data)
+        self.post.update_with_validation(data)
         self.post.reload()
         self.assertEqual(self.post.title, data["title"])
         self.assertEqual(self.post.urls, data["urls"])
@@ -110,7 +110,7 @@ class UpdatableMixinTests(AppTestCase):
             ],
             "author": json.loads(me_to_json(new_author))
         }
-        self.post.update_with_dict(data)
+        self.post.update_with_validation(data)
         self.post.reload()
         self.assertEqual(self.post.title, data["title"])
         self.assertEqual(self.post.urls, data["urls"])
@@ -122,7 +122,7 @@ class UpdatableMixinTests(AppTestCase):
             "id": str(self.post.id),
             "title": "Random Title"
         }
-        self.post.update_with_dict(data)
+        self.post.update_with_validation(data)
         self.post.reload()
         self.assertEqual(str(self.post.id), data["id"])
         self.assertEqual(self.post.title, data["title"])
@@ -130,18 +130,18 @@ class UpdatableMixinTests(AppTestCase):
     def test_different_id_in_data_than_self(self):
         new_post = Post(title="Random Post").save()
         with self.assertRaisesRegexp(ApiException, "unable to update Post with data with a different id"):
-            self.post.update_with_dict({ "id": str(new_post.id) })
+            self.post.update_with_validation({ "id": str(new_post.id) })
 
     def test_updating_with_other_validations(self):
         Post(title="Do Not Repeat").save()
         with self.assertRaisesRegexp(NotUniqueError, ".*duplicate key error.*"):
-            self.post.update_with_dict({ "title": "Do Not Repeat" })
+            self.post.update_with_validation({ "title": "Do Not Repeat" })
 
         with self.assertRaisesRegexp(ValidationError, ".*String value is too long.*"):
-            self.post.update_with_dict({ "title": "12345678901234567890extra" })
+            self.post.update_with_validation({ "title": "12345678901234567890extra" })
 
-        with self.assertRaisesRegexp(ValidationError, ".*Invalid URL: not valid url.*"):
-            self.post.update_with_dict({ "urls": ["not valid url", "random string"] })
+        with self.assertRaisesRegexp(ValidationError, ".*not valid url.*"):
+            self.post.update_with_validation({ "urls": ["not valid url", "random string"] })
 
     @unittest.skip("UpdatableMixin should support update by passing a list of dicts of reference fields")
     def test_update_list_of_reference_fields(self):
