@@ -33,6 +33,24 @@ class OrdersEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(Order.objects))
         self.assertListEqual(orders, expected)
 
+    def test_get_orders_by_merchant_id(self):
+        OrderFactory.create()
+        OrderFactory.create()
+        res = self.test_client.get(
+            '/api/v1/orders', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        orders = json.loads(res.get_data())
+        self.assertEqual(len(orders), 3)
+
+        res = self.test_client.get(
+            '/api/v1/orders?merchant_id=' + str(self.merchant.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        orders = json.loads(res.get_data())
+        self.assertEqual(len(orders), 1)
+
+        expected = json.loads(me_to_json(Order.objects(merchant=str(self.merchant.id))))
+        self.assertListEqual(orders, expected)
+
     #
     # GET /orders/<order_id>
     #
