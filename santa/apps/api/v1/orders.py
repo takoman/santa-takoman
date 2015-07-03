@@ -14,7 +14,12 @@ orders = Blueprint('orders', __name__)
 @orders.route('/orders', methods=['GET'])
 @require_app_auth
 def get_orders():
-    paginated_and_sorted = paginate(sort(Order.objects, request.args), request.args)
+    orders = Order.objects
+    merchant_id = request.args.get('merchant_id', None)
+    if merchant_id:
+        orders = orders(merchant=merchant_id)
+
+    paginated_and_sorted = paginate(sort(orders, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 
