@@ -74,6 +74,33 @@ class InvoicesEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(Invoice.objects(id=created_invoice['_id']).first()))
         self.assertDictEqual(created_invoice, expected)
 
+    def test_create_associated_invoice_line_items(self):
+        order = OrderFactory.create()
+        olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
+        due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
+        new_invoice_dict = {
+            'order': str(order.id),
+            'notes': u'附上簽名照乙張',
+            'due_at': due_at
+        }
+        self.assertEqual(len(InvoiceLineItem.objects), 0)
+        res = self.test_client.post('/api/v1/invoices',
+                                    data=json.dumps(new_invoice_dict),
+                                    content_type='application/json',
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 201)
+        created_invoice = json.loads(res.get_data())
+        expected = json.loads(me_to_json(Invoice.objects(id=created_invoice['_id']).first()))
+        self.assertDictEqual(created_invoice, expected)
+
+        self.assertEqual(len(InvoiceLineItem.objects), 3)
+        for index, ili in enumerate(InvoiceLineItem.objects):
+            self.assertEqual(ili.order_line_item.id, olis[index].id)
+            self.assertEqual(str(ili.invoice.id), created_invoice['_id'])
+        for oli in olis:
+            oli.reload()
+            self.assertEqual(oli.status, 'invoiced')
+
     #
     # PUT /invoices/<invoice_id>
     #

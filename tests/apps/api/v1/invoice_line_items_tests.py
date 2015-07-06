@@ -42,33 +42,8 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
                 'order': str(order.id)
             },
         ]
-        order_line_items = [OrderLineItemFactory.create(**i) for i in order_line_items_dict]
+        [OrderLineItemFactory.create(**i) for i in order_line_items_dict]
         self.invoice = InvoiceFactory.create(order=order)
-        self.invoice_line_items_dict = [
-            {
-                'invoice': str(self.invoice.id),
-                'price': 76.50,
-                'quantity': 3,
-                'notes': u'這是最新版'
-            },
-            {
-                'invoice': str(self.invoice.id),
-                'price': 45.50,
-                'quantity': 1
-            },
-            {
-                'invoice': str(self.invoice.id),
-                'price': 37.75,
-                'quantity': 13
-            },
-            {
-                'invoice': str(self.invoice.id),
-                'price': 199.99,
-                'quantity': 2,
-                'notes': u'加長型'
-            },
-        ]
-        self.invoice_line_items = [InvoiceLineItemFactory.create(order_line_item=item, **self.invoice_line_items_dict[i]) for i, item in enumerate(order_line_items)]
 
     #
     # GET /invoice_line_items
@@ -95,13 +70,15 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
         self.assertEqual(res.status_code, 200)
         response_items = json.loads(res.get_data())
         self.assertEqual(len(response_items), 4)
-        self.assertListEqual(response_items, json.loads(me_to_json(self.invoice_line_items)))
+        invoice_line_items = InvoiceLineItem.objects(invoice=self.invoice)
+        self.assertListEqual(response_items, json.loads(me_to_json(invoice_line_items)))
 
     #
     # GET /invoice_line_items/<invoice_line_item_id>
     #
     def test_get_certain_invoice_line_item(self):
-        for i, item in enumerate(self.invoice_line_items):
+        invoice_line_items = InvoiceLineItem.objects(invoice=self.invoice)
+        for i, item in enumerate(invoice_line_items):
             res = self.test_client.get(
                 '/api/v1/invoice_line_items/' + str(item.id), headers={'X-XAPP-TOKEN': self.client_app_token})
             self.assertEqual(res.status_code, 200)
@@ -220,7 +197,8 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
         self.assertIn("invoice line item not found", res.data)
 
     def test_update_an_invoice_line_item(self):
-        invoice_line_item = self.invoice_line_items[0]
+        invoice_line_items = InvoiceLineItem.objects(invoice=self.invoice)
+        invoice_line_item = invoice_line_items[0]
         invoice = InvoiceFactory.create()
         order_line_item = OrderLineItemFactory.create()
         updated_item_dict = {
@@ -242,10 +220,11 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
     # DELETE /invoice_line_items/<invoice_line_item_id>
     #
     def test_delete_an_invoice_line_item(self):
-        res = self.test_client.get('api/v1/invoice_line_items/' + str(self.invoice_line_items[0].id),
+        invoice_line_items = InvoiceLineItem.objects(invoice=self.invoice)
+        res = self.test_client.get('api/v1/invoice_line_items/' + str(invoice_line_items[0].id),
                                    headers={'X-XAPP-TOKEN': self.client_app_token})
         item = json.loads(res.get_data())
-        res = self.test_client.delete('api/v1/invoice_line_items/' + str(self.invoice_line_items[0].id),
+        res = self.test_client.delete('api/v1/invoice_line_items/' + str(invoice_line_items[0].id),
                                       headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_item = json.loads(res.get_data())

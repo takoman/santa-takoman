@@ -17,7 +17,7 @@ class OrderLineItemTests(AppTestCase):
 
     def test_defined_properties(self):
         for p in ['type', 'custom_id', 'price', 'quantity', 'order', 'product',
-                  'notes', 'created_at', 'updated_at']:
+                  'status', 'notes', 'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.order_line_item, p))
 
     def test_allowed_type(self):
@@ -26,10 +26,24 @@ class OrderLineItemTests(AppTestCase):
                 self.order_line_item.type = t
                 self.order_line_item.save()
             except ValidationError:
-                self.fail("Saving type %s raises ValidationError unexpectedly", s)
+                self.fail("Saving type %s raises ValidationError unexpectedly", t)
         with self.assertRaisesRegexp(ValidationError, ".*Value must be one of \[.*\].*"):
             self.order_line_item.type = 'invalid_type'
             self.order_line_item.save()
+
+    def test_allowed_status(self):
+        for s in ['new', 'invoiced']:
+            try:
+                self.order_line_item.status = s
+                self.order_line_item.save()
+            except ValidationError:
+                self.fail("Saving status %s raises ValidationError unexpectedly", s)
+        with self.assertRaisesRegexp(ValidationError, ".*Value must be one of \[.*\].*"):
+            self.order_line_item.status = 'invalid_status'
+            self.order_line_item.save()
+
+    def test_default_status(self):
+        self.assertEqual(self.order_line_item.status, 'new')
 
     def test_optional_product_assoc(self):
         order_line_item = OrderLineItemFactory.create(product=None)

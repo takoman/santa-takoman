@@ -9,6 +9,11 @@ from santa.models.domain.order import Order
 
 __all__ = ('OrderLineItem',)
 
+ORDER_LINE_ITEM_STATUSES = [
+    u'new',
+    u'invoiced'  # it has been converted into an invoice line item, and cannot be modified
+]
+
 class OrderLineItem(UpdatedAtMixin, Document):
     type        = StringField(choices=[u'product', u'commission', u'shipping',
                                        u'tax', u'discount', u'coupon', u'fee'])
@@ -17,6 +22,7 @@ class OrderLineItem(UpdatedAtMixin, Document):
     quantity    = IntField()
     order       = ReferenceField(Order, required=True)
     product     = ReferenceField(Product)  # A line item can be associated with a product or not.
+    status      = StringField(choices=ORDER_LINE_ITEM_STATUSES, default=u'new')
     notes       = StringField()
     updated_at  = DateTimeField(default=datetime.datetime.utcnow)
     created_at  = DateTimeField(default=datetime.datetime.utcnow)

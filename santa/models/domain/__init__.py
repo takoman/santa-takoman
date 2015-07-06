@@ -6,8 +6,8 @@ from santa.models.domain.user import *
 from santa.models.domain.merchant import *
 from santa.models.domain.order import *
 from santa.models.domain.order_line_item import *
-from santa.models.domain.invoice import *
 from santa.models.domain.invoice_line_item import *
+from santa.models.domain.invoice import *
 from santa.models.domain.invoice_payment import *
 from santa.models.domain.product import *
 from santa.models.domain.payment_account import *
