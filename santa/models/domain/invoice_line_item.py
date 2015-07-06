@@ -9,7 +9,7 @@ from santa.models.domain import *
 __all__ = ('InvoiceLineItem',)
 
 class InvoiceLineItem(UpdatedAtMixin, Document):
-    invoice         = ReferenceField(Invoice, required=True)
+    invoice         = ReferenceField('Invoice', required=True)
     order_line_item = ReferenceField(OrderLineItem, required=True)
     price           = FloatField()  # In target currency.
     quantity        = IntField()

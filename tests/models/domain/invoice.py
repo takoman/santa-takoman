@@ -57,5 +57,42 @@ class InvoiceTests(AppTestCase):
         self.invoice.save()
         self.assertEqual(self.invoice.total, 299 * 3 + -100 * 2 + 250)
 
+    def test_create_associated_invoice_line_items_after_create(self):
+        order = OrderFactory.create()
+        new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
+        invoiced_olis = [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
+        self.assertEqual(len(InvoiceLineItem.objects), 0)
+        invoice = Invoice(order=order).save()
+
+        self.assertEqual(len(InvoiceLineItem.objects), 3)
+        for index, ili in enumerate(InvoiceLineItem.objects):
+            self.assertEqual(ili.order_line_item.id, new_olis[index].id)
+            self.assertEqual(ili.invoice.id, invoice.id)
+        for oli in new_olis:
+            oli.reload()
+            self.assertEqual(oli.status, 'invoiced')
+
+    def test_not_create_invoice_line_items_after_update(self):
+        order = OrderFactory.create()
+        new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
+        invoiced_olis = [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
+        self.assertEqual(len(InvoiceLineItem.objects), 0)
+
+        invoice = Invoice(order=order).save()
+        # then update multiple times
+        invoice.notes = 'notes'
+        invoice.save()
+        invoice.update(notes='new notes')
+        invoice.save()
+        invoice.save()
+
+        self.assertEqual(len(InvoiceLineItem.objects), 3)
+        for index, ili in enumerate(InvoiceLineItem.objects):
+            self.assertEqual(ili.order_line_item.id, new_olis[index].id)
+            self.assertEqual(ili.invoice.id, invoice.id)
+        for oli in new_olis:
+            oli.reload()
+            self.assertEqual(oli.status, 'invoiced')
+
 if __name__ == '__main__':
     unittest.main()
