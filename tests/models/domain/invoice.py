@@ -60,7 +60,7 @@ class InvoiceTests(AppTestCase):
     def test_create_associated_invoice_line_items_after_create(self):
         order = OrderFactory.create()
         new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
-        invoiced_olis = [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
+        [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
         self.assertEqual(len(InvoiceLineItem.objects), 0)
         invoice = Invoice(order=order).save()
 
@@ -75,7 +75,7 @@ class InvoiceTests(AppTestCase):
     def test_not_create_invoice_line_items_after_update(self):
         order = OrderFactory.create()
         new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
-        invoiced_olis = [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
+        [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
         self.assertEqual(len(InvoiceLineItem.objects), 0)
 
         invoice = Invoice(order=order).save()
