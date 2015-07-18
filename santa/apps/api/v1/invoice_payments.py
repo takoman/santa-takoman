@@ -14,7 +14,13 @@ invoice_payments = Blueprint('invoice_payments', __name__)
 @invoice_payments.route('/invoice_payments', methods=['GET'])
 @require_app_auth
 def get_invoice_payments():
-    paginated_and_sorted = paginate(sort(InvoicePayment.objects, request.args), request.args)
+    invoice_payments = InvoicePayment.objects
+    invoice_id = request.args.get('invoice_id', None)
+    if invoice_id:
+        invoice_payments = invoice_payments(invoice=invoice_id)
+
+    paginated_and_sorted = paginate(sort(
+        invoice_payments, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 

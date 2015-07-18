@@ -30,6 +30,22 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(InvoicePayment.objects))
         self.assertListEqual(invoice_payments, expected)
 
+    def test_filter_invoice_payments_by_invoice_id(self):
+        InvoicePaymentFactory.create()
+        InvoicePaymentFactory.create()
+        res = self.test_client.get(
+            '/api/v1/invoice_payments', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoice_payments = json.loads(res.get_data())
+        self.assertEqual(len(invoice_payments), 3)
+        res = self.test_client.get(
+            '/api/v1/invoice_payments?invoice_id=' + str(self.invoice_payment.invoice.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoice_payments = json.loads(res.get_data())
+        self.assertEqual(len(invoice_payments), 1)
+        expected = json.loads(me_to_json(InvoicePayment.objects(invoice=str(self.invoice_payment.invoice.id))))
+        self.assertListEqual(invoice_payments, expected)
+
     #
     # GET /invoice_payments/<invoice_payment_id>
     #
@@ -78,20 +94,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'payment_type': 'ATM_TAISHIN',
                 'payment_type_charge_fee': 25,
                 'trade_date': '2012/03/16 12:03:12',
-                'simulate_paid': 0,
-                'offline_payment_details': {
-                    'merchant_id': 'mid-1',
-                    'merchant_trade_no': 'mtn-1',
-                    'return_code': 2,
-                    'return_message': 'Get VirtualAccount Succeed',
-                    'trade_no': 'tn-1',
-                    'trade_amount': 1000,
-                    'payment_type': 'ATM_TAISHIN',
-                    'trade_date': '2012/03/16 12:03:12',
-                    'expire_date': '2012/03/23 12:03:12',
-                    'bank_code': '812',
-                    'v_account': '9103522175887271'
-                }
+                'simulate_paid': 0
+            },
+            'allpay_offline_payment_details': {
+                'merchant_id': 'mid-1',
+                'merchant_trade_no': 'mtn-1',
+                'return_code': 2,
+                'return_message': 'Get VirtualAccount Succeed',
+                'trade_no': 'tn-1',
+                'trade_amount': 1000,
+                'payment_type': 'ATM_TAISHIN',
+                'trade_date': '2012/03/16 12:03:12',
+                'expire_date': '2012/03/23 12:03:12',
+                'bank_code': '812',
+                'v_account': '9103522175887271'
             }
         }
         res = self.test_client.post('/api/v1/invoice_payments',
@@ -128,20 +144,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'payment_type': 'ATM_BOT',
                 'payment_type_charge_fee': 25,
                 'trade_date': '2012/03/16 12:03:12',
-                'simulate_paid': 0,
-                'offline_payment_details': {
-                    'merchant_id': 'mid-199',
-                    'merchant_trade_no': 'mtn-168',
-                    'return_code': 2,
-                    'return_message': 'Get VirtualAccount Succeed',
-                    'trade_no': 'tn-188',
-                    'trade_amount': 300.99,
-                    'payment_type': 'ATM_BOT',
-                    'trade_date': '2012/03/16 12:03:12',
-                    'expire_date': '2012/03/23 12:03:12',
-                    'bank_code': '813',
-                    'v_account': '8993522175997382'
-                }
+                'simulate_paid': 0
+            },
+            'allpay_offline_payment_details': {
+                'merchant_id': 'mid-199',
+                'merchant_trade_no': 'mtn-168',
+                'return_code': 2,
+                'return_message': 'Get VirtualAccount Succeed',
+                'trade_no': 'tn-188',
+                'trade_amount': 300.99,
+                'payment_type': 'ATM_BOT',
+                'trade_date': '2012/03/16 12:03:12',
+                'expire_date': '2012/03/23 12:03:12',
+                'bank_code': '813',
+                'v_account': '8993522175997382'
             }
         }
         res = self.test_client.put('/api/v1/invoice_payments/' + str(self.invoice_payment.id),

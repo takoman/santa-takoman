@@ -18,7 +18,7 @@ class AllPayAccountTests(AppTestCase):
             AllPayAccount(provider='AllPay').save()
 
     def test_defined_properties(self):
-        for p in ['external_id', 'provider', 'customer', 'updated_at', 'created_at']:
+        for p in ['external_id', 'provider', 'customer', 'merchant', 'updated_at', 'created_at']:
             self.assertTrue(hasattr(self.allpay_account, p))
 
     def test_allowed_providers(self):

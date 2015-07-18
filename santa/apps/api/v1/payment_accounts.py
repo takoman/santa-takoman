@@ -14,7 +14,17 @@ payment_accounts = Blueprint('payment_accounts', __name__)
 @payment_accounts.route('/payment_accounts', methods=['GET'])
 @require_app_auth
 def get_payment_accounts():
-    paginated_and_sorted = paginate(sort(PaymentAccount.objects, request.args), request.args)
+    payment_accounts = PaymentAccount.objects
+    customer_id = request.args.get('customer_id', None)
+    if customer_id:
+        payment_accounts = payment_accounts(customer=customer_id)
+
+    merchant_id = request.args.get('merchant_id', None)
+    if merchant_id:
+        payment_accounts = payment_accounts(merchant=merchant_id)
+
+    paginated_and_sorted = paginate(sort(
+        payment_accounts, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 

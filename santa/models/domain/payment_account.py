@@ -18,7 +18,9 @@ class PaymentAccount(UpdatedAtMixin, Document):
     # TODO: external_id should be required, but Allpay doesn't support it now.
     external_id = StringField()
     provider    = StringField(choices=SUPPORTED_PAYMENT_GATEWAYS, required=True)
-    customer    = ReferenceField(User, required=True)
+    # TODO: Ideally we want to require exactly one customer or one merchant
+    customer    = ReferenceField(User)
+    merchant    = ReferenceField(Merchant)
     updated_at  = DateTimeField(default=datetime.datetime.utcnow)
     created_at  = DateTimeField(default=datetime.datetime.utcnow)
 

@@ -29,6 +29,40 @@ class PaymentAccountsEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(PaymentAccount.objects))
         self.assertListEqual(payment_accounts, expected)
 
+    def test_filter_payment_accounts_by_customer_id(self):
+        AllPayAccountFactory.create()
+        AllPayAccountFactory.create()
+        res = self.test_client.get(
+            '/api/v1/payment_accounts', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        payment_accounts = json.loads(res.get_data())
+        self.assertEqual(len(payment_accounts), 3)
+
+        res = self.test_client.get(
+            '/api/v1/payment_accounts?customer_id=' + str(self.allpay_account.customer.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        payment_accounts = json.loads(res.get_data())
+        self.assertEqual(len(payment_accounts), 1)
+        expected = json.loads(me_to_json(PaymentAccount.objects(customer=str(self.allpay_account.customer.id))))
+        self.assertListEqual(payment_accounts, expected)
+
+    def test_filter_payment_accounts_by_merchant_id(self):
+        AllPayAccountFactory.create()
+        AllPayAccountFactory.create()
+        res = self.test_client.get(
+            '/api/v1/payment_accounts', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        payment_accounts = json.loads(res.get_data())
+        self.assertEqual(len(payment_accounts), 3)
+
+        res = self.test_client.get(
+            '/api/v1/payment_accounts?merchant_id=' + str(self.allpay_account.merchant.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        payment_accounts = json.loads(res.get_data())
+        self.assertEqual(len(payment_accounts), 1)
+        expected = json.loads(me_to_json(PaymentAccount.objects(merchant=str(self.allpay_account.merchant.id))))
+        self.assertListEqual(payment_accounts, expected)
+
     #
     # GET /payment_accounts/<payment_account_id>
     #

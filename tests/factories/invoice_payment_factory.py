@@ -40,7 +40,6 @@ class AllPayPaymentDetailsFactory(MongoEngineFactory):
     payment_type_charge_fee = 25.00
     trade_date        = '2012/03/15 18:03:12'
     simulate_paid     = 0
-    offline_payment_details = factory.SubFactory(AllPayATMOfflinePaymentDetailsFactory)
 
 class InvoicePaymentFactory(MongoEngineFactory):
     class Meta:
@@ -53,3 +52,4 @@ class InvoicePaymentFactory(MongoEngineFactory):
     result = 'success'
     message = u'付款成功'
     details = factory.SubFactory(AllPayPaymentDetailsFactory)
+    allpay_offline_payment_details = factory.SubFactory(AllPayATMOfflinePaymentDetailsFactory)

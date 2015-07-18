@@ -47,7 +47,6 @@ class AllPayPaymentDetails(EmbeddedDocument):
     trade_date        = DateTimeField()
     simulate_paid     = IntField()
     check_mac_value   = StringField()
-    offline_payment_details = EmbeddedDocumentField(AllPayOfflinePaymentDetails)
 
 class InvoicePayment(UpdatedAtMixin, Document):
     external_id     = StringField(required=True)  # TradeNo - 歐付寶的交易編號
@@ -61,6 +60,7 @@ class InvoicePayment(UpdatedAtMixin, Document):
     # TODO: GenericEmbeddedDocumentField will create an additional _cls attribute
     # details         = GenericEmbeddedDocumentField()
     details         = EmbeddedDocumentField(AllPayPaymentDetails)
+    allpay_offline_payment_details = EmbeddedDocumentField(AllPayOfflinePaymentDetails)
 
     meta = {
         'collection': 'invoice_payments'
