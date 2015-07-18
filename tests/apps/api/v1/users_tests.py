@@ -8,6 +8,7 @@
 from tests import AppTestCase
 from santa.models.domain.social_auth import SocialAuth
 from santa.models.domain.user import User
+from santa.lib.common import me_to_json
 import unittest, mock, json
 
 # Need to patch the emailing services for all the tests to prevent sending
@@ -70,6 +71,41 @@ class UsersEndpointsTests(AppTestCase):
 
         self.assertEqual(res.status_code, 400)
         self.assertIn("Value must be one of", res.data)
+
+    # Anonymous sessions
+
+    def test_anonymous_session_without_anonymous_flag(self, emailer_mock, composer_mock, mandrill_mock):
+        res = self.test_client.post('/api/v1/users', data=dict(
+            email='takochan@takoman.co',
+            name='takochan',
+            anonymous_session_id='1234-5678-90'
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
+
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("unsupported signup type", res.data)
+
+    def test_anonymous_session_without_anonymous_session_id(self, emailer_mock, composer_mock, mandrill_mock):
+        res = self.test_client.post('/api/v1/users', data=dict(
+            email='takochan@takoman.co',
+            name='takochan',
+            anonymous='true'
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
+
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("unsupported signup type", res.data)
+
+    def test_create_anonymous_session(self, emailer_mock, composer_mock, mandrill_mock):
+        res = self.test_client.post('/api/v1/users', data=dict(
+            email='takochan@takoman.co',
+            name='takochan',
+            anonymous='true',
+            anonymous_session_id='1234-5678-90'
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
+
+        self.assertEqual(res.status_code, 201)
+        user = json.loads(res.get_data())
+        expected = json.loads(me_to_json(User.objects(email='takochan@takoman.co').first()))
+        self.assertDictEqual(user, expected)
 
     # Create by credentials
 
@@ -171,6 +207,20 @@ class UsersEndpointsTests(AppTestCase):
         ), headers={'X-XAPP-TOKEN': 'wrong-rudy-token'})
 
         self.assertEqual(res.status_code, 401)
+        self.assertFalse(emailer_mock.called)
+        self.assertFalse(emailer_mock_instance.send_email.called)
+
+    def test_not_send_welcome_email_for_anonymous_session(self, emailer_mock, composer_mock, mandrill_mock):
+        emailer_mock_instance = emailer_mock.return_value
+        emailer_mock_instance.send_email = mock.Mock()
+        res = self.test_client.post('/api/v1/users', data=dict(
+            name='takochan',
+            email='takochan@takoman.co',
+            anonymous='true',
+            anonymous_session_id='0987-6543-21'
+        ), headers={'X-XAPP-TOKEN': self.client_app_token})
+
+        self.assertEqual(res.status_code, 201)
         self.assertFalse(emailer_mock.called)
         self.assertFalse(emailer_mock_instance.send_email.called)
 
