@@ -61,6 +61,12 @@ with such.A('User model') as it:
                 user.role.append(u'agent')
                 it.assertRaisesRegexp(ValidationError, "Value must be one of", user.save)
 
+        with it.having('anonymous'):
+            @it.should('have default anonymous flag')
+            def test_default_anonymous_flag():
+                user = User(name='Takoman', email='takoman@takoman.co').save()
+                it.assertEqual(user.anonymous, False)
+
         with it.having('created_at and updated_at'):
             @it.should('have default created_at and updated_at timestamps')
             def test_default_created_at_and_updated_at():

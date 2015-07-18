@@ -12,13 +12,16 @@ import datetime
 __all__ = ('User',)
 
 class User(UpdatedAtMixin, Document):
-    name        = StringField(max_length=200, required=True)
-    email       = EmailField(max_length=200, required=True, unique=True)
-    password    = PasswordField(max_length=200)
-    slug        = StringField(max_length=200)
-    role        = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
-    updated_at  = DateTimeField(default=datetime.datetime.utcnow)
-    created_at  = DateTimeField(default=datetime.datetime.utcnow)
+    name                  = StringField(max_length=200, required=True)
+    email                 = EmailField(max_length=200, required=True, unique=True)
+    password              = PasswordField(max_length=200)
+    slug                  = StringField(max_length=200)
+    role                  = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
+    # Anonymous session
+    anonymous             = BooleanField(default=False)
+    anonymous_session_id  = StringField(max_length=200)
+    updated_at            = DateTimeField(default=datetime.datetime.utcnow)
+    created_at            = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'users'

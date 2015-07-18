@@ -59,6 +59,9 @@ def create_user():
     # If signing up via credentials
     elif all([data.get('email'), data.get('password'), data.get('name')]):
         pass
+    # Anonymous session
+    elif all([data.get('email'), data.get('name'), bool(data.get('anonymous')), data.get('anonymous_session_id')]):
+        pass
     else:
         raise ApiException("unsupported signup type")
 
@@ -71,7 +74,10 @@ def create_user():
     new_user.save()
     if data.get('provider') and data.get('oauth_token'):
         new_user.link_social_auth(auth_data)
-    new_user.send_welcome_email()
+
+    # TODO: we should send a different welcome email to anonymous users
+    if not new_user.anonymous:
+        new_user.send_welcome_email()
 
     return render_json(me_to_json(new_user), status=201)
 
