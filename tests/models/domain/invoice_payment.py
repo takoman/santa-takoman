@@ -18,7 +18,7 @@ class InvoicePaymentTests(AppTestCase):
 
     def test_defined_properties(self):
         for p in ['external_id', 'invoice', 'payment_account', 'total', 'result', 'message', 'details',
-                  'created_at', 'updated_at']:
+                  'allpay_offline_payment_details', 'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.payment, p))
 
     def test_allowed_result(self):
@@ -37,21 +37,19 @@ class InvoicePaymentTests(AppTestCase):
             external_id='9998',
             details=AllPayPaymentDetails(
                 merchant_id='007',
-                merchant_trade_no='123456789',
-                offline_payment_details=AllPayOfflinePaymentDetails(
-                    payment_type='ATM_TAISHIN',
-                    bank_code='812',
-                    v_account='9103522175887271'
-                )
-            )
+                merchant_trade_no='123456789'),
+            allpay_offline_payment_details=AllPayOfflinePaymentDetails(
+                payment_type='ATM_TAISHIN',
+                bank_code='812',
+                v_account='9103522175887271')
         )
         payment.save()
         p = InvoicePayment.objects(external_id='9998').first()
         self.assertEqual(p.details.merchant_id, '007')
         self.assertEqual(p.details.merchant_trade_no, '123456789')
-        self.assertEqual(p.details.offline_payment_details.payment_type, 'ATM_TAISHIN')
-        self.assertEqual(p.details.offline_payment_details.bank_code, '812')
-        self.assertEqual(p.details.offline_payment_details.v_account, '9103522175887271')
+        self.assertEqual(p.allpay_offline_payment_details.payment_type, 'ATM_TAISHIN')
+        self.assertEqual(p.allpay_offline_payment_details.bank_code, '812')
+        self.assertEqual(p.allpay_offline_payment_details.v_account, '9103522175887271')
 
     def test_update_unpaid_invoice_status_signal(self):
         for s in ['unpaid']:
