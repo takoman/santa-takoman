@@ -85,7 +85,14 @@ class OrdersEndpointsTests(AppTestCase):
             'merchant': str(merchant.id),
             'currency_source': 'USD',
             'exchange_rate': 30,
-            'notes': u'附上簽名照乙張'
+            'notes': u'附上簽名照乙張',
+            'shipping_address': {
+                'address': u'吉林路 26 巷 38 號 2 樓之 2',
+                'district': u'中山區',
+                'city': u'台北市',
+                'zipcode': '10457',
+                'country': 'TW'
+            }
         }
         res = self.test_client.post('/api/v1/orders',
                                     data=json.dumps(new_order_dict),
@@ -107,7 +114,14 @@ class OrdersEndpointsTests(AppTestCase):
             'merchant': str(updated_merchant.id),
             'currency_source': 'GBP',
             'exchange_rate': 40.00,
-            'notes': u'機車要加大鎖喔！！(((o(*ﾟ▽ﾟ*)o)))'
+            'notes': u'機車要加大鎖喔！！(((o(*ﾟ▽ﾟ*)o)))',
+            'shipping_address': {
+                'address': u'吉林路 26 巷 38 號 2 樓之 2',
+                'district': u'中山區',
+                'city': u'台北市',
+                'zipcode': '10457',
+                'country': 'TW'
+            }
         }
         res = self.test_client.put('/api/v1/orders/' + str(self.order.id),
                                    data=json.dumps(updated_order_dict),

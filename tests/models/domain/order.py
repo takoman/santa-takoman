@@ -16,8 +16,9 @@ class OrderTests(AppTestCase):
             Order().save()
 
     def test_defined_properties(self):
-        for p in ['customer', 'merchant', 'status', 'order_line_items', 'currency_source',
-                  'currency_target', 'exchange_rate', 'notes', 'created_at', 'updated_at']:
+        for p in ['customer', 'merchant', 'status', 'shipping_address', 'order_line_items',
+                  'currency_source', 'currency_target', 'exchange_rate', 'notes', 'created_at',
+                  'updated_at']:
             self.assertTrue(hasattr(self.order, p))
 
     def test_allowed_status(self):
