@@ -14,3 +14,4 @@ class AllPayAccountFactory(MongoEngineFactory):
     external_id = factory.Sequence(lambda n: '{0}'.format(n))
     provider = 'AllPay'
     customer = factory.SubFactory(UserFactory)
+    merchant = factory.SubFactory(MerchantFactory)
