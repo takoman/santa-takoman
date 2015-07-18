@@ -184,7 +184,7 @@ ORDER_STATUSES = [
 class Order(UpdatableMixin, UpdatedAtMixin, Document):
     customer          = ReferenceField(User)
     merchant          = ReferenceField(Merchant, required=True)
-    # shipping        = ReferenceField(Shipment)
+    shipping_address  = EmbeddedDocumentField(Location)
 
     status            = StringField(choices=ORDER_STATUSES, default=u'new')
     order_line_items  = ListField(ReferenceField('OrderLineItem'))

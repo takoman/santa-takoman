@@ -2,6 +2,7 @@
 
 from santa.models.domain.client_app import *
 from santa.models.domain.image import *
+from santa.models.domain.location import *
 from santa.models.domain.user import *
 from santa.models.domain.merchant import *
 from santa.models.domain.order import *
@@ -15,6 +16,7 @@ from santa.models.domain.social_auth import *
 
 __all__ = (client_app.__all__ +
            image.__all__ +
+           location.__all__ +
            user.__all__ +
            merchant.__all__ +
            order.__all__ +
