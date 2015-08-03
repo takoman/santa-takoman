@@ -21,8 +21,9 @@ class AllPayOfflinePaymentDetails(EmbeddedDocument):
     trade_amount      = FloatField()
     payment_type      = StringField(max_length=20)
     trade_date        = DateTimeField()
-    check_mac_value   = StringField()
     expire_date       = DateTimeField()
+    # Raw payment data returned from AllPay
+    raw               = DictField()
 
     # When ChoosePayment is ATM
     bank_code         = StringField(max_length=10)
@@ -46,7 +47,8 @@ class AllPayPaymentDetails(EmbeddedDocument):
     payment_type_charge_fee = FloatField()
     trade_date        = DateTimeField()
     simulate_paid     = IntField()
-    check_mac_value   = StringField()
+    # Raw payment data returned from AllPay
+    raw               = DictField()
 
 class InvoicePayment(UpdatedAtMixin, Document):
     external_id     = StringField(required=True)  # TradeNo - 歐付寶的交易編號
