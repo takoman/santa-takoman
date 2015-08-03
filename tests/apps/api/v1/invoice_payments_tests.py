@@ -94,7 +94,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'payment_type': 'ATM_TAISHIN',
                 'payment_type_charge_fee': 25,
                 'trade_date': '2012/03/16 12:03:12',
-                'simulate_paid': 0
+                'simulate_paid': 0,
+                'raw': {
+                    'merchant_id': 'mid-1',
+                    'merchant_trade_no': 'mtn-1',
+                    'return_code': 1,
+                    'return_message': 'paid',
+                    'trade_no': 'tn-1',
+                    'trade_amount': 1000,
+                    'payment_date': '2012/03/20 13:04:29',
+                    'payment_type': 'ATM_TAISHIN',
+                    'payment_type_charge_fee': 25,
+                    'trade_date': '2012/03/16 12:03:12',
+                    'simulate_paid': 0
+                }
             },
             'allpay_offline_payment_details': {
                 'merchant_id': 'mid-1',
@@ -107,7 +120,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'trade_date': '2012/03/16 12:03:12',
                 'expire_date': '2012/03/23 12:03:12',
                 'bank_code': '812',
-                'v_account': '9103522175887271'
+                'v_account': '9103522175887271',
+                'raw': {
+                    'merchant_id': 'mid-1',
+                    'merchant_trade_no': 'mtn-1',
+                    'return_code': 2,
+                    'return_message': 'Get VirtualAccount Succeed',
+                    'trade_no': 'tn-1',
+                    'trade_amount': 1000,
+                    'payment_type': 'ATM_TAISHIN',
+                    'trade_date': '2012/03/16 12:03:12',
+                    'expire_date': '2012/03/23 12:03:12',
+                    'bank_code': '812',
+                    'v_account': '9103522175887271'
+                }
             }
         }
         res = self.test_client.post('/api/v1/invoice_payments',
@@ -144,7 +170,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'payment_type': 'ATM_BOT',
                 'payment_type_charge_fee': 25,
                 'trade_date': '2012/03/16 12:03:12',
-                'simulate_paid': 0
+                'simulate_paid': 0,
+                'raw': {
+                    'merchant_id': 'mid-199',
+                    'merchant_trade_no': 'mtn-168',
+                    'return_code': 1,
+                    'return_message': 'paid',
+                    'trade_no': 'tn-188',
+                    'trade_amount': 300.99,
+                    'payment_date': '2012/03/20 13:04:29',
+                    'payment_type': 'ATM_BOT',
+                    'payment_type_charge_fee': 25,
+                    'trade_date': '2012/03/16 12:03:12',
+                    'simulate_paid': 0
+                }
             },
             'allpay_offline_payment_details': {
                 'merchant_id': 'mid-199',
@@ -157,7 +196,20 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
                 'trade_date': '2012/03/16 12:03:12',
                 'expire_date': '2012/03/23 12:03:12',
                 'bank_code': '813',
-                'v_account': '8993522175997382'
+                'v_account': '8993522175997382',
+                'raw': {
+                    'merchant_id': 'mid-199',
+                    'merchant_trade_no': 'mtn-168',
+                    'return_code': 2,
+                    'return_message': 'Get VirtualAccount Succeed',
+                    'trade_no': 'tn-188',
+                    'trade_amount': 300.99,
+                    'payment_type': 'ATM_BOT',
+                    'trade_date': '2012/03/16 12:03:12',
+                    'expire_date': '2012/03/23 12:03:12',
+                    'bank_code': '813',
+                    'v_account': '8993522175997382'
+                }
             }
         }
         res = self.test_client.put('/api/v1/invoice_payments/' + str(self.invoice_payment.id),
