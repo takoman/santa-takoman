@@ -19,6 +19,10 @@ def get_invoice_payments():
     if invoice_id:
         invoice_payments = invoice_payments(invoice=invoice_id)
 
+    external_id = request.args.get('external_id', None)
+    if external_id:
+        invoice_payments = invoice_payments(external_id=external_id)
+
     paginated_and_sorted = paginate(sort(
         invoice_payments, request.args), request.args)
 

@@ -46,6 +46,22 @@ class InvoicePaymentsEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(InvoicePayment.objects(invoice=str(self.invoice_payment.invoice.id))))
         self.assertListEqual(invoice_payments, expected)
 
+    def test_filter_invoice_payments_by_external_id(self):
+        InvoicePaymentFactory.create(external_id='123456')
+        InvoicePaymentFactory.create()
+        res = self.test_client.get(
+            '/api/v1/invoice_payments', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoice_payments = json.loads(res.get_data())
+        self.assertEqual(len(invoice_payments), 3)
+        res = self.test_client.get(
+            '/api/v1/invoice_payments?external_id=123456', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoice_payments = json.loads(res.get_data())
+        self.assertEqual(len(invoice_payments), 1)
+        expected = json.loads(me_to_json(InvoicePayment.objects(external_id='123456')))
+        self.assertListEqual(invoice_payments, expected)
+
     #
     # GET /invoice_payments/<invoice_payment_id>
     #
