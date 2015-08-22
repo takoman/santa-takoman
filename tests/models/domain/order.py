@@ -17,8 +17,8 @@ class OrderTests(AppTestCase):
 
     def test_defined_properties(self):
         for p in ['customer', 'merchant', 'status', 'shipping_address', 'order_line_items',
-                  'currency_source', 'currency_target', 'exchange_rate', 'notes', 'created_at',
-                  'updated_at']:
+                  'currency_source', 'currency_target', 'exchange_rate', 'notes', 'access_key',
+                  'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.order, p))
 
     def test_allowed_status(self):
@@ -78,6 +78,13 @@ class OrderTests(AppTestCase):
         self.order.order_line_items = order_line_items
         self.order.save()
         self.assertEqual(self.order.total, 299 * 3 + -100 * 2 + 250)
+
+    def test_set_access_key_signal(self):
+        order = OrderFactory.create()
+        self.assertEqual(len(order.access_key), 48)
+        access_key = order.access_key
+        order.save()
+        self.assertEqual(order.access_key, access_key)
 
 if __name__ == '__main__':
     unittest.main()

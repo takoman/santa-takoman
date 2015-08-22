@@ -2,9 +2,9 @@
 
 from mongoengine import *
 from mongoengine import signals
-import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.domain import *
+import os, datetime, binascii
 
 __all__ = ('Invoice',)
 
@@ -21,12 +21,19 @@ class Invoice(UpdatedAtMixin, Document):
     notes               = StringField()
     # invoiced_at       = DateTimeField(default=datetime.datetime.utcnow)  # Should be the same as created_at now.
     due_at              = DateTimeField(default=datetime.datetime.utcnow)
+    access_key          = StringField()
     created_at          = DateTimeField(default=datetime.datetime.utcnow)
     updated_at          = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'invoices'
     }
+
+    @classmethod
+    def set_access_key(cls, sender, document, **kwargs):
+        invoice = document
+        if not invoice.access_key:
+            invoice.access_key = binascii.hexlify(os.urandom(24))
 
     @classmethod
     def update_total(cls, sender, document, **kwargs):
@@ -58,4 +65,5 @@ class Invoice(UpdatedAtMixin, Document):
             order_line_item.update(status='invoiced')
 
 signals.pre_save.connect(Invoice.update_total, sender=Invoice)
+signals.pre_save.connect(Invoice.set_access_key, sender=Invoice)
 signals.post_save.connect(Invoice.create_invoice_line_items_from_order, sender=Invoice)

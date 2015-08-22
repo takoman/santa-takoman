@@ -15,6 +15,7 @@ class User(UpdatedAtMixin, Document):
     name                  = StringField(max_length=200, required=True)
     email                 = EmailField(max_length=200, required=True, unique=True)
     password              = PasswordField(max_length=200)
+    phone                 = StringField(max_length=50)
     slug                  = StringField(max_length=200)
     role                  = ListField(StringField(choices=[u'user', u'takoman', u'admin']), default=[u'user'])
     # Anonymous session
