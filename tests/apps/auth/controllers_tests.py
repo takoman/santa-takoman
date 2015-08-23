@@ -10,9 +10,9 @@ class AuthControllersTests(AppTestCase):
 
     def setUp(self):
         super(AuthControllersTests, self).setUp()
-        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.user = User(name='Tako Woman',
                          email='takowoman@takoman.co').save()
+        self.user2 = User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.social_auth = SocialAuth(uid="10152476049619728",
                                       first_name="Woman",
                                       last_name="Tako",
@@ -39,7 +39,7 @@ class AuthControllersTests(AppTestCase):
                 'access_token': access_token
             })
             self.assertIsNotNone(user)
-            self.assertEqual(user.get('email'), 'takoman@takoman.co')
+            self.assertEqual(user, self.user2)
 
     def test_get_expires_in_by_credentials(self):
         rv = self.test_client.post('/oauth2/access_token', data=dict(
@@ -184,7 +184,7 @@ class AuthControllersTests(AppTestCase):
                 'access_token': access_token
             })
             self.assertIsNotNone(user)
-            self.assertEqual(user.get('email'), 'takowoman@takoman.co')
+            self.assertEqual(user, self.user)
 
     @mock.patch('santa.apps.auth.controllers.SocialFacebook')
     def test_get_access_token_missing_oauth_provider(self, fb_mock):

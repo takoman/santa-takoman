@@ -18,6 +18,6 @@ def get_me():
     if not user:
         raise ApiException("access token is invalid or has expired", 401)
 
-    filtered = {k: v for k, v in user.iteritems() if k is not 'password'}
+    filtered = {k: v for k, v in user.to_mongo().iteritems() if k is not 'password'}
 
     return render_json(json.dumps(filtered, cls=MongoJSONEncoder))
