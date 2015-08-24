@@ -78,6 +78,6 @@ def register_apps(app):
         app.register_blueprint(endpoint, url_prefix='/api/v1')
 
     # API v2 endpoints
-    #from apps.api.v2 import endpoints
-    #for endpoint in endpoints:
-    #    app.register_blueprint(endpoint, url_prefix='/api/v2')
+    from apps.api.v2 import endpoints
+    for endpoint in endpoints:
+        app.register_blueprint(endpoint, url_prefix='/api/v2')
