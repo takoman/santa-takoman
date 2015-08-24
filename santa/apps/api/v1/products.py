@@ -8,16 +8,16 @@ from santa.lib.auth import require_app_auth
 from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 
-products = Blueprint('products', __name__)
+app = Blueprint('v1.products', __name__)
 
-@products.route('/products', methods=['GET'])
+@app.route('/products', methods=['GET'])
 @require_app_auth
 def get_products():
     paginated_and_sorted = paginate(sort(Product.objects, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@products.route('/products/<product_id>', methods=['GET'])
+@app.route('/products/<product_id>', methods=['GET'])
 @require_app_auth
 def get_product(product_id):
     product = Product.objects(id=product_id).first()
@@ -27,7 +27,7 @@ def get_product(product_id):
 
     return render_json(me_to_json(product))
 
-@products.route('/products', methods=['POST'])
+@app.route('/products', methods=['POST'])
 @require_app_auth
 def create_product():
     data = parse_request(request)
@@ -37,7 +37,7 @@ def create_product():
 
     return render_json(me_to_json(new_product), status=201)
 
-@products.route('/products/<product_id>', methods=['PUT'])
+@app.route('/products/<product_id>', methods=['PUT'])
 @require_app_auth
 def update_product(product_id):
     data = parse_request(request)
@@ -51,7 +51,7 @@ def update_product(product_id):
 
     return render_json(me_to_json(product))
 
-@products.route('/products/<product_id>', methods=['DELETE'])
+@app.route('/products/<product_id>', methods=['DELETE'])
 @require_app_auth
 def delete_product(product_id):
     product = Product.objects(id=product_id).first()

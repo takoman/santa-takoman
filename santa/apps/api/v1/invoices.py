@@ -9,16 +9,16 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-invoices = Blueprint('invoices', __name__)
+app = Blueprint('v1.invoices', __name__)
 
-@invoices.route('/invoices', methods=['GET'])
+@app.route('/invoices', methods=['GET'])
 @require_app_auth
 def get_invoices():
     paginated_and_sorted = paginate(sort(Invoice.objects, request.args), request.args)
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@invoices.route('/invoices/<invoice_id>', methods=['GET'])
+@app.route('/invoices/<invoice_id>', methods=['GET'])
 @require_app_auth
 def get_invoice(invoice_id):
     access_key = request.args.get('access_key', None)
@@ -32,7 +32,7 @@ def get_invoice(invoice_id):
 
     return render_json(me_to_json(invoice))
 
-@invoices.route('/invoices', methods=['POST'])
+@app.route('/invoices', methods=['POST'])
 @require_app_auth
 def create_invoice():
     data = parse_request(request)
@@ -43,7 +43,7 @@ def create_invoice():
 
     return render_json(me_to_json(new_invoice), status=201)
 
-@invoices.route('/invoices/<invoice_id>', methods=['PUT'])
+@app.route('/invoices/<invoice_id>', methods=['PUT'])
 @require_app_auth
 def update_invoice(invoice_id):
     data = parse_request(request)
@@ -70,7 +70,7 @@ def update_invoice(invoice_id):
 
     return render_json(me_to_json(invoice))
 
-@invoices.route('/invoices/<invoice_id>', methods=['DELETE'])
+@app.route('/invoices/<invoice_id>', methods=['DELETE'])
 @require_app_auth
 def delete_invoice(invoice_id):
     invoice = Invoice.objects(id=invoice_id).first()

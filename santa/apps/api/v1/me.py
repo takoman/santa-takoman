@@ -5,9 +5,9 @@ from santa.lib.api_errors import ApiException
 from santa.lib.common import render_json, MongoJSONEncoder
 import json
 
-me = Blueprint('me', __name__)
+app = Blueprint('v1.me', __name__)
 
-@me.route('/me', methods=['GET'])
+@app.route('/me', methods=['GET'])
 def get_me():
     auth = AccessTokenAuth()
     access_token = auth.get_access_token(request)

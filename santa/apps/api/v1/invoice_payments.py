@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-invoice_payments = Blueprint('invoice_payments', __name__)
+app = Blueprint('v1.invoice_payments', __name__)
 
-@invoice_payments.route('/invoice_payments', methods=['GET'])
+@app.route('/invoice_payments', methods=['GET'])
 @require_app_auth
 def get_invoice_payments():
     invoice_payments = InvoicePayment.objects
@@ -28,7 +28,7 @@ def get_invoice_payments():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@invoice_payments.route('/invoice_payments/<invoice_payment_id>', methods=['GET'])
+@app.route('/invoice_payments/<invoice_payment_id>', methods=['GET'])
 @require_app_auth
 def get_invoice_payment(invoice_payment_id):
     invoice_payment = InvoicePayment.objects(id=invoice_payment_id).first()
@@ -38,7 +38,7 @@ def get_invoice_payment(invoice_payment_id):
 
     return render_json(me_to_json(invoice_payment))
 
-@invoice_payments.route('/invoice_payments', methods=['POST'])
+@app.route('/invoice_payments', methods=['POST'])
 @require_app_auth
 def create_invoice_payment():
     data = parse_request(request)
@@ -49,7 +49,7 @@ def create_invoice_payment():
 
     return render_json(me_to_json(new_invoice_payment), status=201)
 
-@invoice_payments.route('/invoice_payments/<invoice_payment_id>', methods=['PUT'])
+@app.route('/invoice_payments/<invoice_payment_id>', methods=['PUT'])
 @require_app_auth
 def update_invoice_payment(invoice_payment_id):
     data = parse_request(request)
@@ -76,7 +76,7 @@ def update_invoice_payment(invoice_payment_id):
 
     return render_json(me_to_json(invoice_payment))
 
-@invoice_payments.route('/invoice_payments/<invoice_payment_id>', methods=['DELETE'])
+@app.route('/invoice_payments/<invoice_payment_id>', methods=['DELETE'])
 @require_app_auth
 def delete_invoice_payment(invoice_payment_id):
     invoice_payment = InvoicePayment.objects(id=invoice_payment_id).first()

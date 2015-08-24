@@ -10,9 +10,9 @@ from santa.lib.social_auth import SocialFacebook
 from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 
-users = Blueprint('users', __name__)
+app = Blueprint('v1.users', __name__)
 
-@users.route('/users', methods=['GET'])
+@app.route('/users', methods=['GET'])
 @require_app_auth
 def get_users():
     paginated_and_sorted = paginate(sort(
@@ -22,7 +22,7 @@ def get_users():
     # https://github.com/mitsuhiko/flask/issues/170
     return render_json(me_to_json(paginated_and_sorted))
 
-@users.route('/users/<user_id>', methods=['GET'])
+@app.route('/users/<user_id>', methods=['GET'])
 @require_app_auth
 def get_user(user_id):
     user = User.objects(id=user_id).first()
@@ -32,7 +32,7 @@ def get_user(user_id):
 #
 # We use the /users endpoints for both credentials and oauth token signups.
 #
-@users.route('/users', methods=['POST'])
+@app.route('/users', methods=['POST'])
 @require_app_auth
 def create_user():
     data = parse_request(request)
@@ -81,7 +81,7 @@ def create_user():
 
     return render_json(me_to_json(new_user), status=201)
 
-@users.route('/users/<user_id>', methods=['PUT'])
+@app.route('/users/<user_id>', methods=['PUT'])
 @require_app_auth
 def put_user(user_id):
     data = parse_request(request)
@@ -106,7 +106,7 @@ def put_user(user_id):
 
     return render_json(me_to_json(user))
 
-@users.route('/users/<user_id>', methods=['DELETE'])
+@app.route('/users/<user_id>', methods=['DELETE'])
 @require_app_auth
 def delete_user(user_id):
     user = User.objects(id=user_id).first()

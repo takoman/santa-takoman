@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-order_line_items = Blueprint('order_line_items', __name__)
+app = Blueprint('v1.order_line_items', __name__)
 
-@order_line_items.route('/order_line_items', methods=['GET'])
+@app.route('/order_line_items', methods=['GET'])
 @require_app_auth
 def get_order_line_items():
     order_id = request.args.get('order_id', None)
@@ -27,7 +27,7 @@ def get_order_line_items():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@order_line_items.route('/order_line_items/<order_line_item_id>', methods=['GET'])
+@app.route('/order_line_items/<order_line_item_id>', methods=['GET'])
 @require_app_auth
 def get_order_line_item(order_line_item_id):
     item = OrderLineItem.objects(id=order_line_item_id).first()
@@ -37,7 +37,7 @@ def get_order_line_item(order_line_item_id):
 
     return render_json(me_to_json(item))
 
-@order_line_items.route('/order_line_items', methods=['POST'])
+@app.route('/order_line_items', methods=['POST'])
 @require_app_auth
 def create_order_line_item():
     data = parse_request(request)
@@ -60,7 +60,7 @@ def create_order_line_item():
 
     return render_json(me_to_json(new_item), status=201)
 
-@order_line_items.route('/order_line_items/<order_line_item_id>', methods=['PUT'])
+@app.route('/order_line_items/<order_line_item_id>', methods=['PUT'])
 @require_app_auth
 def update_order_line_item(order_line_item_id):
     data = parse_request(request)
@@ -81,7 +81,7 @@ def update_order_line_item(order_line_item_id):
 
     return render_json(me_to_json(order_line_item))
 
-@order_line_items.route('/order_line_items/<order_line_item_id>', methods=['DELETE'])
+@app.route('/order_line_items/<order_line_item_id>', methods=['DELETE'])
 @require_app_auth
 def delete_order_line_item(order_line_item_id):
     order_line_item = OrderLineItem.objects(id=order_line_item_id).first()
