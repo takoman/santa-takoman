@@ -64,33 +64,20 @@ def hook_up_error_handlers(app):
         response.status_code = error.status_code
         return response
 
-# Hook up Flask blueprints
+# Register Flask blueprints
 def register_apps(app):
+    # System wide apps
     from apps.site.controllers import site
-    from apps.api.v1.users import users
-    from apps.api.v1.merchants import merchants
-    from apps.api.v1.products import products
-    from apps.api.v1.orders import orders
-    from apps.api.v1.order_line_items import order_line_items
-    from apps.api.v1.invoices import invoices
-    from apps.api.v1.invoice_line_items import invoice_line_items
-    from apps.api.v1.invoice_payments import invoice_payments
-    from apps.api.v1.payment_accounts import payment_accounts
-    from apps.api.v1.client_apps import client_apps
-    from apps.api.v1.me import me
-    from apps.api.v1.system import system
     from apps.auth.controllers import auth
     app.register_blueprint(site)
     app.register_blueprint(auth)
-    app.register_blueprint(me, url_prefix='/api/v1')
-    app.register_blueprint(users, url_prefix='/api/v1')
-    app.register_blueprint(merchants, url_prefix='/api/v1')
-    app.register_blueprint(products, url_prefix='/api/v1')
-    app.register_blueprint(orders, url_prefix='/api/v1')
-    app.register_blueprint(order_line_items, url_prefix='/api/v1')
-    app.register_blueprint(invoices, url_prefix='/api/v1')
-    app.register_blueprint(invoice_line_items, url_prefix='/api/v1')
-    app.register_blueprint(invoice_payments, url_prefix='/api/v1')
-    app.register_blueprint(payment_accounts, url_prefix='/api/v1')
-    app.register_blueprint(client_apps, url_prefix='/api/v1')
-    app.register_blueprint(system, url_prefix='/api/v1')
+
+    # API v1 endpoints
+    from apps.api.v1 import endpoints
+    for endpoint in endpoints:
+        app.register_blueprint(endpoint, url_prefix='/api/v1')
+
+    # API v2 endpoints
+    #from apps.api.v2 import endpoints
+    #for endpoint in endpoints:
+    #    app.register_blueprint(endpoint, url_prefix='/api/v2')

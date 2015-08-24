@@ -26,7 +26,11 @@ def get_orders():
 @orders.route('/orders/<order_id>', methods=['GET'])
 @require_app_auth
 def get_order(order_id):
-    order = Order.objects(id=order_id).first()
+    access_key = request.args.get('access_key', None)
+    if not access_key:
+        raise ApiException('missing access key', 400)
+
+    order = Order.objects(id=order_id, access_key=access_key).first()
 
     if not order:
         raise ApiException('order not found', 404)

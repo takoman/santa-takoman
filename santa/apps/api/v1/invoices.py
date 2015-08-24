@@ -21,7 +21,11 @@ def get_invoices():
 @invoices.route('/invoices/<invoice_id>', methods=['GET'])
 @require_app_auth
 def get_invoice(invoice_id):
-    invoice = Invoice.objects(id=invoice_id).first()
+    access_key = request.args.get('access_key', None)
+    if not access_key:
+        raise ApiException('missing access key', 400)
+
+    invoice = Invoice.objects(id=invoice_id, access_key=access_key).first()
 
     if not invoice:
         raise ApiException('invoice not found', 404)
