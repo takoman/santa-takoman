@@ -1,5 +1,5 @@
 import bcrypt
-from flask import request, Response, abort, current_app as app
+from flask import g, request, Response, abort, current_app as app
 from santa.lib.user_trust import UserTrust
 from santa.lib.api_errors import ApiException
 from santa.models.domain.client_app import ClientApp
@@ -18,6 +18,9 @@ def require_auth(f, auth_class):
 
 def require_app_auth(f):
     return require_auth(f, XAppTokenAuth)
+
+def require_user_auth(f):
+    return require_auth(f, AccessTokenAuth)
 
 class BasicAuth(object):
     """ Implements Basic AUTH logic. Should be subclassed to implement custom
@@ -148,7 +151,7 @@ class AccessTokenAuth(TokenAuth):
     def get_user_from_access_token(self, access_token):
         user = None
         try:
-            user = UserTrust().get_user_from_access_token({
+            g.user = user = UserTrust().get_user_from_access_token({
                 'access_token': access_token
             })
         except StandardError:

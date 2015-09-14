@@ -134,10 +134,10 @@ class UsersEndpointsTests(AppTestCase):
     def test_create_user_by_oauth_tokens(self, fb_mock, emailer_mock, composer_mock, mandrill_mock):
         fb_instance = fb_mock.return_value
         fb_instance.get_auth_data.return_value = {
-            'email'   : 'kid@takoman.co',
-            'uid'     : '10152476049619728',
-            'name'    : 'Tako-Kid',
-            'info'    : {
+            'email': 'kid@takoman.co',
+            'uid': '10152476049619728',
+            'name': 'Tako-Kid',
+            'info': {
                 'email': 'kid@takoman.co',
                 'name': 'Tako-Kid'
             }

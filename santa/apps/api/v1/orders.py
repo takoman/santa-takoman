@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-orders = Blueprint('orders', __name__)
+app = Blueprint('v1.orders', __name__)
 
-@orders.route('/orders', methods=['GET'])
+@app.route('/orders', methods=['GET'])
 @require_app_auth
 def get_orders():
     orders = Order.objects
@@ -23,17 +23,21 @@ def get_orders():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@orders.route('/orders/<order_id>', methods=['GET'])
+@app.route('/orders/<order_id>', methods=['GET'])
 @require_app_auth
 def get_order(order_id):
-    order = Order.objects(id=order_id).first()
+    access_key = request.args.get('access_key', None)
+    if not access_key:
+        raise ApiException('missing access key', 400)
+
+    order = Order.objects(id=order_id, access_key=access_key).first()
 
     if not order:
         raise ApiException('order not found', 404)
 
     return render_json(me_to_json(order))
 
-@orders.route('/orders', methods=['POST'])
+@app.route('/orders', methods=['POST'])
 @require_app_auth
 def create_order():
     data = parse_request(request)
@@ -44,7 +48,7 @@ def create_order():
 
     return render_json(me_to_json(new_order), status=201)
 
-@orders.route('/orders/<order_id>', methods=['PUT'])
+@app.route('/orders/<order_id>', methods=['PUT'])
 @require_app_auth
 def update_order(order_id):
     data = parse_request(request)
@@ -58,7 +62,7 @@ def update_order(order_id):
 
     return render_json(me_to_json(order))
 
-@orders.route('/orders/<order_id>', methods=['DELETE'])
+@app.route('/orders/<order_id>', methods=['DELETE'])
 @require_app_auth
 def delete_order(order_id):
     order = Order.objects(id=order_id).first()

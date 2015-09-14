@@ -34,23 +34,35 @@ class InvoicesEndpointsTests(AppTestCase):
     #
     # GET /invoices/<invoice_id>
     #
-    def test_get_certain_invoice(self):
+    def test_get_certain_invoice_without_access_key(self):
         res = self.test_client.get(
             '/api/v1/invoices/' + str(self.invoice.id), headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("missing access key", res.data)
+
+    def test_get_certain_invoice_with_wrong_access_key(self):
+        url = '/api/v1/invoices/' + str(self.invoice.id) + '?access_key=wrong_access_key'
+        res = self.test_client.get(url, headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 404)
+        self.assertIn("invoice not found", res.data)
+
+    def test_get_certain_invoice(self):
+        url = '/api/v1/invoices/' + str(self.invoice.id) + '?access_key=' + self.invoice.access_key
+        res = self.test_client.get(url, headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         invoice = json.loads(res.get_data())
         expected = json.loads(me_to_json(Invoice.objects(id=invoice['_id']).first()))
         self.assertDictEqual(invoice, expected)
 
     def test_get_invoice_by_invalid_object_id(self):
-        res = self.test_client.get(
-            '/api/v1/invoices/no-this-invoice', headers={'X-XAPP-TOKEN': self.client_app_token})
+        url = '/api/v1/invoices/no-this-invoice?access_key=' + self.invoice.access_key
+        res = self.test_client.get(url, headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 400)
         self.assertIn("not a valid ObjectId", res.data)
 
     def test_get_non_existing_invoice(self):
-        res = self.test_client.get(
-            '/api/v1/invoices/' + str(ObjectId()), headers={'X-XAPP-TOKEN': self.client_app_token})
+        url = '/api/v1/invoices/' + str(ObjectId()) + '?access_key=' + self.invoice.access_key
+        res = self.test_client.get(url, headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 404)
         self.assertIn("invoice not found", res.data)
 
@@ -133,8 +145,8 @@ class InvoicesEndpointsTests(AppTestCase):
     # DELETE /invoices/<invoice_id>
     #
     def test_delete_an_invoice(self):
-        res = self.test_client.get('/api/v1/invoices/' + str(self.invoice.id),
-                                   headers={'X-XAPP-TOKEN': self.client_app_token})
+        url = '/api/v1/invoices/' + str(self.invoice.id) + '?access_key=' + self.invoice.access_key
+        res = self.test_client.get(url, headers={'X-XAPP-TOKEN': self.client_app_token})
         invoice = json.loads(res.get_data())
         res = self.test_client.delete('api/v1/invoices/' + str(self.invoice.id),
                                       headers={'X-XAPP-TOKEN': self.client_app_token})

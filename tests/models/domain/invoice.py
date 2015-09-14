@@ -17,7 +17,7 @@ class InvoiceTests(AppTestCase):
 
     def test_defined_properties(self):
         for p in ['invoice_no', 'order', 'invoice_line_items', 'total', 'status',
-                  'notes', 'due_at', 'created_at', 'updated_at']:
+                  'notes', 'due_at', 'access_key', 'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.invoice, p))
 
     def test_allowed_status(self):
@@ -93,6 +93,13 @@ class InvoiceTests(AppTestCase):
         for oli in new_olis:
             oli.reload()
             self.assertEqual(oli.status, 'invoiced')
+
+    def test_set_access_key_signal(self):
+        invoice = InvoiceFactory.create()
+        self.assertEqual(len(invoice.access_key), 48)
+        access_key = invoice.access_key
+        invoice.save()
+        self.assertEqual(invoice.access_key, access_key)
 
 if __name__ == '__main__':
     unittest.main()

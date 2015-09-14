@@ -15,7 +15,7 @@ class UserTrustTests(AppTestCase):
 
     def setUp(self):
         super(UserTrustTests, self).setUp()
-        User(name='Tako Man', email='takoman@takoman.co', password='password').save()
+        self.user = User(name='Tako Man', email='takoman@takoman.co', password='password').save()
         self.options = {
             'user': {'email': 'takoman@takoman.co'},
             'client_app': {'client_id': self.client_app.client_id},
@@ -81,7 +81,7 @@ class UserTrustTests(AppTestCase):
             user_trust = UserTrust()
             access_token = user_trust.create_access_token(self.options)
             user = user_trust.get_user_from_access_token({'access_token': access_token})
-            self.assertEqual(user.get('email'), 'takoman@takoman.co')
+            self.assertEqual(user, self.user)
 
     def test_create_utf8_access_token_and_extract_user_from_it(self):
         self.options = {
@@ -95,7 +95,7 @@ class UserTrustTests(AppTestCase):
             u_access_token = unicode(access_token, 'utf-8')
             user = user_trust.get_user_from_access_token({'access_token': u_access_token})
             self.assertIsNotNone(user)
-            self.assertEqual(user.get('email'), 'takoman@takoman.co')
+            self.assertEqual(user, self.user)
 
 if __name__ == '__main__':
     unittest.main()

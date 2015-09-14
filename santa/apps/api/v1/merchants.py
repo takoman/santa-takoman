@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-merchants = Blueprint('merchants', __name__)
+app = Blueprint('v1.merchants', __name__)
 
-@merchants.route('/merchants', methods=['GET'])
+@app.route('/merchants', methods=['GET'])
 @require_app_auth
 def get_merchants():
     merchants = Merchant.objects
@@ -24,7 +24,7 @@ def get_merchants():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@merchants.route('/merchants/<merchant_id>', methods=['GET'])
+@app.route('/merchants/<merchant_id>', methods=['GET'])
 @require_app_auth
 def get_merchant(merchant_id):
     merchant = Merchant.objects(id=merchant_id).first()
@@ -34,7 +34,7 @@ def get_merchant(merchant_id):
 
     return render_json(me_to_json(merchant))
 
-@merchants.route('/merchants', methods=['POST'])
+@app.route('/merchants', methods=['POST'])
 @require_app_auth
 def create_merchant():
     data = parse_request(request)
@@ -44,7 +44,7 @@ def create_merchant():
 
     return render_json(me_to_json(new_merchant), status=201)
 
-@merchants.route('/merchants/<merchant_id>', methods=['PUT'])
+@app.route('/merchants/<merchant_id>', methods=['PUT'])
 @require_app_auth
 def update_merchant(merchant_id):
     data = parse_request(request)
@@ -69,7 +69,7 @@ def update_merchant(merchant_id):
 
     return render_json(me_to_json(merchant))
 
-@merchants.route('/merchants/<merchant_id>', methods=['DELETE'])
+@app.route('/merchants/<merchant_id>', methods=['DELETE'])
 @require_app_auth
 def delete_merchant(merchant_id):
     merchant = Merchant.objects(id=merchant_id).first()

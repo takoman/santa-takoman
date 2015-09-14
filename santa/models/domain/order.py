@@ -2,10 +2,10 @@
 
 from mongoengine import *
 from mongoengine import signals
-import datetime
 from santa.models.mixins.updated_at_mixin import UpdatedAtMixin
 from santa.models.mixins.updatable_mixin import UpdatableMixin
 from santa.models.domain import *
+import os, datetime, binascii
 
 __all__ = ('Order',)
 
@@ -199,12 +199,19 @@ class Order(UpdatableMixin, UpdatedAtMixin, Document):
     # in normalized currency.
     exchange_rate     = FloatField()  # source/target, e.g. USD/TWD = 30.00
     notes             = StringField()
+    access_key        = StringField()
     updated_at        = DateTimeField(default=datetime.datetime.utcnow)
     created_at        = DateTimeField(default=datetime.datetime.utcnow)
 
     meta = {
         'collection': 'orders'
     }
+
+    @classmethod
+    def set_access_key(cls, sender, document, **kwargs):
+        order = document
+        if not order.access_key:
+            order.access_key = binascii.hexlify(os.urandom(24))
 
     @classmethod
     def update_total(cls, sender, document, **kwargs):
@@ -216,3 +223,4 @@ class Order(UpdatableMixin, UpdatedAtMixin, Document):
         return sum([item.price * item.quantity for item in self.order_line_items])
 
 signals.pre_save.connect(Order.update_total, sender=Order)
+signals.pre_save.connect(Order.set_access_key, sender=Order)

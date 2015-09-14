@@ -3,9 +3,9 @@
 from flask import Blueprint, jsonify
 from mongoengine.connection import get_connection
 
-system = Blueprint('system', __name__)
+app = Blueprint('v1.system', __name__)
 
-@system.route('/system/up', methods=['GET'])
+@app.route('/system/up', methods=['GET'])
 def get_system_status():
     status = {
         'flask': True,

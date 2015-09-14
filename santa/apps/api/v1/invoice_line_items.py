@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-invoice_line_items = Blueprint('invoice_line_items', __name__)
+app = Blueprint('v1.invoice_line_items', __name__)
 
-@invoice_line_items.route('/invoice_line_items', methods=['GET'])
+@app.route('/invoice_line_items', methods=['GET'])
 @require_app_auth
 def get_invoice_line_items():
     invoice_id = request.args.get('invoice_id', None)
@@ -27,7 +27,7 @@ def get_invoice_line_items():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@invoice_line_items.route('/invoice_line_items/<invoice_line_item_id>', methods=['GET'])
+@app.route('/invoice_line_items/<invoice_line_item_id>', methods=['GET'])
 @require_app_auth
 def get_invoice_line_item(invoice_line_item_id):
     item = InvoiceLineItem.objects(id=invoice_line_item_id).first()
@@ -37,7 +37,7 @@ def get_invoice_line_item(invoice_line_item_id):
 
     return render_json(me_to_json(item))
 
-@invoice_line_items.route('/invoice_line_items', methods=['POST'])
+@app.route('/invoice_line_items', methods=['POST'])
 @require_app_auth
 def create_invoice_line_item():
     data = parse_request(request)
@@ -71,7 +71,7 @@ def create_invoice_line_item():
 
     return render_json(me_to_json(new_item), status=201)
 
-@invoice_line_items.route('/invoice_line_items/<invoice_line_item_id>', methods=['PUT'])
+@app.route('/invoice_line_items/<invoice_line_item_id>', methods=['PUT'])
 @require_app_auth
 def update_invoice_line_item(invoice_line_item_id):
     data = parse_request(request)
@@ -98,7 +98,7 @@ def update_invoice_line_item(invoice_line_item_id):
 
     return render_json(me_to_json(invoice_line_item))
 
-@invoice_line_items.route('/invoice_line_items/<invoice_line_item_id>', methods=['DELETE'])
+@app.route('/invoice_line_items/<invoice_line_item_id>', methods=['DELETE'])
 @require_app_auth
 def delete_invoice_line_item(invoice_line_item_id):
     invoice_line_item = InvoiceLineItem.objects(id=invoice_line_item_id).first()

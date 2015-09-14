@@ -74,7 +74,7 @@ class UserTrust:
         if not user:
             return None
 
-        return user.to_mongo()
+        return user
 
     def secret_key(self):
         trust_key_value = os.environ.get('TOKEN_TRUST_KEY') or app.config.get('TOKEN_TRUST_KEY')

@@ -9,9 +9,9 @@ from santa.apps.api.util.paginate import paginate
 from santa.apps.api.util.sort import sort
 from mongoengine import *
 
-payment_accounts = Blueprint('payment_accounts', __name__)
+app = Blueprint('v1.payment_accounts', __name__)
 
-@payment_accounts.route('/payment_accounts', methods=['GET'])
+@app.route('/payment_accounts', methods=['GET'])
 @require_app_auth
 def get_payment_accounts():
     payment_accounts = PaymentAccount.objects
@@ -28,7 +28,7 @@ def get_payment_accounts():
 
     return render_json(me_to_json(paginated_and_sorted))
 
-@payment_accounts.route('/payment_accounts/<payment_account_id>', methods=['GET'])
+@app.route('/payment_accounts/<payment_account_id>', methods=['GET'])
 @require_app_auth
 def get_payment_account(payment_account_id):
     payment_account = PaymentAccount.objects(id=payment_account_id).first()
@@ -38,7 +38,7 @@ def get_payment_account(payment_account_id):
 
     return render_json(me_to_json(payment_account))
 
-@payment_accounts.route('/payment_accounts', methods=['POST'])
+@app.route('/payment_accounts', methods=['POST'])
 @require_app_auth
 def create_payment_account():
     data = parse_request(request)
@@ -49,7 +49,7 @@ def create_payment_account():
 
     return render_json(me_to_json(new_payment_account), status=201)
 
-@payment_accounts.route('/payment_accounts/<payment_account_id>', methods=['PUT'])
+@app.route('/payment_accounts/<payment_account_id>', methods=['PUT'])
 @require_app_auth
 def update_payment_account(payment_account_id):
     data = parse_request(request)
@@ -70,7 +70,7 @@ def update_payment_account(payment_account_id):
 
     return render_json(me_to_json(payment_account))
 
-@payment_accounts.route('/payment_accounts/<payment_account_id>', methods=['DELETE'])
+@app.route('/payment_accounts/<payment_account_id>', methods=['DELETE'])
 @require_app_auth
 def delete_payment_account(payment_account_id):
     payment_account = PaymentAccount.objects(id=payment_account_id).first()
