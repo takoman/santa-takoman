@@ -36,10 +36,12 @@ def get_invoice(invoice_id):
 @require_app_auth
 def create_invoice():
     data = parse_request(request)
+    order_id = data.get('order')
+    order = Order.objects(id=order_id).first()
+    if not order:
+        raise ApiException('order not exist', 400)
 
-    new_invoice = Invoice(**{ k: v for (k, v) in data.iteritems() if k in Invoice._fields.keys() })
-
-    new_invoice.save()
+    new_invoice = Invoice.create_invoice_and_line_items_from_order(order, data)
 
     return render_json(me_to_json(new_invoice), status=201)
 

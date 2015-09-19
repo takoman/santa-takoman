@@ -44,19 +44,14 @@ class Invoice(UpdatedAtMixin, Document):
     def calculate_total(self):
         return sum([item.price * item.quantity for item in self.invoice_line_items])
 
-    @classmethod
-    def create_invoice_line_items_from_order(cls, sender, document, created, **kwargs):
-        """Automatically create invoice line items from the order line items
-        of the order when the invoice was created (not update). It only copies
-        over order line items with status "new", and will change their
-        statuses to "invoiced" afterwards.
+    def create_invoice_line_items(self):
+        """Create invoice line items from the order line items of the order.
+        It only copies over order line items with status "new", and will
+        change their statuses to "invoiced".
         """
-        if not created:
-            return
-        invoice = document
-        order_line_items = OrderLineItem.objects(order=invoice.order, status='new')
+        order_line_items = OrderLineItem.objects(order=self.order, status='new')
         for order_line_item in order_line_items:
-            InvoiceLineItem(invoice=invoice,
+            InvoiceLineItem(invoice=self,
                             order_line_item=order_line_item,
                             price=order_line_item.price,
                             quantity=order_line_item.quantity,
@@ -64,6 +59,15 @@ class Invoice(UpdatedAtMixin, Document):
                             ).save()
             order_line_item.update(status='invoiced')
 
+    @classmethod
+    def create_invoice_and_line_items_from_order(cls, order, other_attrs):
+        attrs = { k: v for (k, v) in other_attrs.iteritems() if k in cls._fields.keys() }
+        attrs.update({'order': order, 'status': 'unpaid'})
+        new_invoice = cls(**attrs).save()
+        new_invoice.create_invoice_line_items()
+        new_invoice.order.update(status='invoiced')
+        new_invoice.reload()
+        return new_invoice
+
 signals.pre_save.connect(Invoice.update_total, sender=Invoice)
 signals.pre_save.connect(Invoice.set_access_key, sender=Invoice)
-signals.post_save.connect(Invoice.create_invoice_line_items_from_order, sender=Invoice)

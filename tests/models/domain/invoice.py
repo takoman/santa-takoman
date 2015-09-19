@@ -57,12 +57,13 @@ class InvoiceTests(AppTestCase):
         self.invoice.save()
         self.assertEqual(self.invoice.total, 299 * 3 + -100 * 2 + 250)
 
-    def test_create_associated_invoice_line_items_after_create(self):
+    def test_create_invoice_line_items(self):
         order = OrderFactory.create()
         new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
         [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
         self.assertEqual(len(InvoiceLineItem.objects), 0)
         invoice = Invoice(order=order).save()
+        invoice.create_invoice_line_items()
 
         self.assertEqual(len(InvoiceLineItem.objects), 3)
         for index, ili in enumerate(InvoiceLineItem.objects):
@@ -72,20 +73,29 @@ class InvoiceTests(AppTestCase):
             oli.reload()
             self.assertEqual(oli.status, 'invoiced')
 
-    def test_not_create_invoice_line_items_after_update(self):
+    def test_create_invoice_and_line_items_from_order(self):
         order = OrderFactory.create()
         new_olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
         [OrderLineItemFactory.create(order=order, status='invoiced') for i in [1, 2]]
-        self.assertEqual(len(InvoiceLineItem.objects), 0)
 
-        invoice = Invoice(order=order).save()
-        # then update multiple times
-        invoice.notes = 'notes'
-        invoice.save()
-        invoice.update(notes='new notes')
-        invoice.save()
-        invoice.save()
+        attrs = {
+            'order': OrderFactory.create(),   # will be overwritten
+            'status': 'void',                 # will be overwritten
+            'notes': u'請在三天內付款',       # will be preserved
+            'invalid_key': 'random'           # will not error
+        }
+        invoice = Invoice.create_invoice_and_line_items_from_order(order, attrs)
 
+        # test invoice
+        self.assertEqual(Invoice.objects.order_by('-created_at')[0], invoice)
+        self.assertEqual(invoice.status, 'unpaid')
+        self.assertEqual(invoice.notes, attrs['notes'])
+        self.assertEqual(len(invoice.access_key), 48)
+
+        # test order
+        self.assertEqual(invoice.order.status, 'invoiced')
+
+        # test invoice line items and order line items
         self.assertEqual(len(InvoiceLineItem.objects), 3)
         for index, ili in enumerate(InvoiceLineItem.objects):
             self.assertEqual(ili.order_line_item.id, new_olis[index].id)

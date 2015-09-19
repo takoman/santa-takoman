@@ -69,6 +69,20 @@ class InvoicesEndpointsTests(AppTestCase):
     #
     # POST /invoices
     #
+    def test_create_an_invoice_with_non_existing_order(self):
+        due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
+        new_invoice_dict = {
+            'order': str(ObjectId()),
+            'notes': u'附上簽名照乙張',
+            'due_at': due_at
+        }
+        res = self.test_client.post('/api/v1/invoices',
+                                    data=json.dumps(new_invoice_dict),
+                                    content_type='application/json',
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 400)
+        self.assertIn("order not exist", res.data)
+
     def test_create_an_invoice(self):
         order = OrderFactory.create()
         due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
