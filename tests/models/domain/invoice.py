@@ -82,6 +82,7 @@ class InvoiceTests(AppTestCase):
             'order': OrderFactory.create(),   # will be overwritten
             'status': 'void',                 # will be overwritten
             'notes': u'請在三天內付款',       # will be preserved
+            # 'access_key': '1 2 3 5',          # will be overwritten
             'invalid_key': 'random'           # will not error
         }
         invoice = Invoice.create_invoice_and_line_items_from_order(order, attrs)
@@ -106,6 +107,14 @@ class InvoiceTests(AppTestCase):
 
     def test_set_access_key_signal(self):
         invoice = InvoiceFactory.create()
+        self.assertEqual(len(invoice.access_key), 48)
+        access_key = invoice.access_key
+        invoice.save()
+        self.assertEqual(invoice.access_key, access_key)
+
+    @unittest.skip("Need a way to overwrite the access_key")
+    def test_overwrite_access_key_signal(self):
+        invoice = InvoiceFactory.create(access_key='1 2 3 5')
         self.assertEqual(len(invoice.access_key), 48)
         access_key = invoice.access_key
         invoice.save()

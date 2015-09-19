@@ -36,6 +36,12 @@ def get_invoice(invoice_id):
 @require_app_auth
 def create_invoice():
     data = parse_request(request)
+
+    # Prevent overwriting access_key via APIs.
+    # TODO: We should move this to the model level.
+    if 'access_key' in data:
+        del data['access_key']
+
     order_id = data.get('order')
     order = Order.objects(id=order_id).first()
     if not order:
@@ -49,6 +55,11 @@ def create_invoice():
 @require_app_auth
 def update_invoice(invoice_id):
     data = parse_request(request)
+
+    # Prevent overwriting access_key via APIs.
+    # TODO: We should move this to the model level.
+    if 'access_key' in data:
+        del data['access_key']
 
     invoice = Invoice.objects(id=invoice_id).first()
     if not invoice:

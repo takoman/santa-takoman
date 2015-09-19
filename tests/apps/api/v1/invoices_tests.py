@@ -100,6 +100,24 @@ class InvoicesEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(Invoice.objects(id=created_invoice['_id']).first()))
         self.assertDictEqual(created_invoice, expected)
 
+    def test_create_an_invoice_with_access_key(self):
+        order = OrderFactory.create()
+        due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
+        new_invoice_dict = {
+            'order': str(order.id),
+            'access_key': '1 2 3 5'
+        }
+        res = self.test_client.post('/api/v1/invoices',
+                                    data=json.dumps(new_invoice_dict),
+                                    content_type='application/json',
+                                    headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 201)
+        created_invoice = json.loads(res.get_data())
+        expected = json.loads(me_to_json(Invoice.objects(id=created_invoice['_id']).first()))
+        self.assertDictEqual(created_invoice, expected)
+        self.assertNotEqual(expected['access_key'], new_invoice_dict['access_key'])
+        self.assertEqual(len(expected['access_key']), 48)
+
     def test_create_associated_invoice_line_items(self):
         order = OrderFactory.create()
         olis = [OrderLineItemFactory.create(order=order) for i in [1, 2, 3]]
