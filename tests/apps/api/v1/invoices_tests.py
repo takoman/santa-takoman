@@ -105,7 +105,8 @@ class InvoicesEndpointsTests(AppTestCase):
         due_at = date_to_str(datetime.datetime.utcnow() + datetime.timedelta(days=21))
         new_invoice_dict = {
             'order': str(order.id),
-            'access_key': '1 2 3 5'
+            'access_key': '1 2 3 5',
+            'due_at': due_at
         }
         res = self.test_client.post('/api/v1/invoices',
                                     data=json.dumps(new_invoice_dict),

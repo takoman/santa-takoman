@@ -43,7 +43,7 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
             },
         ]
         [OrderLineItemFactory.create(**i) for i in order_line_items_dict]
-        self.invoice = InvoiceFactory.create(order=order)
+        self.invoice = Invoice.create_invoice_and_line_items_from_order(order)
 
     #
     # GET /invoice_line_items

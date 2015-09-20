@@ -60,7 +60,7 @@ class Invoice(UpdatedAtMixin, Document):
             order_line_item.update(status='invoiced')
 
     @classmethod
-    def create_invoice_and_line_items_from_order(cls, order, other_attrs):
+    def create_invoice_and_line_items_from_order(cls, order, other_attrs={}):
         attrs = { k: v for (k, v) in other_attrs.iteritems() if k in cls._fields.keys() }
         attrs.update({'order': order, 'status': 'unpaid'})
         new_invoice = cls(**attrs).save()
