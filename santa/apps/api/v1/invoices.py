@@ -37,9 +37,17 @@ def get_invoice(invoice_id):
 def create_invoice():
     data = parse_request(request)
 
-    new_invoice = Invoice(**{ k: v for (k, v) in data.iteritems() if k in Invoice._fields.keys() })
+    # Prevent overwriting access_key via APIs.
+    # TODO: We should move this to the model level.
+    if 'access_key' in data:
+        del data['access_key']
 
-    new_invoice.save()
+    order_id = data.get('order')
+    order = Order.objects(id=order_id).first()
+    if not order:
+        raise ApiException('order not exist', 400)
+
+    new_invoice = Invoice.create_invoice_and_line_items_from_order(order, data)
 
     return render_json(me_to_json(new_invoice), status=201)
 
@@ -47,6 +55,11 @@ def create_invoice():
 @require_app_auth
 def update_invoice(invoice_id):
     data = parse_request(request)
+
+    # Prevent overwriting access_key via APIs.
+    # TODO: We should move this to the model level.
+    if 'access_key' in data:
+        del data['access_key']
 
     invoice = Invoice.objects(id=invoice_id).first()
     if not invoice:
