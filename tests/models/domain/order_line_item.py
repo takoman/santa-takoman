@@ -53,22 +53,24 @@ class OrderLineItemTests(AppTestCase):
         order_line_item.save()
         self.assertEqual(order_line_item.product, product)
 
-    def test_update_order_total_signal(self):
+    def test_update_order_total_signal_after_create_update(self):
         order = OrderFactory.create()
-        order_line_items = []
-        order_line_items.append(OrderLineItemFactory(
-            order=order, type='product', price=299, quantity=3))
-        order_line_items.append(OrderLineItemFactory(
-            order=order, type='coupon', price=-100, quantity=2))
-        order_line_items.append(OrderLineItemFactory(
-            order=order, type='commission', price=250, quantity=1))
-        order.order_line_items = order_line_items
-        order.save()
-        order.order_line_items[0].price = 289
-        order.order_line_items[0].save()
-        order.order_line_items[1].quantity = 1
-        order.order_line_items[1].save()
+        item1 = OrderLineItemFactory.create(order=order, type='product', price=299, quantity=3)
+        item2 = OrderLineItemFactory.create(order=order, type='coupon', price=-100, quantity=2)
+        OrderLineItemFactory.create(order=order, type='commission', price=250, quantity=1)
+        item1.price = 289
+        item1.save()
+        item2.quantity = 1
+        item2.save()
         self.assertEqual(order.total, 289 * 3 + -100 + 250)
+
+    def test_update_order_total_signal_after_delete(self):
+        order = OrderFactory.create()
+        OrderLineItemFactory.create(order=order, type='product', price=299, quantity=3)
+        item = OrderLineItemFactory.create(order=order, type='coupon', price=-100, quantity=2)
+        self.assertEqual(order.total, 299 * 3 + -100 * 2)
+        item.delete()
+        self.assertEqual(order.total, 299 * 3)
 
 if __name__ == '__main__':
     unittest.main()

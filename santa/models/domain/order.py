@@ -187,7 +187,6 @@ class Order(UpdatableMixin, UpdatedAtMixin, Document):
     shipping_address  = EmbeddedDocumentField(Location)
 
     status            = StringField(choices=ORDER_STATUSES, default=u'new')
-    order_line_items  = ListField(ReferenceField('OrderLineItem'))
     total             = FloatField()  # in target currency
     currency_source   = StringField(choices=SUPPORTED_CURRENCIES)
     currency_target   = StringField(choices=SUPPORTED_CURRENCIES, default=u'TWD')
@@ -220,7 +219,13 @@ class Order(UpdatableMixin, UpdatedAtMixin, Document):
         return
 
     def calculate_total(self):
-        return sum([item.price * item.quantity for item in self.order_line_items])
+        from santa.models.domain.order_line_item import OrderLineItem
+        # Have to query by self.id (instead of self) in case that the order
+        # hasn't been created. Otherwise, we will get a ValidationError since
+        # the order object isn't in the database yet.
+        # ValidationError: You can only reference documents once they have been saved to the database
+        order_line_items = OrderLineItem.objects(order=self.id)
+        return sum([item.price * item.quantity for item in order_line_items])
 
 signals.pre_save.connect(Order.update_total, sender=Order)
 signals.pre_save.connect(Order.set_access_key, sender=Order)

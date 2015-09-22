@@ -36,5 +36,6 @@ class OrderLineItem(UpdatedAtMixin, Document):
         line_item = document
         line_item.order.save()
 
+# Update the order total when an order line item is created/updated/deleted.
 signals.post_save.connect(OrderLineItem.update_order_total, sender=OrderLineItem)
-# TODO: We should update the total when an order line item is created/updated/deleted.
+signals.post_delete.connect(OrderLineItem.update_order_total, sender=OrderLineItem)
