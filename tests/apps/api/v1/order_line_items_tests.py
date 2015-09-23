@@ -209,8 +209,13 @@ class OrderLineItemsEndpointsTests(AppTestCase):
                                       headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_item = json.loads(res.get_data())
-        self.assertDictEqual(item, deleted_item)
         self.assertEqual(len(OrderLineItem.objects()), 3)
+
+        # TODO: After the order line item is deleted, the order total is updated.
+        # Let's not compare the order total for now.
+        item['order'].pop('total', None)
+        deleted_item['order'].pop('total', None)
+        self.assertDictEqual(item, deleted_item)
 
     def test_delete_a_non_existing_order_line_item(self):
         res = self.test_client.delete('api/v1/order_line_items/' + str(ObjectId()),
