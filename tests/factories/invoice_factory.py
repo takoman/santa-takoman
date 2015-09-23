@@ -12,9 +12,6 @@ class InvoiceFactory(MongoEngineFactory):
         model = Invoice
 
     order = factory.SubFactory(OrderFactory)
-    # TODO: We should just have an invoice reference in invoice line item.
-    # https://github.com/takoman/santa/issues/119
-    invoice_line_items = []
     total = 0.00
     status = 'draft'
     notes = '不隨便的 invoice 備註'

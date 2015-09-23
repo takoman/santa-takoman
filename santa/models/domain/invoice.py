@@ -15,7 +15,6 @@ INVOICE_STATUSES = [
 class Invoice(UpdatedAtMixin, Document):
     invoice_no          = SequenceField(value_decorator=lambda x: "%012d" % (x,))
     order               = ReferenceField(Order, required=True)
-    invoice_line_items  = ListField(ReferenceField(InvoiceLineItem), default=[])
     total               = FloatField()  # in target currency
     status              = StringField(choices=INVOICE_STATUSES, default='draft')
     notes               = StringField()
@@ -42,7 +41,13 @@ class Invoice(UpdatedAtMixin, Document):
         return
 
     def calculate_total(self):
-        return sum([item.price * item.quantity for item in self.invoice_line_items])
+        from santa.models.domain.invoice_line_item import InvoiceLineItem
+        # Have to query by self.id (instead of self) in case that the invoice
+        # hasn't been created. Otherwise, we will get a ValidationError since
+        # the invoice object isn't in the database yet.
+        # ValidationError: You can only reference documents once they have been saved to the database
+        invoice_line_items = InvoiceLineItem.objects(invoice=self.id)
+        return sum([item.price * item.quantity for item in invoice_line_items])
 
     def create_invoice_line_items(self):
         """Create invoice line items from the order line items of the order.

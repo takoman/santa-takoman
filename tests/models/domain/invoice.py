@@ -16,8 +16,8 @@ class InvoiceTests(AppTestCase):
             Invoice().save()
 
     def test_defined_properties(self):
-        for p in ['invoice_no', 'order', 'invoice_line_items', 'total', 'status',
-                  'notes', 'due_at', 'access_key', 'created_at', 'updated_at']:
+        for p in ['invoice_no', 'order', 'total', 'status', 'notes', 'due_at', 'access_key',
+                  'created_at', 'updated_at']:
             self.assertTrue(hasattr(self.invoice, p))
 
     def test_allowed_status(self):
@@ -35,27 +35,21 @@ class InvoiceTests(AppTestCase):
         self.assertEqual(self.invoice.status, 'draft')
 
     def test_calculate_total(self):
-        invoice_line_items = []
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=299, quantity=3))
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=-100, quantity=2))
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=250, quantity=1))
-        self.invoice.invoice_line_items = invoice_line_items
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=299, quantity=3)
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=-100, quantity=2)
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=250, quantity=1)
         self.assertEqual(self.invoice.calculate_total(), 299 * 3 + -100 * 2 + 250)
 
     def test_update_total_signal(self):
-        invoice_line_items = []
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=299, quantity=3))
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=-100, quantity=2))
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=self.invoice, price=250, quantity=1))
-        self.invoice.invoice_line_items = invoice_line_items
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=299, quantity=3)
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=-100, quantity=2)
+        InvoiceLineItemFactory.create(invoice=self.invoice, price=250, quantity=1)
         self.invoice.save()
         self.assertEqual(self.invoice.total, 299 * 3 + -100 * 2 + 250)
+
+    def test_update_total_signal_for_new_invoice(self):
+        invoice = InvoiceFactory.create()
+        self.assertEqual(invoice.total, 0)
 
     def test_create_invoice_line_items(self):
         order = OrderFactory.create()

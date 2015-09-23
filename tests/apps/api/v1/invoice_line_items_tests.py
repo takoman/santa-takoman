@@ -228,8 +228,13 @@ class InvoiceLineItemsEndpointsTests(AppTestCase):
                                       headers={'X-XAPP-TOKEN': self.client_app_token})
         self.assertEqual(res.status_code, 200)
         deleted_item = json.loads(res.get_data())
-        self.assertDictEqual(item, deleted_item)
         self.assertEqual(len(InvoiceLineItem.objects()), 3)
+
+        # TODO: After the invoice line item is deleted, the invoice total is updated.
+        # Let's not compare the invoice total for now.
+        item['invoice'].pop('total', None)
+        deleted_item['invoice'].pop('total', None)
+        self.assertDictEqual(item, deleted_item)
 
     def test_delete_a_non_existing_invoice_line_item(self):
         res = self.test_client.delete('api/v1/invoice_line_items/' + str(ObjectId()),
