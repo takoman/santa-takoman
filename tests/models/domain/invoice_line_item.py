@@ -26,21 +26,24 @@ class InvoiceLineItemTests(AppTestCase):
 
     def test_update_invoice_total_signal_after_updated(self):
         invoice = InvoiceFactory.create()
-        invoice_line_items = []
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=invoice, price=299, quantity=3))
-        invoice_line_items.append(InvoiceLineItemFactory.create(
-            invoice=invoice, price=-100, quantity=2))
-        invoice.invoice_line_items = invoice_line_items
-        invoice.save()
-        self.assertEqual(len(invoice.invoice_line_items), 2)
+        item1 = InvoiceLineItemFactory.create(invoice=invoice, price=299, quantity=3)
+        item2 = InvoiceLineItemFactory.create(invoice=invoice, price=-100, quantity=2)
         self.assertEqual(invoice.total, 299 * 3 + -100 * 2)
-        invoice.invoice_line_items[0].price = 289
-        invoice.invoice_line_items[0].save()
-        invoice.invoice_line_items[1].quantity = 1
-        invoice.invoice_line_items[1].save()
-        self.assertEqual(len(invoice.invoice_line_items), 2)
+        item1.price = 289
+        item1.save()
+        item2.quantity = 1
+        item2.save()
         self.assertEqual(invoice.total, 289 * 3 + -100)
+
+    def test_update_invoice_total_signal_after_delete(self):
+        invoice = InvoiceFactory.create()
+        item1 = InvoiceLineItemFactory.create(invoice=invoice, price=299, quantity=3)
+        item2 = InvoiceLineItemFactory.create(invoice=invoice, price=-100, quantity=2)
+        self.assertEqual(invoice.total, 299 * 3 + -100 * 2)
+        item1.price = 289
+        item1.save()
+        item2.delete()
+        self.assertEqual(invoice.total, 289 * 3)
 
 if __name__ == '__main__':
     unittest.main()

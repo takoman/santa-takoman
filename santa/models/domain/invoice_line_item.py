@@ -28,3 +28,4 @@ class InvoiceLineItem(UpdatedAtMixin, Document):
 
 # Update the invoice total when an invoice line item is created/updated/deleted.
 signals.post_save.connect(InvoiceLineItem.update_invoice_total, sender=InvoiceLineItem)
+signals.post_delete.connect(InvoiceLineItem.update_invoice_total, sender=InvoiceLineItem)

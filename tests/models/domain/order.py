@@ -57,25 +57,15 @@ class OrderTests(AppTestCase):
         self.assertEqual(self.order.currency_target, 'TWD')
 
     def test_calculate_total(self):
-        order_line_items = []
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='product', price=299, quantity=3))
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='coupon', price=-100, quantity=2))
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='commission', price=250, quantity=1))
-        self.order.order_line_items = order_line_items
+        OrderLineItemFactory.create(order=self.order, type='product', price=299, quantity=3)
+        OrderLineItemFactory.create(order=self.order, type='coupon', price=-100, quantity=2)
+        OrderLineItemFactory.create(order=self.order, type='commission', price=250, quantity=1)
         self.assertEqual(self.order.calculate_total(), 299 * 3 + -100 * 2 + 250)
 
     def test_update_total_signal(self):
-        order_line_items = []
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='product', price=299, quantity=3))
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='coupon', price=-100, quantity=2))
-        order_line_items.append(OrderLineItemFactory.create(
-            order=self.order, type='commission', price=250, quantity=1))
-        self.order.order_line_items = order_line_items
+        OrderLineItemFactory.create(order=self.order, type='product', price=299, quantity=3)
+        OrderLineItemFactory.create(order=self.order, type='coupon', price=-100, quantity=2)
+        OrderLineItemFactory.create(order=self.order, type='commission', price=250, quantity=1)
         self.order.save()
         self.assertEqual(self.order.total, 299 * 3 + -100 * 2 + 250)
 
