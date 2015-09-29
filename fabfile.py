@@ -4,7 +4,7 @@ from fabric.api import *
 env.use_ssh_config = True  # use local ssh_config
 
 def staging():
-    env.hosts = ['stagingapi.takoman.co']
+    env.hosts = ['api-staging.takoman.co']
 
 def production():
     env.hosts = ['api.takoman.co']
