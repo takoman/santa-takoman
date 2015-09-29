@@ -22,6 +22,7 @@ ssp:
 	esac; \
 	echo 'Reloading Supervisord config and restarting Santa...'; \
 	supervisorctl -c $(SUPERVISORD_DIR)/santa.conf update; \
+	supervisorctl -c $(SUPERVISORD_DIR)/santa.conf stop all; \
 	supervisorctl -c $(SUPERVISORD_DIR)/santa.conf start all; \
 
 # Start the shell
