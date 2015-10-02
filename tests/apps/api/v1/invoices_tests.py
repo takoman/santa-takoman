@@ -31,6 +31,23 @@ class InvoicesEndpointsTests(AppTestCase):
         expected = json.loads(me_to_json(Invoice.objects))
         self.assertListEqual(invoices, expected)
 
+    def test_get_invoices_by_order_id(self):
+        InvoiceFactory.create()
+        InvoiceFactory.create()
+        res = self.test_client.get(
+            '/api/v1/invoices', headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoices = json.loads(res.get_data())
+        self.assertEqual(len(invoices), 3)
+
+        res = self.test_client.get('/api/v1/invoices?order_id=' + str(self.invoice.order.id),
+                                   headers={'X-XAPP-TOKEN': self.client_app_token})
+        self.assertEqual(res.status_code, 200)
+        invoices = json.loads(res.get_data())
+        self.assertEqual(len(invoices), 1)
+        expected = json.loads(me_to_json(Invoice.objects(order=str(self.invoice.order.id))))
+        self.assertListEqual(invoices, expected)
+
     #
     # GET /invoices/<invoice_id>
     #
